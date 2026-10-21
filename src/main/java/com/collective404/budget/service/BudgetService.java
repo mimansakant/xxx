@@ -123,15 +123,18 @@ public final class BudgetService {
             }
 
             /* check if category alr exists */
-            boolean categoryExists = allCategories.stream()
-            .anyMatch(b ->
-                b.getBudgetId().equals(budgetId.trim()) &&
-                b.getName().equalsIgnoreCase(name.trim())
-            );
-            if (categoryExists) {
+            Category existingCategory = allCategories.stream()
+            .filter(category ->
+                category.getBudgetId().equals(budgetId.trim()) &&
+                category.getName().equalsIgnoreCase(name.trim())
+            )
+            .findFirst()
+            .orElse(null);
+            if (existingCategory != null) {
                 result.put("success", false);
                 result.put("error", 409);
                 result.put("reason", "category with given name already exists");
+                result.put("existingCategoryId", existingCategory.getId());
                 return result;
             }
 
