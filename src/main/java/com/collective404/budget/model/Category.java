@@ -85,7 +85,7 @@ public final class Category {
      * @param id The budget ID
      */
     public void setBudgetId(String id) {
-        this.budgetId = budgetId;
+        this.budgetId = id;
     }
 
     /**
