@@ -52,8 +52,8 @@ class BudgetControllerTest {
         final ResponseEntity<?> response = controller.getBudgetReport(BUDGET_ID);
 
         assertAll(
-                () -> assertEquals(HttpStatus.OK, response.getStatusCode(), "status 200"),
-                () -> assertSame(report, response.getBody(), "body is the report"));
+                () -> assertEquals(HttpStatus.OK, response.getStatusCode()),
+                () -> assertSame(report, response.getBody()));
     }
 
     @Test
@@ -63,21 +63,15 @@ class BudgetControllerTest {
         final ResponseEntity<?> response = controller.getBudgetReport(BUDGET_ID);
 
         assertAll(
-                () -> assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode(), "status 404"),
-                () -> assertEquals(404, ((Map<?, ?>) response.getBody()).get("status"), "404 in body"));
+                () -> assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode()),
+                () -> assertEquals(404, ((Map<?, ?>) response.getBody()).get("status")));
     }
 
     @Test
-    void returns400ForNonUuidId() throws IOException {
+    void returns400ForNonUuidIdAndSkipsService() throws IOException {
         final ResponseEntity<?> response = controller.getBudgetReport("not-a-uuid");
 
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode(), "status 400");
-    }
-
-    @Test
-    void badIdNeverReachesService() throws IOException {
-        controller.getBudgetReport("not-a-uuid");
-
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         verify(budgetService, never()).getBudgetReport(anyString());
     }
 
@@ -88,16 +82,16 @@ class BudgetControllerTest {
         final ResponseEntity<?> response = controller.getBudgetReport(BUDGET_ID);
 
         assertAll(
-                () -> assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode(), "status 500"),
-                () -> assertEquals(500, ((Map<?, ?>) response.getBody()).get("status"), "500 in body"));
+                () -> assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode()),
+                () -> assertEquals(500, ((Map<?, ?>) response.getBody()).get("status")));
     }
 
     @Test
     void uuidCheckRejectsBadInput() {
         assertAll(
-                () -> assertTrue(BudgetController.isValidUuid(BUDGET_ID), "real UUID passes"),
-                () -> assertFalse(BudgetController.isValidUuid(null), "null fails"),
-                () -> assertFalse(BudgetController.isValidUuid("  "), "blank fails"),
-                () -> assertFalse(BudgetController.isValidUuid("1-1-1-1-1"), "short form fails"));
+                () -> assertTrue(BudgetController.isValidUuid(BUDGET_ID)),
+                () -> assertFalse(BudgetController.isValidUuid(null)),
+                () -> assertFalse(BudgetController.isValidUuid("  ")),
+                () -> assertFalse(BudgetController.isValidUuid("1-1-1-1-1")));
     }
 }
