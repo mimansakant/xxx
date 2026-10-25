@@ -1,183 +1,97 @@
-
 package com.collective404.budget.controller;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import com.collective404.budget.dto.BudgetReportResponse;
 import com.collective404.budget.service.BudgetService;
-import com.collective404.budget.store.BudgetDataStore;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import java.nio.file.Files;
-import java.nio.file.Path;
-
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 /**
- * Tests for the budget controller.
+ * Status-code tests for GET /budget/{budgetId}. The service is mocked.
  */
+@ExtendWith(MockitoExtension.class)
 class BudgetControllerTest {
 
-    private static final String ENDPOINT = "/v1/budget/category";
+    private static final String BUDGET_ID = "11111111-1111-1111-1111-111111111111";
 
-    private MockMvc mockMvc;
+    @Mock
+    private BudgetService budgetService;
 
-    @TempDir
-    Path tempDir;
+    private BudgetController controller;
 
     @BeforeEach
-    void setUp() throws Exception {
-        Files.writeString(tempDir.resolve("clients.json"), """
-            ["client-1"]
-            """);
-
-        Files.writeString(tempDir.resolve("budgets.json"), """
-            [
-                {"id": "budget-1", "name": "Budget One"}
-            ]
-            """);
-
-        Files.writeString(tempDir.resolve("categories.json"), """
-            [
-                {
-                    "budgetId": "budget-1",
-                    "id": "category-1",
-                    "name": "Groceries",
-                    "limit": 200.00
-                },
-                {
-                    "budgetId": "budget-1",
-                    "id": "category-2",
-                    "name": "Rent",
-                    "limit": 1000.00
-                }
-            ]
-            """);
-
-        Files.writeString(tempDir.resolve("purchases.json"), "[]");
-
-        BudgetDataStore dataStore = new BudgetDataStore(
-            new ObjectMapper(), tempDir);
-
-        mockMvc = MockMvcBuilders.standaloneSetup(
-            new BudgetController(new BudgetService(dataStore))).build();
+    void setUp() {
+        controller = new BudgetController(budgetService);
     }
 
     @Test
-    void updateCategoryReturnsOk() throws Exception {
-        mockMvc.perform(patch(ENDPOINT)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("""
-                    {
-                        "clientId": "client-1",
-                        "budgetId": "budget-1",
-                        "categoryId": "category-1",
-                        "name": "Food",
-                        "limit": 150.00
-                    }
-                    """))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.id").value("category-1"))
-            .andExpect(jsonPath("$.name").value("Food"))
-            .andExpect(jsonPath("$.limit").value(150.00));
+    void returns200WithReport() throws IOException {
+        final BudgetReportResponse report = new BudgetReportResponse(BUDGET_ID, "Fall semester",
+                new BigDecimal("200.00"), new BigDecimal("50.00"), new BigDecimal("150.00"),
+                new BigDecimal("25.00"), List.of(), List.of());
+        when(budgetService.getBudgetReport(BUDGET_ID)).thenReturn(report);
+
+        final ResponseEntity<?> response = controller.getBudgetReport(BUDGET_ID);
+
+        assertAll(
+                () -> assertEquals(HttpStatus.OK, response.getStatusCode()),
+                () -> assertSame(report, response.getBody()));
     }
 
     @Test
-    void updateCategoryNameOnly() throws Exception {
-        mockMvc.perform(patch(ENDPOINT)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("""
-                    {
-                        "clientId": "client-1",
-                        "budgetId": "budget-1",
-                        "categoryId": "category-1",
-                        "name": "Food"
-                    }
-                    """))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.name").value("Food"))
-            .andExpect(jsonPath("$.limit").value(200.00));
+    void returns404WhenBudgetMissing() throws IOException {
+        when(budgetService.getBudgetReport(BUDGET_ID)).thenReturn(null);
+
+        final ResponseEntity<?> response = controller.getBudgetReport(BUDGET_ID);
+
+        assertAll(
+                () -> assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode()),
+                () -> assertEquals(404, ((Map<?, ?>) response.getBody()).get("status")));
     }
 
     @Test
-    void updateCategoryLimitOnly() throws Exception {
-        mockMvc.perform(patch(ENDPOINT)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("""
-                    {
-                        "clientId": "client-1",
-                        "budgetId": "budget-1",
-                        "categoryId": "category-1",
-                        "limit": 150.00
-                    }
-                    """))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.name").value("Groceries"))
-            .andExpect(jsonPath("$.limit").value(150.00));
+    void returns400ForNonUuidIdAndSkipsService() throws IOException {
+        final ResponseEntity<?> response = controller.getBudgetReport("not-a-uuid");
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        verify(budgetService, never()).getBudgetReport(anyString());
     }
 
     @Test
-    void updateCategoryReturnsBadRequest() throws Exception {
-        mockMvc.perform(patch(ENDPOINT)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("""
-                    {
-                        "clientId": "client-1",
-                        "budgetId": "budget-1",
-                        "categoryId": "category-1"
-                    }
-                    """))
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.success").value(false))
-            .andExpect(jsonPath("$.error").value(400));
+    void returns500WhenDataUnavailable() throws IOException {
+        when(budgetService.getBudgetReport(BUDGET_ID)).thenThrow(new IOException("disk gone"));
+
+        final ResponseEntity<?> response = controller.getBudgetReport(BUDGET_ID);
+
+        assertAll(
+                () -> assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode()),
+                () -> assertEquals(500, ((Map<?, ?>) response.getBody()).get("status")));
     }
 
     @Test
-    void updateCategoryReturnsNotFound() throws Exception {
-        mockMvc.perform(patch(ENDPOINT)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("""
-                    {
-                        "clientId": "client-1",
-                        "budgetId": "budget-1",
-                        "categoryId": "missing-category",
-                        "name": "Food"
-                    }
-                    """))
-            .andExpect(status().isNotFound())
-            .andExpect(jsonPath("$.success").value(false))
-            .andExpect(jsonPath("$.error").value(404));
-    }
-
-    @Test
-    void updateCategoryReturnsConflict() throws Exception {
-        mockMvc.perform(patch(ENDPOINT)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("""
-                    {
-                        "clientId": "client-1",
-                        "budgetId": "budget-1",
-                        "categoryId": "category-1",
-                        "name": "rEnT"
-                    }
-                    """))
-            .andExpect(status().isConflict())
-            .andExpect(jsonPath("$.success").value(false))
-            .andExpect(jsonPath("$.error").value(409))
-            .andExpect(jsonPath("$.existingCategoryId").value("category-2"));
-    }
-
-    @Test
-    void updateCategoryReturnsBadRequestForMalformedJson() throws Exception {
-        mockMvc.perform(patch(ENDPOINT)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("{"))
-            .andExpect(status().isBadRequest());
+    void uuidCheckRejectsBadInput() {
+        assertAll(
+                () -> assertTrue(BudgetController.isValidUuid(BUDGET_ID)),
+                () -> assertFalse(BudgetController.isValidUuid(null)),
+                () -> assertFalse(BudgetController.isValidUuid("  ")),
+                () -> assertFalse(BudgetController.isValidUuid("1-1-1-1-1")));
     }
 }
