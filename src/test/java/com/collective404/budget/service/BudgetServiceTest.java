@@ -1,222 +1,237 @@
-
 package com.collective404.budget.service;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import com.collective404.budget.dto.BudgetReportResponse;
+import com.collective404.budget.dto.BudgetReportResponse.CategoryReport;
 import com.collective404.budget.model.Budget;
 import com.collective404.budget.model.Category;
+import com.collective404.budget.model.Purchase;
 import com.collective404.budget.store.BudgetDataStore;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.collective404.budget.store.BudgetDataStore.DataStoreOperation;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.math.BigDecimal;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
+/**
+ * Mockito-backed tests for budget report calculations.
+ */
+@ExtendWith(MockitoExtension.class)
 class BudgetServiceTest {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private static final String BUDGET_ID = "11111111-1111-1111-1111-111111111111";
+    private static final String OTHER_BUDGET_ID = "99999999-9999-9999-9999-999999999999";
+    private static final String FOOD_ID = "22222222-2222-2222-2222-222222222222";
+    private static final String RENT_ID = "33333333-3333-3333-3333-333333333333";
+    private static final String OTHER_CAT_ID = "44444444-4444-4444-4444-444444444444";
+    private static final BigDecimal ZERO = new BigDecimal("0.00");
 
-    @TempDir
-    Path tempDir;
-
+    @Mock
     private BudgetDataStore dataStore;
+
     private BudgetService service;
 
     @BeforeEach
-    void setUp() throws Exception {
-        Files.writeString(tempDir.resolve("clients.json"), "[\"client-1\"]");
-        Files.writeString(
-            tempDir.resolve("budgets.json"),
-            "[{\"id\":\"budget-1\",\"name\":\"Budget One\"},"
-                + "{\"id\":\"budget-2\",\"name\":\"Budget Two\"}]"
-        );
-        Files.writeString(tempDir.resolve("categories.json"), "[]");
-        dataStore = new BudgetDataStore(objectMapper, tempDir);
+    void setUp() throws IOException {
         service = new BudgetService(dataStore);
+        lenient().when(dataStore.withExclusiveLock(any())).thenAnswer(
+                invocation -> invocation.<DataStoreOperation<?>>getArgument(0).execute());
+    }
+
+    private static BigDecimal money(final String value) {
+        return new BigDecimal(value);
+    }
+
+    private static Category category(final String id, final String name, final String limit) {
+        return new Category(BUDGET_ID, id, name, money(limit));
+    }
+
+    private static Purchase purchase(
+            final String id,
+            final String categoryId,
+            final String amount,
+            final String date
+    ) {
+        return new Purchase(categoryId, id, "item " + id, money(amount), date);
+    }
+
+    private void givenData(
+            final List<Category> categories,
+            final List<Purchase> purchases
+    ) throws IOException {
+        when(dataStore.<Budget>readList(eq(BudgetService.BUDGETS_FILE), any()))
+                .thenReturn(List.of(new Budget(BUDGET_ID, "Fall semester")));
+        when(dataStore.<Category>readList(eq(BudgetService.CATEGORIES_FILE), any()))
+                .thenReturn(categories);
+        when(dataStore.<Purchase>readList(eq(BudgetService.PURCHASES_FILE), any()))
+                .thenReturn(purchases);
     }
 
     @Test
-    void createsAndPersistsCategoryWithRoundedLimit() throws Exception {
-        Map<String, Object> result = service.createCategory(
-            "client-1",
-            "budget-1",
-            "Groceries",
-            new BigDecimal("23.459")
-        );
+    void unknownBudgetReturnsNullAndSkipsPurchases() throws IOException {
+        when(dataStore.<Budget>readList(eq(BudgetService.BUDGETS_FILE), any()))
+                .thenReturn(List.of(new Budget(OTHER_BUDGET_ID, "Someone else")));
 
-        assertEquals(true, result.get("success"));
-        Category category = (Category) result.get("returnValue");
-        assertNotNull(category);
-        assertEquals("budget-1", category.getBudgetId());
-        assertEquals("Groceries", category.getName());
-        assertEquals(new BigDecimal("23.45"), category.getLimit());
-
-        List<Category> savedCategories = readCategories();
-        assertEquals(1, savedCategories.size());
-        assertEquals(category.getId(), savedCategories.get(0).getId());
-        assertEquals(new BigDecimal("23.45"), savedCategories.get(0).getLimit());
+        assertNull(service.getBudgetReport(BUDGET_ID));
+        verify(dataStore, never()).readList(eq(BudgetService.PURCHASES_FILE), any());
     }
 
     @Test
-    void rejectsCaseInsensitiveDuplicateInSameBudgetButAllowsOtherBudget()
-            throws Exception {
-        assertEquals(true, service.createCategory(
-            "client-1",
-            "budget-1",
-            "Groceries",
-            new BigDecimal("20.00")
-        ).get("success"));
+    void emptyBudgetsFileReturnsNull() throws IOException {
+        when(dataStore.<Budget>readList(eq(BudgetService.BUDGETS_FILE), any())).thenReturn(null);
 
-        Map<String, Object> duplicateResult = service.createCategory(
-            "client-1",
-            "budget-1",
-            "gROCERIES",
-            new BigDecimal("30.00")
-        );
-        assertEquals(false, duplicateResult.get("success"));
-        assertEquals(409, duplicateResult.get("error"));
-        assertEquals(1, readCategories().size());
-
-        Map<String, Object> otherBudgetResult = service.createCategory(
-            "client-1",
-            "budget-2",
-            "Groceries",
-            new BigDecimal("30.00")
-        );
-        assertEquals(true, otherBudgetResult.get("success"));
-        assertEquals(2, readCategories().size());
+        assertNull(service.getBudgetReport(BUDGET_ID));
     }
 
     @Test
-    void createsBudgetWhenBudgetIdIsOmitted() throws Exception {
-        Map<String, Object> result = service.createCategory(
-            "client-1",
-            null,
-            "Utilities",
-            new BigDecimal("75.00")
-        );
+    void budgetWithNoCategoriesHasZeroTotals() throws IOException {
+        givenData(List.of(), List.of());
+        final BudgetReportResponse report = service.getBudgetReport(BUDGET_ID);
 
-        assertEquals(true, result.get("success"));
-        Category category = (Category) result.get("returnValue");
-        List<Budget> savedBudgets = readBudgets();
-        assertEquals(3, savedBudgets.size());
-        assertTrue(savedBudgets.stream().anyMatch(budget ->
-            budget.getId().equals(category.getBudgetId())
-        ));
-        assertEquals(category.getId(), readCategories().get(0).getId());
+        assertAll(
+                () -> assertEquals(BUDGET_ID, report.budgetId()),
+                () -> assertEquals("Fall semester", report.budgetName()),
+                () -> assertEquals(ZERO, report.totalSpent()),
+                () -> assertEquals(ZERO, report.totalLimit()),
+                () -> assertNull(report.totalPercentUsed()),
+                () -> assertTrue(report.categories().isEmpty()),
+                () -> assertTrue(report.purchases().isEmpty()));
     }
 
     @Test
-    void rejectsUnknownClientAndBudget() throws Exception {
-        Map<String, Object> unknownClient = service.createCategory(
-            "missing-client",
-            "budget-1",
-            "Groceries",
-            new BigDecimal("20.00")
-        );
-        assertEquals(404, unknownClient.get("error"));
+    void categoryWithNoPurchasesShowsItsFullLimitRemaining() throws IOException {
+        givenData(List.of(category(FOOD_ID, "Food", "200.00")), List.of());
 
-        Map<String, Object> unknownBudget = service.createCategory(
-            "client-1",
-            "missing-budget",
-            "Groceries",
-            new BigDecimal("20.00")
-        );
-        assertEquals(404, unknownBudget.get("error"));
-        assertTrue(readCategories().isEmpty());
+        final CategoryReport food = service.getBudgetReport(BUDGET_ID).categories().get(0);
+
+        assertAll(
+                () -> assertEquals(money("0.00"), food.spent()),
+                () -> assertEquals(money("200.00"), food.remaining()),
+                () -> assertEquals(money("0.00"), food.percentUsed()));
     }
 
     @Test
-    void rejectsInvalidRequiredValuesAndNonPositiveLimits() throws Exception {
-        assertEquals(400, service.createCategory(
-            null,
-            "budget-1",
-            "Groceries",
-            new BigDecimal("20.00")
-        ).get("error"));
-        assertEquals(400, service.createCategory(
-            "client-1",
-            "budget-1",
-            "123!@#",
-            new BigDecimal("20.00")
-        ).get("error"));
-        assertEquals(400, service.createCategory(
-            "client-1",
-            "budget-1",
-            "Groceries",
-            BigDecimal.ZERO
-        ).get("error"));
-        assertFalse(Boolean.TRUE.equals(service.createCategory(
-            "client-1",
-            "budget-1",
-            "Groceries",
-            new BigDecimal("-1.00")
-        ).get("success")));
-        assertTrue(readCategories().isEmpty());
+    void computesCategoryAndOverallNumbers() throws IOException {
+        givenData(
+                List.of(category(FOOD_ID, "Food", "200.00"),
+                        category(RENT_ID, "Rent", "1000.00")),
+                List.of(purchase("p1", FOOD_ID, "75.50", "2026-10-02"),
+                        purchase("p2", RENT_ID, "1000.00", "2026-10-01")));
+        final BudgetReportResponse report = service.getBudgetReport(BUDGET_ID);
+        final CategoryReport food = report.categories().get(0);
+        final CategoryReport rent = report.categories().get(1);
+
+        assertAll(
+                () -> assertEquals(money("75.50"), food.spent()),
+                () -> assertEquals(money("124.50"), food.remaining()),
+                () -> assertEquals(money("37.75"), food.percentUsed()),
+                () -> assertEquals(ZERO, rent.remaining()),
+                () -> assertEquals(money("100.00"), rent.percentUsed()),
+                () -> assertEquals(money("1200.00"), report.totalLimit()),
+                () -> assertEquals(money("1075.50"), report.totalSpent()),
+                () -> assertEquals(money("124.50"), report.totalRemaining()),
+                () -> assertEquals(money("89.63"), report.totalPercentUsed()));
     }
 
     @Test
-    void concurrentRequestsForSameCategoryCreateOnlyOne() throws Exception {
-        ExecutorService executor = Executors.newFixedThreadPool(2);
-        CountDownLatch start = new CountDownLatch(1);
-        try {
-            Future<Map<String, Object>> first = executor.submit(() -> {
-                start.await();
-                return service.createCategory(
-                    "client-1",
-                    "budget-1",
-                    "Groceries",
-                    new BigDecimal("20.00")
-                );
-            });
-            Future<Map<String, Object>> second = executor.submit(() -> {
-                start.await();
-                return service.createCategory(
-                    "client-1",
-                    "budget-1",
-                    "groceries",
-                    new BigDecimal("25.00")
-                );
-            });
+    void overspentCategoryHasNegativeRemaining() throws IOException {
+        givenData(List.of(category(FOOD_ID, "Food", "100.00")),
+                List.of(purchase("p1", FOOD_ID, "150.00", "2026-10-01")));
+        final CategoryReport food = service.getBudgetReport(BUDGET_ID).categories().get(0);
 
-            start.countDown();
-            List<Map<String, Object>> results = List.of(first.get(), second.get());
-            assertEquals(1, results.stream()
-                .filter(result -> Boolean.TRUE.equals(result.get("success")))
-                .count());
-            assertEquals(1, results.stream()
-                .filter(result -> Integer.valueOf(409).equals(result.get("error")))
-                .count());
-            assertEquals(1, readCategories().size());
-        } finally {
-            executor.shutdownNow();
-        }
+        assertAll(
+                () -> assertEquals(money("-50.00"), food.remaining()),
+                () -> assertEquals(money("150.00"), food.percentUsed()));
     }
 
-    private List<Category> readCategories() throws Exception {
-        return objectMapper.readValue(
-            tempDir.resolve("categories.json").toFile(),
-            new TypeReference<>() { }
-        );
+    @Test
+    void roundsPurchasesUpAndRemainingDown() throws IOException {
+        givenData(List.of(category(FOOD_ID, "Food", "10.00")),
+                List.of(purchase("p1", FOOD_ID, "3.331", "2026-10-01")));
+        final BudgetReportResponse report = service.getBudgetReport(BUDGET_ID);
+
+        assertAll(
+                () -> assertEquals(money("3.34"), report.categories().get(0).spent()),
+                () -> assertEquals(money("6.66"), report.categories().get(0).remaining()),
+                () -> assertEquals(money("3.34"), report.purchases().get(0).amount()));
     }
 
-    private List<Budget> readBudgets() throws Exception {
-        return objectMapper.readValue(
-            tempDir.resolve("budgets.json").toFile(),
-            new TypeReference<>() { }
-        );
+    @Test
+    void ignoresOtherBudgetsAndOrphanPurchases() throws IOException {
+        givenData(
+                List.of(category(FOOD_ID, "Food", "100.00"),
+                        new Category(OTHER_BUDGET_ID, OTHER_CAT_ID, "Food", money("500.00"))),
+                List.of(purchase("mine", FOOD_ID, "10.00", "2026-10-01"),
+                        purchase("theirs", OTHER_CAT_ID, "99.00", "2026-10-01"),
+                        purchase("orphan", "missing-category", "5.00", "2026-10-01")));
+        final BudgetReportResponse report = service.getBudgetReport(BUDGET_ID);
+
+        assertAll(
+                () -> assertEquals(1, report.categories().size()),
+                () -> assertEquals(1, report.purchases().size()),
+                () -> assertEquals("mine", report.purchases().get(0).purchaseId()),
+                () -> assertEquals(money("10.00"), report.totalSpent()));
+    }
+
+    @Test
+    void purchaseShowsItsCategoryName() throws IOException {
+        givenData(List.of(category(FOOD_ID, "Food", "100.00")),
+                List.of(purchase("p1", FOOD_ID, "10.00", "2026-10-01")));
+
+        assertEquals("Food", service.getBudgetReport(BUDGET_ID).purchases().get(0).categoryName());
+    }
+
+    @Test
+    void purchasesAreSortedOldestFirst() throws IOException {
+        givenData(List.of(category(FOOD_ID, "Food", "100.00")),
+                List.of(purchase("late", FOOD_ID, "1.00", "2026-10-20"),
+                        purchase("early", FOOD_ID, "1.00", "2026-10-01")));
+
+        final List<BudgetReportResponse.PurchaseSummary> purchases =
+                service.getBudgetReport(BUDGET_ID).purchases();
+
+        assertEquals(List.of("early", "late"),
+                purchases.stream().map(BudgetReportResponse.PurchaseSummary::purchaseId).toList());
+    }
+
+    @Test
+    void nullCategoryAndPurchaseListsAreTreatedAsEmpty() throws IOException {
+        givenData(null, null);
+        final BudgetReportResponse report = service.getBudgetReport(BUDGET_ID);
+
+        assertAll(
+                () -> assertTrue(report.categories().isEmpty()),
+                () -> assertTrue(report.purchases().isEmpty()));
+    }
+
+    @Test
+    void readFailureIsPassedUp() throws IOException {
+        when(dataStore.<Budget>readList(eq(BudgetService.BUDGETS_FILE), any()))
+                .thenThrow(new IOException("disk gone"));
+
+        assertThrows(IOException.class, () -> service.getBudgetReport(BUDGET_ID));
+    }
+
+    @Test
+    void roundingHelpersTreatNullAsZeroAndZeroLimitHasNoPercent() {
+        assertAll(
+                () -> assertEquals(ZERO, BudgetService.roundUp(null)),
+                () -> assertEquals(ZERO, BudgetService.roundDown(null)),
+                () -> assertNull(BudgetService.percentUsed(ZERO, money("5.00"))));
     }
 }
