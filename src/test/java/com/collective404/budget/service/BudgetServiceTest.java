@@ -57,6 +57,8 @@ class BudgetServiceTest {
             """
         );
 
+        Files.writeString(tempDir.resolve("purchases.json"), "[]");
+
         BudgetDataStore dataStore = new BudgetDataStore(new ObjectMapper(), tempDir);
 
         service = new BudgetService(dataStore);

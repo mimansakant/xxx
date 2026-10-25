@@ -74,8 +74,8 @@ public final class BudgetController {
             response.put("id", category.getId());
             response.put("name", category.getName());
             response.put("limit", category.getLimit());
-            response.put("amountSpent", BigDecimal.ZERO.setScale(2));
-            response.put("remainingAmount", category.getLimit());
+            response.put("amountSpent", result.get("amountSpent"));
+            response.put("remainingAmount", result.get("remainingAmount"));
 
             return ResponseEntity.ok(response);
         }

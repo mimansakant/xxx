@@ -3,6 +3,7 @@ package com.collective404.budget.service;
 
 import com.collective404.budget.model.Budget;
 import com.collective404.budget.model.Category;
+import com.collective404.budget.model.Purchase;
 import com.collective404.budget.store.BudgetDataStore;
 import com.fasterxml.jackson.core.type.TypeReference;
 
@@ -134,6 +135,20 @@ public final class BudgetService {
             }
         }
 
+        // Calculate spending for the category
+        List<Purchase> allPurchases = dataStore.readList(
+            "purchases.json", new TypeReference<>() { });
+
+        BigDecimal amountSpent = BigDecimal.ZERO.setScale(2);
+
+        for (Purchase purchase : allPurchases) {
+            if (purchase.getCategoryId().equals(existingCategory.getId())) {
+                BigDecimal amount = purchase.getAmount()
+                    .setScale(2, RoundingMode.CEILING);
+                amountSpent = amountSpent.add(amount);
+            }
+        }
+
         if (name != null) {
             existingCategory.setName(name.trim());
         }
@@ -142,9 +157,15 @@ public final class BudgetService {
             existingCategory.setLimit(limit.setScale(2, RoundingMode.DOWN));
         }
 
+        // calc remaining budget
+        BigDecimal remainingAmount = existingCategory.getLimit()
+            .subtract(amountSpent).setScale(2, RoundingMode.FLOOR);
+
         dataStore.writeList("categories.json", allCategories);
         result.put("success", true);
         result.put("returnValue", existingCategory);
+        result.put("amountSpent", amountSpent);
+        result.put("remainingAmount", remainingAmount);
 
         return result;
     }
