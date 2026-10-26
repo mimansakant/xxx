@@ -19,7 +19,7 @@ class InputValidatorUnitTests {
     @Test
     void uuidCheckRejectsBadInput() {
         String testID = UUID.randomUUID().toString();
-        assertAll(
+        assertAll("isValidUuid should accept String representations of valid UUIDs and reject all other strings",
                 () -> assertTrue(InputValidator.isValidUuid(BUDGET_ID)),
                 () -> assertTrue(InputValidator.isValidUuid(testID)),
                 () -> assertFalse(InputValidator.isValidUuid(null)),
