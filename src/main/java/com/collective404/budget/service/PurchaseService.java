@@ -13,7 +13,7 @@ import com.collective404.budget.model.Budget;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 import com.collective404.budget.model.Category;
-import com.fasterxml.jackson.databind.JsonNode;
+
 @Service
 public class PurchaseService {
 
@@ -37,16 +37,16 @@ public class PurchaseService {
     validateAmount(request.getAmount());
     final String resolvedCategoryId =
         (categoryId == null || categoryId.isBlank()) ? "Misc" : categoryId;
-    List<JsonNode> clients = dataStore.readList(
-        "clients.json",
-        new TypeReference<List<JsonNode>>() { }
+    List<String> clients = dataStore.readList(
+    "clients.json",
+    new TypeReference<List<String>>() { }
 );
 
 boolean clientExists = clients.stream()
         .anyMatch(client ->
                 request.getClientId() != null
-                && request.getClientId().equals(
-                        client.path("id").asText()
+                && client.equalsIgnoreCase(
+                        request.getClientId().trim()
                 )
         );
 
