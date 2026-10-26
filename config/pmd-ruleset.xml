@@ -8,7 +8,7 @@
     </description>
 
     <rule ref="category/java/bestpractices.xml">
-         <exclude name="JUnitAssertionsShouldIncludeMessage"/>
+         <exclude name="UnitTestAssertionsShouldIncludeMessage"/>
     </rule>
     <rule ref="category/java/errorprone.xml"/>
     <rule ref="category/java/performance.xml"/>
