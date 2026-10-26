@@ -39,7 +39,7 @@ public class PurchaseService {
         (categoryId == null || categoryId.isBlank()) ? "Misc" : categoryId;
     List<JsonNode> clients = dataStore.readList(
         "clients.json",
-        new TypeReference<List<JsonNode>>() {}
+        new TypeReference<List<JsonNode>>() { }
 );
 
 boolean clientExists = clients.stream()
@@ -58,7 +58,7 @@ if (!clientExists) {
 
     List<Budget> budgets = dataStore.readList(
             "budgets.json",
-            new TypeReference<List<Budget>>() {}
+            new TypeReference<List<Budget>>() { }
     );
 
     boolean budgetExists = budgets.stream()
@@ -74,7 +74,7 @@ if (!clientExists) {
     }
 List<Category> categories = dataStore.readList(
         "categories.json",
-        new TypeReference<List<Category>>() {}
+        new TypeReference<List<Category>>() { }
 );
 
 boolean categoryExists = categories.stream()
