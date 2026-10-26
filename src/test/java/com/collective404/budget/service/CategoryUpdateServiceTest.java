@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Tests for BudgetService.
+ * Tests for update category
  */
 class CategoryUpdateServiceTest {
 
@@ -85,7 +85,8 @@ class CategoryUpdateServiceTest {
 
         ObjectMapper mapper = new ObjectMapper();
 
-        List<Category> savedCategories = mapper.readValue(tempDir.resolve("categories.json").toFile(), new TypeReference<List<Category>>() { });
+        List<Category> savedCategories = mapper.readValue(tempDir.resolve("categories.json").toFile(), 
+            new TypeReference<List<Category>>() { });
 
         assertEquals(1, savedCategories.size());
         assertEquals("Food", savedCategories.get(0).getName());
@@ -106,7 +107,8 @@ class CategoryUpdateServiceTest {
 
     @Test
     void updatesLimitOnly() throws Exception {
-        Map<String, Object> result = service.updateCategory("client-1", "budget-1", "category-1", null, new BigDecimal("150.00"));
+        Map<String, Object> result = service.updateCategory("client-1", "budget-1", "category-1", null, 
+            new BigDecimal("150.00"));
 
         assertTrue((Boolean) result.get("success"));
 
@@ -181,6 +183,19 @@ class CategoryUpdateServiceTest {
         assertEquals(409, result.get("error"));
         assertEquals("category-2", result.get("existingCategoryId"));
     }
+    
+    @Test
+    void failedUpdateDoesNotModifyData() throws Exception {
+        Path file = tempDir.resolve("categories.json");
+        String before = Files.readString(file);
 
+        Map<String, Object> result = service.updateCategory(
+            "client-1", "budget-1", "category-1", "123!@#",
+            new BigDecimal("150.00"));
+
+        assertEquals(400, result.get("error"), "Should return 400");
+        assertEquals(before, Files.readString(file),
+            "Invalid update should not modify categories.json");
+    }
 
 }

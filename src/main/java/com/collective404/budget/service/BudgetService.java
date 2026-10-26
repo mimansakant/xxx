@@ -338,14 +338,17 @@ public class BudgetService {
      * @return the updated category or an error
      * @throws IOException if a datastore operation fails
      */
-    public Map<String, Object> updateCategory(String clientId, String budgetId, String categoryId, String name, BigDecimal limit) throws IOException {
+    public Map<String, Object> updateCategory(String clientId, String budgetId, String categoryId, 
+            String name, BigDecimal limit) throws IOException {
         return dataStore.withExclusiveLock(() -> updateCategoryWithLock(clientId, budgetId, categoryId, name, limit));
     }
 
-    private Map<String, Object> updateCategoryWithLock(String clientId, String budgetId, String categoryId, String name, BigDecimal limit) throws IOException {
+    private Map<String, Object> updateCategoryWithLock(String clientId, String budgetId, String categoryId,
+            String name, BigDecimal limit) throws IOException {
         Map<String, Object> result = new HashMap<>();
 
-        if (clientId == null || clientId.isBlank() || budgetId == null || budgetId.isBlank() || categoryId == null || categoryId.isBlank()) {
+        if (clientId == null || clientId.isBlank() || budgetId == null || budgetId.isBlank() || 
+                categoryId == null || categoryId.isBlank()) {
             result.put("success", false);
             result.put("error", 400);
             result.put("reason", "missing required value");
@@ -412,7 +415,8 @@ public class BudgetService {
 
         if (name != null) {
             Category duplicate = allCategories.stream()
-                .filter(c -> c.getBudgetId().equals(budgetId.trim()) && !c.getId().equals(existingCategory.getId()) && c.getName().equalsIgnoreCase(name.trim()))
+                .filter(c -> c.getBudgetId().equals(budgetId.trim()) && !c.getId().equals(existingCategory.getId()) 
+                    && c.getName().equalsIgnoreCase(name.trim()))
                 .findFirst()
                 .orElse(null);
 

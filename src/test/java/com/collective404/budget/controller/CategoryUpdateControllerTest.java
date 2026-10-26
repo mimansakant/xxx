@@ -180,4 +180,22 @@ class CategoryUpdateControllerTest {
                 .content("{"))
             .andExpect(status().isBadRequest());
     }
+
+    @Test
+    void updateCategoryReturns500WhenDataUnavailable() throws Exception {
+        Files.delete(tempDir.resolve("purchases.json"));
+
+        mockMvc.perform(patch(ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                    {
+                        "clientId": "client-1",
+                        "budgetId": "budget-1",
+                        "categoryId": "category-1",
+                        "name": "Food"
+                    }
+                    """))
+            .andExpect(status().isInternalServerError())
+            .andExpect(jsonPath("$.status").value(500));
+    }
 }
