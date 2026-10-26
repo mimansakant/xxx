@@ -21,7 +21,7 @@ those limits.
 | Coverage reporting | JaCoCo |
 | Style checks | Checkstyle |
 | Static analysis | PMD |
-| Project management | Trello |
+| Project management | Google Docs |
 
 The source tree uses the `com.collective404.budget` package. Application code,
 tests, quality-check configuration, and Postman assets are organized under
