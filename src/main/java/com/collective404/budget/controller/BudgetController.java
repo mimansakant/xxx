@@ -52,7 +52,7 @@ public class BudgetController {
          * @return the created category or an error response
          * @throws IOException if the data files can't be accessed
          */
-        @PostMapping("/v1/budget/category")
+        @PostMapping("/budget/category")
         public ResponseEntity<?> createCategory(
                 @RequestBody final CategoryRequest categoryRequest
         ) throws IOException {
