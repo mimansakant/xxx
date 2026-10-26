@@ -45,7 +45,13 @@ public class BudgetController {
                 this.budgetService = budgetService;
         }
 
-
+        /**
+         * Creates a category, optionally in an existing budget owned by the client.
+         *
+         * @param categoryRequest the category and client details
+         * @return the created category or an error response
+         * @throws IOException if the data files can't be accessed
+         */
         @PostMapping("/v1/budget/category")
         public ResponseEntity<?> createCategory(
                 @RequestBody final CategoryRequest categoryRequest
