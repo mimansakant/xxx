@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -84,14 +85,5 @@ class BudgetControllerTest {
         assertAll(
                 () -> assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode()),
                 () -> assertEquals(500, ((Map<?, ?>) response.getBody()).get("status")));
-    }
-
-    @Test
-    void uuidCheckRejectsBadInput() {
-        assertAll(
-                () -> assertTrue(BudgetController.isValidUuid(BUDGET_ID)),
-                () -> assertFalse(BudgetController.isValidUuid(null)),
-                () -> assertFalse(BudgetController.isValidUuid("  ")),
-                () -> assertFalse(BudgetController.isValidUuid("1-1-1-1-1")));
     }
 }

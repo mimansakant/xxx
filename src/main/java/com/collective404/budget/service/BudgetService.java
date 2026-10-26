@@ -167,7 +167,8 @@ public class BudgetService {
         if (budgetId == null || budgetId.isEmpty()) {
             Budget newBudget = new Budget(
                 UUID.randomUUID().toString(),
-                "dont_matter_yet"
+                "dont_matter_yet",
+                    clientId
             );
             allBudgets.add(newBudget);
             dataStore.writeList("budgets.json", allBudgets);

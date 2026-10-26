@@ -75,7 +75,7 @@ class BudgetServiceTest {
             final List<Purchase> purchases
     ) throws IOException {
         when(dataStore.<Budget>readList(eq(BudgetService.BUDGETS_FILE), any()))
-                .thenReturn(List.of(new Budget(BUDGET_ID, "Fall semester")));
+                .thenReturn(List.of(new Budget(BUDGET_ID, "Fall semester", "clientId")));
         when(dataStore.<Category>readList(eq(BudgetService.CATEGORIES_FILE), any()))
                 .thenReturn(categories);
         when(dataStore.<Purchase>readList(eq(BudgetService.PURCHASES_FILE), any()))
@@ -85,7 +85,7 @@ class BudgetServiceTest {
     @Test
     void unknownBudgetReturnsNullAndSkipsPurchases() throws IOException {
         when(dataStore.<Budget>readList(eq(BudgetService.BUDGETS_FILE), any()))
-                .thenReturn(List.of(new Budget(OTHER_BUDGET_ID, "Someone else")));
+                .thenReturn(List.of(new Budget(OTHER_BUDGET_ID, "Someone else", "clientId")));
 
         assertNull(service.getBudgetReport(BUDGET_ID));
         verify(dataStore, never()).readList(eq(BudgetService.PURCHASES_FILE), any());
