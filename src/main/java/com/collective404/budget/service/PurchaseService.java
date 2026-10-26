@@ -101,7 +101,7 @@ public void savePurchase(Purchase purchase) throws IOException {
     dataStore.withExclusiveLock(() -> {
         List<Purchase> purchases = dataStore.readList(
                 "purchases.json",
-                new TypeReference<List<Purchase>>() {}
+                new TypeReference<List<Purchase>>() { }
         );
 
         purchases.add(purchase);
