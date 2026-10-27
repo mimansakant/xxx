@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import com.collective404.budget.validation.InputValidator
+    
 @RestController
 @RequestMapping("/purchases")
 public class PurchaseController {
@@ -60,13 +62,13 @@ public ResponseEntity<String> handleInvalidAmount(IllegalArgumentException e) {
             @RequestParam("clientId") final String clientId,
             @RequestParam("budgetId") final String budgetId) {
         // Reuse the shared helpers defined in BudgetController (same package).
-        if (!BudgetController.isValidUuid(clientId)) {
+        if (!InputValidator.isValidUuid(clientId)) {
             return BudgetController.error(HttpStatus.BAD_REQUEST, "clientId must be a valid UUID");
         }
-        if (!BudgetController.isValidUuid(budgetId)) {
+        if (!InputValidator.isValidUuid(budgetId)) {
             return BudgetController.error(HttpStatus.BAD_REQUEST, "budgetId must be a valid UUID");
         }
-        if (!BudgetController.isValidUuid(id)) {
+        if (!InputValidator.isValidUuid(id)) {
             return BudgetController.error(HttpStatus.BAD_REQUEST, "purchase id must be a valid UUID");
         }
         try {
