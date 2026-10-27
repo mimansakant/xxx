@@ -128,17 +128,23 @@ public class BudgetService {
             return result;
         }
 
-        /* check 2: if budgetID given, check if exists. if not, tell to fuck off */
+        /* check 2: if budgetID given, check that it exists and belongs to the client */
         if (budgetId != null && !budgetId.isEmpty()) {
-            /* check if exists in data json */
-            boolean budgetExists = allBudgets.stream()
-            .anyMatch(b ->
-                b.getId().equals(budgetId.trim())
-            );
-            if (!budgetExists) {
+            Budget budget = allBudgets.stream()
+                .filter(b -> b.getId().equals(budgetId.trim()))
+                .findFirst()
+                .orElse(null);
+            if (budget == null) {
                 result.put("success", false);
                 result.put("error", 404);
                 result.put("reason", "budgetId not found");
+                return result;
+            }
+            if (budget.getClientId() == null
+                || !budget.getClientId().equalsIgnoreCase(clientId.trim())) {
+                result.put("success", false);
+                result.put("error", 403);
+                result.put("reason", "budgetId does not belong to clientId");
                 return result;
             }
 
@@ -167,7 +173,8 @@ public class BudgetService {
         if (budgetId == null || budgetId.isEmpty()) {
             Budget newBudget = new Budget(
                 UUID.randomUUID().toString(),
-                "dont_matter_yet"
+                "dont_matter_yet",
+                    clientId
             );
             allBudgets.add(newBudget);
             dataStore.writeList("budgets.json", allBudgets);
