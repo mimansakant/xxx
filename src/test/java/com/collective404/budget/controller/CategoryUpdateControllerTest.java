@@ -24,7 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 class CategoryUpdateControllerTest {
 
-    private static final String ENDPOINT = "/v1/budget/category";
+    private static final String ENDPOINT = "/budget/category";
 
     private MockMvc mockMvc;
 

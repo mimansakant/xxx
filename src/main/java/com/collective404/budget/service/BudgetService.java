@@ -77,7 +77,7 @@ public class BudgetService {
         BigDecimal limit) throws IOException {
         Map<String, Object> result = new HashMap<>();
         List<Budget> allBudgets = dataStore.readList(
-            "budgets.json",
+            BUDGETS_FILE,
             new TypeReference<>() { }
         );
         List<String> allClients = dataStore.readList(
@@ -85,7 +85,7 @@ public class BudgetService {
             new TypeReference<>() { }
         );
         List<Category> allCategories = dataStore.readList(
-            "categories.json",
+            CATEGORIES_FILE,
             new TypeReference<>() { }
         );
         String newBudgetId = null; /* id of budget new category will be added to */
@@ -177,7 +177,7 @@ public class BudgetService {
                     clientId
             );
             allBudgets.add(newBudget);
-            dataStore.writeList("budgets.json", allBudgets);
+            dataStore.writeList(BUDGETS_FILE, allBudgets);
             newBudgetId = newBudget.getId();
         }
 
@@ -189,7 +189,7 @@ public class BudgetService {
             limit.setScale(2, RoundingMode.DOWN)
         );
         allCategories.add(finalCategory);
-        dataStore.writeList("categories.json", allCategories);
+        dataStore.writeList(CATEGORIES_FILE, allCategories);
         result.put("success", true);
         result.put("returnValue", finalCategory);
         return result;
@@ -385,9 +385,9 @@ public class BudgetService {
 
         List<String> allClients = dataStore.readList("clients.json", new TypeReference<>() { });
 
-        List<Budget> allBudgets = dataStore.readList("budgets.json", new TypeReference<>() { });
+        List<Budget> allBudgets = dataStore.readList(BUDGETS_FILE, new TypeReference<>() { });
 
-        List<Category> allCategories = dataStore.readList("categories.json", new TypeReference<>() { });
+        List<Category> allCategories = dataStore.readList(CATEGORIES_FILE, new TypeReference<>() { });
 
 
         boolean clientExists = allClients.stream().anyMatch(c -> c.equalsIgnoreCase(clientId.trim()));
@@ -441,7 +441,7 @@ public class BudgetService {
 
         // Calculate spending for the category
         List<Purchase> allPurchases = dataStore.readList(
-            "purchases.json", new TypeReference<>() { });
+            PURCHASES_FILE, new TypeReference<>() { });
 
         BigDecimal amountSpent = BigDecimal.ZERO.setScale(2);
 
@@ -465,7 +465,7 @@ public class BudgetService {
         BigDecimal remainingAmount = existingCategory.getLimit()
             .subtract(amountSpent).setScale(2, RoundingMode.FLOOR);
 
-        dataStore.writeList("categories.json", allCategories);
+        dataStore.writeList(CATEGORIES_FILE, allCategories);
         result.put("success", true);
         result.put("returnValue", existingCategory);
         result.put("amountSpent", amountSpent);
