@@ -22,6 +22,7 @@ import com.collective404.budget.validation.InputValidator;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * REST controller for the BudgetService API.
