@@ -154,7 +154,7 @@ public class BudgetController {
      * @return the updated category or error response
      * @throws IOException if a datastore operation fails
      */
-    @PatchMapping("/v1/budget/category")
+    @PatchMapping("/budget/category")
     public ResponseEntity<?> updateCategory(
             @RequestBody final CategoryUpdateRequest request)
             throws IOException {
