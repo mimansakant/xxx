@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -15,6 +16,7 @@ import com.collective404.budget.dto.CategoryRequest;
 import com.collective404.budget.dto.CategoryResponse;
 import com.collective404.budget.model.Category;
 import com.collective404.budget.service.BudgetService;
+import com.collective404.budget.dto.CategoryUpdateRequest;
 import com.collective404.budget.validation.InputValidator;
 
 import java.io.IOException;
@@ -28,7 +30,7 @@ import java.util.Map;
 @CrossOrigin(
     origins = "http://localhost:5500",
     allowedHeaders = {"X-API-Key", "Content-Type"},
-    methods = {RequestMethod.GET, RequestMethod.POST}
+    methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PATCH}
 )
 public class BudgetController {
 
@@ -125,5 +127,52 @@ public class BudgetController {
      */
     static ResponseEntity<Map<String, Object>> error(final HttpStatus status, final String reason) {
         return ResponseEntity.status(status).body(Map.of("status", status.value(), "reason", reason));
+    }
+
+    /**
+     * Updates an existing budget category.
+     *
+     * @param request the category update request
+     * @return the updated category or error response
+     * @throws IOException if a datastore operation fails
+     */
+    @PatchMapping("/budget/category")
+    public ResponseEntity<?> updateCategory(
+            @RequestBody final CategoryUpdateRequest request)
+            throws IOException {
+
+        if (request == null) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("success", false);
+            error.put("error", 400);
+            error.put("reason", "missing required value");
+            return ResponseEntity.badRequest().body(error);
+        }
+
+        Map<String, Object> result;
+        try {
+            result = budgetService.updateCategory(
+                request.getClientId(), request.getBudgetId(),
+                request.getCategoryId(), request.getName(), request.getLimit());
+        } catch (IOException e) {
+                return error(HttpStatus.INTERNAL_SERVER_ERROR, "Budget data is unavailable"); 
+
+        }
+
+        if (Boolean.TRUE.equals(result.get("success"))) {
+            Category category = (Category) result.get("returnValue");
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("id", category.getId());
+            response.put("name", category.getName());
+            response.put("limit", category.getLimit());
+            response.put("amountSpent", result.get("amountSpent"));
+            response.put("remainingAmount", result.get("remainingAmount"));
+
+            return ResponseEntity.ok(response);
+        }
+
+        int statusCode = (Integer) result.get("error");
+        return ResponseEntity.status(statusCode).body(result);
     }
 }
