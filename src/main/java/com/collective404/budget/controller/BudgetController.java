@@ -22,7 +22,6 @@ import com.collective404.budget.validation.InputValidator;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * REST controller for the BudgetService API.
@@ -128,23 +127,6 @@ public class BudgetController {
      */
     static ResponseEntity<Map<String, Object>> error(final HttpStatus status, final String reason) {
         return ResponseEntity.status(status).body(Map.of("status", status.value(), "reason", reason));
-    }
-
-    /**
-     * Checks that an ID is a UUID in standard form. Move into InputValidator once it has rules.
-     *
-     * @param id the ID to check
-     * @return true if the ID is a valid UUID
-     */
-    static boolean isValidUuid(final String id) {
-        if (id == null || id.isBlank()) {
-            return false;
-        }
-        try {
-            return UUID.fromString(id).toString().equalsIgnoreCase(id);
-        } catch (IllegalArgumentException e) {
-            return false;
-        }
     }
 
     /**
