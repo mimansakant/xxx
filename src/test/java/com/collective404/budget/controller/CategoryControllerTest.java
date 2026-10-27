@@ -21,7 +21,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 class CategoryControllerTest {
 
-    private static final String CATEGORY_ENDPOINT = "/v1/budget/category";
+    private static final String CATEGORY_ENDPOINT = "/budget/category";
 
     private MockMvc mockMvc;
 
@@ -33,8 +33,8 @@ class CategoryControllerTest {
         Files.writeString(tempDir.resolve("clients.json"), "[\"client-1\"]");
         Files.writeString(
                 tempDir.resolve("budgets.json"),
-                "[{\"id\":\"budget-1\",\"name\":\"Budget One\"},"
-                        + "{\"id\":\"budget-2\",\"name\":\"Budget Two\"}]"
+                "[{\"id\":\"budget-1\",\"name\":\"Budget One\",\"clientId\":\"client-1\"},"
+                        + "{\"id\":\"budget-2\",\"name\":\"Budget Two\",\"clientId\":\"client-1\"}]"
         );
         Files.writeString(tempDir.resolve("categories.json"), "[]");
         final BudgetDataStore dataStore = new BudgetDataStore(new ObjectMapper(), tempDir);
@@ -97,6 +97,30 @@ class CategoryControllerTest {
                 .andExpect(jsonPath("$.success").value(false))
                 .andExpect(jsonPath("$.error").value(404))
                 .andExpect(jsonPath("$.reason").value("budgetId not found"));
+    }
+
+    @Test
+    void createCategoryReturnsForbiddenForBudgetOwnedByAnotherClient() throws Exception {
+        Files.writeString(
+                tempDir.resolve("budgets.json"),
+                "[{\"id\":\"budget-1\",\"name\":\"Budget One\",\"clientId\":\"another-client\"}]"
+        );
+
+        mockMvc.perform(post(CATEGORY_ENDPOINT)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "clientId": "client-1",
+                                  "budgetId": "budget-1",
+                                  "name": "Groceries",
+                                  "limit": 125.50
+                                }
+                                """))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.success").value(false))
+                .andExpect(jsonPath("$.error").value(403))
+                .andExpect(jsonPath("$.reason").value(
+                        "budgetId does not belong to clientId"));
     }
 
     @Test

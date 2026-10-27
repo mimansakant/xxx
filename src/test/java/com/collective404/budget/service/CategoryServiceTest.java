@@ -39,8 +39,8 @@ class CategoryServiceTest {
         Files.writeString(tempDir.resolve("clients.json"), "[\"client-1\"]");
         Files.writeString(
                 tempDir.resolve("budgets.json"),
-                "[{\"id\":\"budget-1\",\"name\":\"Budget One\"},"
-                        + "{\"id\":\"budget-2\",\"name\":\"Budget Two\"}]"
+                "[{\"id\":\"budget-1\",\"name\":\"Budget One\",\"clientId\":\"client-1\"},"
+                        + "{\"id\":\"budget-2\",\"name\":\"Budget Two\",\"clientId\":\"client-1\"}]"
         );
         Files.writeString(tempDir.resolve("categories.json"), "[]");
         service = new BudgetService(new BudgetDataStore(objectMapper, tempDir));
@@ -103,6 +103,22 @@ class CategoryServiceTest {
                 "client-1", "budget-1", "Food", BigDecimal.ZERO).get("error"));
         assertEquals(false, service.createCategory(
                 "client-1", "budget-1", "Food", new BigDecimal("-1.00")).get("success"));
+        assertTrue(readCategories().isEmpty());
+    }
+
+    @Test
+    void rejectsBudgetOwnedByAnotherClientWithoutCreatingCategory() throws Exception {
+        Files.writeString(
+                tempDir.resolve("budgets.json"),
+                "[{\"id\":\"budget-1\",\"name\":\"Budget One\",\"clientId\":\"another-client\"}]"
+        );
+
+        final Map<String, Object> result = service.createCategory(
+                "client-1", "budget-1", "Food", new BigDecimal("20.00"));
+
+        assertEquals(false, result.get("success"));
+        assertEquals(403, result.get("error"));
+        assertEquals("budgetId does not belong to clientId", result.get("reason"));
         assertTrue(readCategories().isEmpty());
     }
 

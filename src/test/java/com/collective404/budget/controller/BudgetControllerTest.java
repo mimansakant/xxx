@@ -11,11 +11,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.collective404.budget.dto.BudgetReportResponse;
+import com.collective404.budget.dto.CategoryRequest;
 import com.collective404.budget.service.BudgetService;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -87,11 +89,20 @@ class BudgetControllerTest {
     }
 
     @Test
-    void uuidCheckRejectsBadInput() {
+    void returnsForbiddenWhenBudgetDoesNotBelongToClient() throws IOException {
+        final Map<String, Object> error = Map.of(
+                "success", false,
+                "error", 403,
+                "reason", "budgetId does not belong to clientId");
+        when(budgetService.createCategory(
+                "clientId", BUDGET_ID, "Food", new BigDecimal("100.00")))
+                .thenReturn(error);
+
+        final ResponseEntity<?> response = controller.createCategory(
+                new CategoryRequest("clientId", BUDGET_ID, "Food", new BigDecimal("100.00")));
+
         assertAll(
-                () -> assertTrue(BudgetController.isValidUuid(BUDGET_ID)),
-                () -> assertFalse(BudgetController.isValidUuid(null)),
-                () -> assertFalse(BudgetController.isValidUuid("  ")),
-                () -> assertFalse(BudgetController.isValidUuid("1-1-1-1-1")));
+                () -> assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode()),
+                () -> assertSame(error, response.getBody()));
     }
 }

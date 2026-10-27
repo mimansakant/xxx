@@ -6,6 +6,9 @@ import java.time.LocalDate;
 import java.util.UUID;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
+import java.util.UUID;
+import java.math.BigDecimal;
 import com.collective404.budget.store.BudgetDataStore;
 import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -15,24 +18,9 @@ import com.collective404.budget.model.Budget;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 import com.collective404.budget.model.Category;
-import com.fasterxml.jackson.databind.JsonNode;
+
 @Service
 public class PurchaseService {
-
-    /** Data file holding the list of client ids. */
-    private static final String CLIENTS_FILE = "clients.json";
-
-    /** Data file holding the list of budgets. */
-    private static final String BUDGETS_FILE = "budgets.json";
-
-    /** Data file holding the list of categories. */
-    private static final String CATEGORIES_FILE = "categories.json";
-
-    /** Data file holding the list of purchases. */
-    private static final String PURCHASES_FILE = "purchases.json";
-
-    /** Scale used for all monetary amounts. */
-    private static final int MONEY_SCALE = 2;
 
     private final BudgetDataStore dataStore;
 
@@ -54,16 +42,16 @@ public class PurchaseService {
     validateAmount(request.getAmount());
     final String resolvedCategoryId =
         (categoryId == null || categoryId.isBlank()) ? "Misc" : categoryId;
-    List<JsonNode> clients = dataStore.readList(
-        "clients.json",
-        new TypeReference<List<JsonNode>>() { }
+    List<String> clients = dataStore.readList(
+    "clients.json",
+    new TypeReference<List<String>>() { }
 );
 
 boolean clientExists = clients.stream()
         .anyMatch(client ->
                 request.getClientId() != null
-                && request.getClientId().equals(
-                        client.path("id").asText()
+                && client.equalsIgnoreCase(
+                        request.getClientId().trim()
                 )
         );
 
@@ -125,7 +113,7 @@ public void savePurchase(Purchase purchase) throws IOException {
         dataStore.writeList("purchases.json", purchases);
 
         return null;
-    });
+    }
 }
 
     /**
@@ -206,6 +194,6 @@ public void savePurchase(Purchase purchase) throws IOException {
                     category.getId(),
                     spent,
                     remaining);
-        });
+        }
     }
 }

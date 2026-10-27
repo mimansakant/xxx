@@ -15,11 +15,11 @@ import com.collective404.budget.dto.CategoryRequest;
 import com.collective404.budget.dto.CategoryResponse;
 import com.collective404.budget.model.Category;
 import com.collective404.budget.service.BudgetService;
+import com.collective404.budget.validation.InputValidator;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * REST controller for the BudgetService API.
@@ -36,6 +36,7 @@ public class BudgetController {
 
         /**
          * The api controller constructor
+         *
          * @param budgetService the budgetAPIService
          */
         public BudgetController(
@@ -44,8 +45,14 @@ public class BudgetController {
                 this.budgetService = budgetService;
         }
 
-
-        @PostMapping("/v1/budget/category")
+        /**
+         * Creates a category, optionally in an existing budget owned by the client.
+         *
+         * @param categoryRequest the category and client details
+         * @return the created category or an error response
+         * @throws IOException if the data files can't be accessed
+         */
+        @PostMapping("/budget/category")
         public ResponseEntity<?> createCategory(
                 @RequestBody final CategoryRequest categoryRequest
         ) throws IOException {
@@ -95,7 +102,7 @@ public class BudgetController {
      */
     @GetMapping("/budget/{budgetId}")
     public ResponseEntity<?> getBudgetReport(@PathVariable("budgetId") final String budgetId) {
-        if (!isValidUuid(budgetId)) {
+        if (!InputValidator.isValidUuid(budgetId)) {
             return error(HttpStatus.BAD_REQUEST, "budgetId must be a valid UUID");
         }
         try {
@@ -118,22 +125,5 @@ public class BudgetController {
      */
     static ResponseEntity<Map<String, Object>> error(final HttpStatus status, final String reason) {
         return ResponseEntity.status(status).body(Map.of("status", status.value(), "reason", reason));
-    }
-
-    /**
-     * Checks that an ID is a UUID in standard form. Move into InputValidator once it has rules.
-     *
-     * @param id the ID to check
-     * @return true if the ID is a valid UUID
-     */
-    static boolean isValidUuid(final String id) {
-        if (id == null || id.isBlank()) {
-            return false;
-        }
-        try {
-            return UUID.fromString(id).toString().equalsIgnoreCase(id);
-        } catch (IllegalArgumentException e) {
-            return false;
-        }
     }
 }

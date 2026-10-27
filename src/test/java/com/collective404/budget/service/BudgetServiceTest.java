@@ -21,6 +21,7 @@ import com.collective404.budget.store.BudgetDataStore;
 import com.collective404.budget.store.BudgetDataStore.DataStoreOperation;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -75,7 +76,7 @@ class BudgetServiceTest {
             final List<Purchase> purchases
     ) throws IOException {
         when(dataStore.<Budget>readList(eq(BudgetService.BUDGETS_FILE), any()))
-                .thenReturn(List.of(new Budget(BUDGET_ID, "Fall semester")));
+                .thenReturn(List.of(new Budget(BUDGET_ID, "Fall semester", "clientId")));
         when(dataStore.<Category>readList(eq(BudgetService.CATEGORIES_FILE), any()))
                 .thenReturn(categories);
         when(dataStore.<Purchase>readList(eq(BudgetService.PURCHASES_FILE), any()))
@@ -85,7 +86,7 @@ class BudgetServiceTest {
     @Test
     void unknownBudgetReturnsNullAndSkipsPurchases() throws IOException {
         when(dataStore.<Budget>readList(eq(BudgetService.BUDGETS_FILE), any()))
-                .thenReturn(List.of(new Budget(OTHER_BUDGET_ID, "Someone else")));
+                .thenReturn(List.of(new Budget(OTHER_BUDGET_ID, "Someone else", "clientId")));
 
         assertNull(service.getBudgetReport(BUDGET_ID));
         verify(dataStore, never()).readList(eq(BudgetService.PURCHASES_FILE), any());
@@ -225,6 +226,44 @@ class BudgetServiceTest {
                 .thenThrow(new IOException("disk gone"));
 
         assertThrows(IOException.class, () -> service.getBudgetReport(BUDGET_ID));
+    }
+
+    @Test
+    void rejectsCategoryWhenBudgetBelongsToAnotherClient() throws IOException {
+        when(dataStore.<Budget>readList(eq(BudgetService.BUDGETS_FILE), any()))
+                .thenReturn(List.of(new Budget(BUDGET_ID, "Fall semester", "other-client")));
+        when(dataStore.<String>readList(eq("clients.json"), any()))
+                .thenReturn(List.of("clientId"));
+        when(dataStore.<Category>readList(eq(BudgetService.CATEGORIES_FILE), any()))
+                .thenReturn(List.of());
+
+        final var result = service.createCategory(
+                "clientId", BUDGET_ID, "Food", money("100.00"));
+
+        assertAll(
+                () -> assertEquals(false, result.get("success")),
+                () -> assertEquals(403, result.get("error")),
+                () -> assertEquals("budgetId does not belong to clientId", result.get("reason")));
+        verify(dataStore, never()).writeList(eq(BudgetService.CATEGORIES_FILE), any());
+    }
+
+    @Test
+    void createsCategoryWhenBudgetBelongsToClient() throws IOException {
+        when(dataStore.<Budget>readList(eq(BudgetService.BUDGETS_FILE), any()))
+                .thenReturn(List.of(new Budget(BUDGET_ID, "Fall semester", "CLIENTID")));
+        when(dataStore.<String>readList(eq("clients.json"), any()))
+                .thenReturn(List.of("clientId"));
+        when(dataStore.<Category>readList(eq(BudgetService.CATEGORIES_FILE), any()))
+                .thenReturn(new ArrayList<>());
+
+        final var result = service.createCategory(
+                "clientId", BUDGET_ID, "Food", money("100.00"));
+
+        assertAll(
+                () -> assertEquals(true, result.get("success")),
+                () -> assertEquals(BUDGET_ID,
+                        ((Category) result.get("returnValue")).getBudgetId()));
+        verify(dataStore).writeList(eq(BudgetService.CATEGORIES_FILE), any());
     }
 
     @Test
