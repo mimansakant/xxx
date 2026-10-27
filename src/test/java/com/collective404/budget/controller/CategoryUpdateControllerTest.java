@@ -39,7 +39,8 @@ class CategoryUpdateControllerTest {
 
         Files.writeString(tempDir.resolve("budgets.json"), """
             [
-                {"id": "budget-1", "name": "Budget One"}
+                {"id": "budget-1", "name": "Budget One",
+                "clientId": "client-1"}
             ]
             """);
 
@@ -197,5 +198,24 @@ class CategoryUpdateControllerTest {
                     """))
             .andExpect(status().isInternalServerError())
             .andExpect(jsonPath("$.status").value(500));
+    }
+
+    @Test
+    void updateCategoryRejectsWrongClient() throws Exception {
+        Files.writeString(tempDir.resolve("clients.json"),
+            "[\"client-1\", \"client-2\"]");
+
+        mockMvc.perform(patch(ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                    {
+                        "clientId": "client-2",
+                        "budgetId": "budget-1",
+                        "categoryId": "category-1",
+                        "name": "Food"
+                    }
+                    """))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.error").value(404));
     }
 }

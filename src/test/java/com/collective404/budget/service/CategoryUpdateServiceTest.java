@@ -33,16 +33,9 @@ class CategoryUpdateServiceTest {
 
         Files.writeString(tempDir.resolve("clients.json"), "[\"client-1\"]");
 
-        Files.writeString(tempDir.resolve("budgets.json"),
-            """
-            [
-                {
-                    "id": "budget-1",
-                    "name": "Budget One"
-                }
-            ]
-            """
-        );
+        Files.writeString(tempDir.resolve("budgets.json"), """
+            [{"id": "budget-1", "name": "Budget One", "clientId": "client-1"}]
+            """);
 
         Files.writeString(tempDir.resolve("categories.json"),
             """
@@ -196,6 +189,17 @@ class CategoryUpdateServiceTest {
         assertEquals(400, result.get("error"), "Should return 400");
         assertEquals(before, Files.readString(file),
             "Invalid update should not modify categories.json");
+    }
+
+    @Test
+    void rejectsUpdateForWrongClient() throws Exception {
+        Files.writeString(tempDir.resolve("clients.json"),
+            "[\"client-1\", \"client-2\"]");
+
+        Map<String, Object> result = service.updateCategory(
+            "client-2", "budget-1", "category-1", "Food", null);
+
+        assertEquals(404, result.get("error"));
     }
 
 }

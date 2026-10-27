@@ -399,9 +399,12 @@ public class BudgetService {
             return result;
         }
 
-        boolean budgetExists = allBudgets.stream().anyMatch(b -> b.getId().equals(budgetId.trim()));
+        // boolean budgetExists = allBudgets.stream().anyMatch(b -> b.getId().equals(budgetId.trim()));
+        Budget budget = allBudgets.stream().filter(b -> b.getId().equals(budgetId.trim()))
+                                        .findFirst().orElse(null);
 
-        if (!budgetExists) {
+        if (budget == null || budget.getClientId() == null
+                || !budget.getClientId().equalsIgnoreCase(clientId.trim())) {
             result.put("success", false);
             result.put("error", 404);
             result.put("reason", "budgetId not found");
