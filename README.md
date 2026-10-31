@@ -182,3 +182,9 @@ tests once the API is running.
 ## Project management
 https://docs.google.com/document/d/1dPkSL4XaQVGZ5zcGpYZGQl_Knnaq3DSBpCox5-VsUOk/edit?usp=sharing
 https://docs.google.com/document/d/1uZDjhIlISiKRD8sdttvT3Qu4LVy5J90z3o2sYpQBNwg/edit?usp=sharing
+
+## AI Disclosure
+AI was used in our project for the following:
+- Creating automated test suites: prompts were to create code for specified test case branches
+- Create the baseline folder structure with file stubs
+- Create the original checkstyle.xml, which was then edited to follow that of the Miniproject
