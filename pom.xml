@@ -103,6 +103,7 @@
                     </dependency>
                 </dependencies>
                 <configuration>
+                    <outputDirectory>${project.basedir}/reports/checkstyle</outputDirectory>
                     <configLocation>config/checkstyle.xml</configLocation>
                     <includeTestSourceDirectory>true</includeTestSourceDirectory>
                     <consoleOutput>true</consoleOutput>
@@ -145,6 +146,7 @@
                     </dependency>
                 </dependencies>
                 <configuration>
+                    <outputDirectory>${project.basedir}/reports/pmd</outputDirectory>
                     <rulesets>
                         <ruleset>config/pmd-ruleset.xml</ruleset>
                     </rulesets>
