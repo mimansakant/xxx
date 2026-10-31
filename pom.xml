@@ -150,7 +150,7 @@
                     </rulesets>
                     <targetJdk>${maven.compiler.release}</targetJdk>
                     <includeTests>true</includeTests>
-                    <failOnViolation>false</failOnViolation>
+                    <failOnViolation>true</failOnViolation>
                     <printFailingErrors>true</printFailingErrors>
                 </configuration>
                 <executions>
