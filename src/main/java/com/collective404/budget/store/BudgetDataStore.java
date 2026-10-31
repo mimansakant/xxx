@@ -18,16 +18,33 @@ import java.util.List;
 @Component
 public final class BudgetDataStore {
 
+    /** JSON mapper used for datastore files. */
     private final ObjectMapper objectMapper;
+    /** Directory containing the JSON datastore files. */
     private final Path dataDirectory;
+    /** Lock shared by all operations on this store. */
     private final Object lock = new Object();
 
+    /**
+     * Creates a store using the default data directory.
+     *
+     * @param objectMapper the JSON mapper
+     */
     @Autowired
     public BudgetDataStore(final ObjectMapper objectMapper) {
         this(objectMapper, Paths.get("src", "main", "resources", "data"));
     }
 
-    public BudgetDataStore(final ObjectMapper objectMapper, final Path dataDirectory) {
+    /**
+     * Creates a store using the specified data directory.
+     *
+     * @param objectMapper the JSON mapper
+     * @param dataDirectory the directory containing the data files
+     */
+    public BudgetDataStore(
+            final ObjectMapper objectMapper,
+            final Path dataDirectory
+    ) {
         this.objectMapper = objectMapper;
         this.dataDirectory = dataDirectory.toAbsolutePath().normalize();
     }
@@ -41,7 +58,9 @@ public final class BudgetDataStore {
      * @return the operation result
      * @throws IOException if a file operation fails
      */
-    public <T> T withExclusiveLock(final DataStoreOperation<T> operation) throws IOException {
+    public <T> T withExclusiveLock(
+            final DataStoreOperation<T> operation
+    ) throws IOException {
         synchronized (lock) {
             return operation.execute();
         }
@@ -84,20 +103,28 @@ public final class BudgetDataStore {
         synchronized (lock) {
             final Path filePath = getDataFilePath(fileName);
             Files.createDirectories(filePath.getParent());
-            objectMapper.writerWithDefaultPrettyPrinter().writeValue(filePath.toFile(), list);
+            objectMapper.writerWithDefaultPrettyPrinter()
+                    .writeValue(filePath.toFile(), list);
         }
     }
 
     private Path getDataFilePath(final String fileName) {
         final Path filePath = dataDirectory.resolve(fileName).normalize();
         if (!filePath.startsWith(dataDirectory)) {
-            throw new IllegalArgumentException("Data file must be inside the data directory");
+            throw new IllegalArgumentException(
+                    "Data file must be inside the data directory");
         }
         return filePath;
     }
 
     @FunctionalInterface
     public interface DataStoreOperation<T> {
+        /**
+         * Executes the data operation.
+         *
+         * @return the operation result
+         * @throws IOException if a file operation fails
+         */
         T execute() throws IOException;
     }
 }

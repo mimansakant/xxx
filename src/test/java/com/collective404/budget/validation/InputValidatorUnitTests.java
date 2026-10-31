@@ -10,16 +10,20 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 
 class InputValidatorUnitTests {
 
-    private static final String BUDGET_ID = "11111111-1111-1111-1111-111111111111";
+    /** A UUID used to verify accepted identifiers. */
+    private static final String BUDGET_ID =
+            "11111111-1111-1111-1111-111111111111";
 
     /**
-     * Check that isValidUuid returns true for Strings representing valid UUIDs, and false
-     * for other Strings, including null and empty.
+     * Check that isValidUuid returns true for Strings representing valid
+     * UUIDs, and false for other Strings, including null and empty.
      */
     @Test
     void uuidCheckRejectsBadInput() {
         String testID = UUID.randomUUID().toString();
-        assertAll("isValidUuid should accept String representations of valid UUIDs and reject all other strings",
+        assertAll(
+                "isValidUuid should accept valid UUID strings "
+                        + "and reject all others",
                 () -> assertTrue(InputValidator.isValidUuid(BUDGET_ID)),
                 () -> assertTrue(InputValidator.isValidUuid(testID)),
                 () -> assertFalse(InputValidator.isValidUuid(null)),
@@ -29,10 +33,10 @@ class InputValidatorUnitTests {
     }
 
     /**
-     * Checks that isValidLimit returns false for Strings with more than 2 decimal places,
-     * that are numbers less than or equal to zero, and that are not numerical values; and
-     * returns true for Strings that represent numerical values with up to 2 decimal places
-     * greater than zero.
+     * Checks that isValidLimit returns false for Strings with more than 2
+     * decimal places, that are numbers less than or equal to zero, and that
+     * are not numerical values; and returns true for Strings that represent
+     * numerical values with up to 2 decimal places greater than zero.
      */
     @Test
     void isValidLimitCorrectness() {

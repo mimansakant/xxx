@@ -21,30 +21,37 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 class CategoryControllerTest {
 
+    /** Category creation endpoint. */
     private static final String CATEGORY_ENDPOINT = "/budget/category";
 
+    /** Mock HTTP client for controller requests. */
     private MockMvc mockMvc;
 
+    /** Temporary directory used by the file-backed datastore. */
     @TempDir
-    Path tempDir;
+    private Path tempDir;
 
     @BeforeEach
     void setUp() throws Exception {
         Files.writeString(tempDir.resolve("clients.json"), "[\"client-1\"]");
         Files.writeString(
                 tempDir.resolve("budgets.json"),
-                "[{\"id\":\"budget-1\",\"name\":\"Budget One\",\"clientId\":\"client-1\"},"
-                        + "{\"id\":\"budget-2\",\"name\":\"Budget Two\",\"clientId\":\"client-1\"}]"
+                "[{\"id\":\"budget-1\",\"name\":\"Budget One\","
+                        + "\"clientId\":\"client-1\"},"
+                        + "{\"id\":\"budget-2\",\"name\":\"Budget Two\","
+                        + "\"clientId\":\"client-1\"}]"
         );
         Files.writeString(tempDir.resolve("categories.json"), "[]");
-        final BudgetDataStore dataStore = new BudgetDataStore(new ObjectMapper(), tempDir);
+        final BudgetDataStore dataStore = new BudgetDataStore(
+                new ObjectMapper(), tempDir);
         mockMvc = MockMvcBuilders.standaloneSetup(
                 new BudgetController(new BudgetService(dataStore))
         ).build();
     }
 
     @Test
-    void createCategoryReturnsCreatedCategoryWithInitialAmounts() throws Exception {
+    void createCategoryReturnsCreatedCategoryWithInitialAmounts()
+            throws Exception {
         mockMvc.perform(post(CATEGORY_ENDPOINT)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
@@ -100,10 +107,12 @@ class CategoryControllerTest {
     }
 
     @Test
-    void createCategoryReturnsForbiddenForBudgetOwnedByAnotherClient() throws Exception {
+    void createCategoryReturnsForbiddenForBudgetOwnedByAnotherClient()
+            throws Exception {
         Files.writeString(
                 tempDir.resolve("budgets.json"),
-                "[{\"id\":\"budget-1\",\"name\":\"Budget One\",\"clientId\":\"another-client\"}]"
+                "[{\"id\":\"budget-1\",\"name\":\"Budget One\","
+                        + "\"clientId\":\"another-client\"}]"
         );
 
         mockMvc.perform(post(CATEGORY_ENDPOINT)
@@ -124,7 +133,8 @@ class CategoryControllerTest {
     }
 
     @Test
-    void createCategoryReturnsConflictIncludingExistingCategoryId() throws Exception {
+    void createCategoryReturnsConflictIncludingExistingCategoryId()
+            throws Exception {
         final String request = """
                 {
                   "clientId": "client-1",

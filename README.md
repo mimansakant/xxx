@@ -189,6 +189,10 @@ AI was used in our project for the following:
 - Create the baseline folder structure with file stubs
 - Create the original checkstyle.xml, which was then edited to follow that of the Miniproject
 - Create BudgetDataStore. Prompted to create a class for file reads and writes, resulting code edited for errors
+- Fixing Checkstyle errors using following prompt:
+```
+i have a checkstyle report in @checkstyle.html. Please edit @BudgetControllerTest.java, @CategoryControllerTest.java, @CategoryUpdateControllerTest.java, @BudgetReportResponse.java, @CategoryRequest.java, @CategoryResponse.java, @CategoryUpdateRequest.java, @Budget.java, @Category.java, @Purchase.java, @BudgetService.java, @BudgetServiceTest.java, @CategoryServiceTest.java @CategoryUpdateServiceTest.java @BudgetDataStore.java @InputValidator.java, @InputValidatorUnitTests.java SUCH THAT they fix these errors (ONLY fix these errors, do not try to otherwise optomize or edit code)
+```
 
 ### Tool List
 - VSCode Copilot
