@@ -189,3 +189,6 @@ AI was used in our project for the following:
 - Create the baseline folder structure with file stubs
 - Create the original checkstyle.xml, which was then edited to follow that of the Miniproject
 - Create BudgetDataStore. Prompted to create a class for file reads and writes, resulting code edited for errors
+
+### Tool List
+- VSCode Copilot
