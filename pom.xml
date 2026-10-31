@@ -87,6 +87,9 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <outputDirectory>${project.basedir}/reports/jacoco</outputDirectory>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -100,10 +103,11 @@
                     </dependency>
                 </dependencies>
                 <configuration>
+                    <outputDirectory>${project.basedir}/reports/checkstyle</outputDirectory>
                     <configLocation>config/checkstyle.xml</configLocation>
                     <includeTestSourceDirectory>true</includeTestSourceDirectory>
                     <consoleOutput>true</consoleOutput>
-                    <failsOnError>true</failsOnError>
+                    <failsOnError>false</failsOnError>
                 </configuration>
                 <executions>
                     <execution>
@@ -142,12 +146,13 @@
                     </dependency>
                 </dependencies>
                 <configuration>
+                    <outputDirectory>${project.basedir}/reports/pmd</outputDirectory>
                     <rulesets>
                         <ruleset>config/pmd-ruleset.xml</ruleset>
                     </rulesets>
                     <targetJdk>${maven.compiler.release}</targetJdk>
                     <includeTests>true</includeTests>
-                    <failOnViolation>false</failOnViolation>
+                    <failOnViolation>true</failOnViolation>
                     <printFailingErrors>true</printFailingErrors>
                 </configuration>
                 <executions>

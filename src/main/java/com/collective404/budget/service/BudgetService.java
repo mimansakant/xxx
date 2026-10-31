@@ -34,9 +34,12 @@ public class BudgetService {
     /** Data file holding purchases. */
     static final String PURCHASES_FILE = "purchases.json";
 
+    /** A zero amount with two decimal places. */
     private static final BigDecimal ZERO = new BigDecimal("0.00");
+    /** The multiplier used to calculate percentages. */
     private static final BigDecimal HUNDRED = new BigDecimal("100");
 
+    /** Store used to read and write budget data. */
     private final BudgetDataStore dataStore;
 
     /**
@@ -58,10 +61,11 @@ public class BudgetService {
      * @return the created category or error message
      */
     public Map<String, Object> createCategory(
-        String clientId,
-        String budgetId,
-        String name,
-        BigDecimal limit) throws IOException {
+        final String clientId,
+        final String budgetId,
+        final String name,
+        final BigDecimal limit
+    ) throws IOException {
         return dataStore.withExclusiveLock(() -> createCategoryWithLock(
             clientId,
             budgetId,
@@ -71,10 +75,11 @@ public class BudgetService {
     }
 
     private Map<String, Object> createCategoryWithLock(
-        String clientId,
-        String budgetId,
-        String name,
-        BigDecimal limit) throws IOException {
+        final String clientId,
+        final String budgetId,
+        final String name,
+        final BigDecimal limit
+    ) throws IOException {
         Map<String, Object> result = new HashMap<>();
         List<Budget> allBudgets = dataStore.readList(
             BUDGETS_FILE,
@@ -88,7 +93,7 @@ public class BudgetService {
             CATEGORIES_FILE,
             new TypeReference<>() { }
         );
-        String newBudgetId = null; /* id of budget new category will be added to */
+        String newBudgetId = null;
 
         /* check 1: validate that the category values given are acc allowed */
         /* validate no nulls/empty strings */
@@ -106,7 +111,10 @@ public class BudgetService {
             return result;
         }
 
-        /* validate name is nonempty and is a string involving at least 1 character */
+        /*
+         * Validate that the name is nonempty and contains at least one
+         * character.
+         */
         if (!name.matches(".*[A-Za-z].*")) {
             result.put("success", false);
             result.put("error", 400);
@@ -128,7 +136,9 @@ public class BudgetService {
             return result;
         }
 
-        /* check 2: if budgetID given, check that it exists and belongs to the client */
+        /*
+         * Check that a provided budget ID exists and belongs to the client.
+         */
         if (budgetId != null && !budgetId.isEmpty()) {
             Budget budget = allBudgets.stream()
                 .filter(b -> b.getId().equals(budgetId.trim()))
@@ -151,7 +161,8 @@ public class BudgetService {
             /* check if category alr exists */
             Category existingCategory = allCategories.stream()
             .filter(category ->
-                category.getBudgetId().equals(budgetId.trim()) &&
+                category.getBudgetId().equals(budgetId.trim())
+                    &&
                 category.getName().equalsIgnoreCase(name.trim())
             )
             .findFirst()
@@ -164,7 +175,7 @@ public class BudgetService {
                 return result;
             }
 
-            /* getting here means budgetexists, client exists, and category dne */
+            /* Budget exists, the client exists, and the category is new. */
             /* so set new budgetId */
             newBudgetId = budgetId.trim();
         }
@@ -196,19 +207,22 @@ public class BudgetService {
     }
 
     /**
-     * Builds the spending report for one budget: spent, remaining, and percent used per
-     * category, overall totals, and the budget's purchases. Reads all three files under one
+     * Builds the spending report for one budget: spent, remaining, and percent
+     * used per category, overall totals, and the budget's purchases. Reads all
+     * three files under one
      * lock so the report is a consistent snapshot. Does not modify any data.
      *
      * @param budgetId the budget to report on
      * @return the report, or null if no budget has this ID
      * @throws IOException if the data files can't be read
      */
-    public BudgetReportResponse getBudgetReport(final String budgetId) throws IOException {
+    public BudgetReportResponse getBudgetReport(final String budgetId)
+            throws IOException {
         return dataStore.withExclusiveLock(() -> buildReport(budgetId));
     }
 
-    private BudgetReportResponse buildReport(final String budgetId) throws IOException {
+    private BudgetReportResponse buildReport(final String budgetId)
+            throws IOException {
         final Budget budget = findBudget(budgetId);
         if (budget == null) {
             return null;
@@ -228,7 +242,8 @@ public class BudgetService {
             spentById.put(category.getId(), ZERO);
         }
 
-        // Purchases don't store a budget ID, so a purchase belongs to this budget
+        // Purchases don't store a budget ID, so a purchase belongs to this
+        // budget
         // when its category does.
         BigDecimal totalSpent = ZERO;
         final List<PurchaseSummary> purchaseSummaries = new ArrayList<>();
@@ -240,8 +255,9 @@ public class BudgetService {
             final BigDecimal amount = roundUp(purchase.getAmount());
             totalSpent = totalSpent.add(amount);
             spentById.merge(owner.getId(), amount, BigDecimal::add);
-            purchaseSummaries.add(new PurchaseSummary(purchase.getId(), owner.getId(),
-                    owner.getName(), purchase.getName(), amount, purchase.getDate()));
+            purchaseSummaries.add(new PurchaseSummary(
+                    purchase.getId(), owner.getId(), owner.getName(),
+                    purchase.getName(), amount, purchase.getDate()));
         }
 
         BigDecimal totalLimit = ZERO;
@@ -250,22 +266,28 @@ public class BudgetService {
             final BigDecimal limit = roundDown(category.getLimit());
             final BigDecimal spent = spentById.get(category.getId());
             totalLimit = totalLimit.add(limit);
-            categoryReports.add(new CategoryReport(category.getId(), category.getName(), limit,
-                    spent, remaining(limit, spent), percentUsed(limit, spent)));
+            categoryReports.add(new CategoryReport(
+                    category.getId(), category.getName(), limit, spent,
+                    remaining(limit, spent), percentUsed(limit, spent)));
         }
 
         purchaseSummaries.sort(Comparator
-                .comparing(PurchaseSummary::date, Comparator.nullsLast(Comparator.naturalOrder()))
+                .comparing(
+                        PurchaseSummary::date,
+                        Comparator.nullsLast(Comparator.naturalOrder()))
                 .thenComparing(PurchaseSummary::purchaseId,
                         Comparator.nullsLast(Comparator.naturalOrder())));
 
-        return new BudgetReportResponse(budget.getId(), budget.getName(), totalLimit, totalSpent,
-                remaining(totalLimit, totalSpent), percentUsed(totalLimit, totalSpent),
-                categoryReports, purchaseSummaries);
+        return new BudgetReportResponse(
+                budget.getId(), budget.getName(), totalLimit, totalSpent,
+                remaining(totalLimit, totalSpent),
+                percentUsed(totalLimit, totalSpent), categoryReports,
+                purchaseSummaries);
     }
 
     private Budget findBudget(final String budgetId) throws IOException {
-        final List<Budget> budgets = dataStore.readList(BUDGETS_FILE, new TypeReference<List<Budget>>() { });
+        final List<Budget> budgets = dataStore.readList(
+                BUDGETS_FILE, new TypeReference<List<Budget>>() { });
         if (budgets != null) {
             for (final Budget budget : budgets) {
                 if (budgetId.equals(budget.getId())) {
@@ -277,14 +299,14 @@ public class BudgetService {
     }
 
     private List<Category> readCategories() throws IOException {
-        final List<Category> categories =
-                dataStore.readList(CATEGORIES_FILE, new TypeReference<List<Category>>() { });
+        final List<Category> categories = dataStore.readList(
+                CATEGORIES_FILE, new TypeReference<List<Category>>() { });
         return categories == null ? List.of() : categories;
     }
 
     private List<Purchase> readPurchases() throws IOException {
-        final List<Purchase> purchases =
-                dataStore.readList(PURCHASES_FILE, new TypeReference<List<Purchase>>() { });
+        final List<Purchase> purchases = dataStore.readList(
+                PURCHASES_FILE, new TypeReference<List<Purchase>>() { });
         return purchases == null ? List.of() : purchases;
     }
 
@@ -315,7 +337,10 @@ public class BudgetService {
      * @param spent the amount spent
      * @return the remaining amount
      */
-    static BigDecimal remaining(final BigDecimal limit, final BigDecimal spent) {
+    static BigDecimal remaining(
+            final BigDecimal limit,
+            final BigDecimal spent
+    ) {
         return roundDown(limit.subtract(spent));
     }
 
@@ -326,7 +351,10 @@ public class BudgetService {
      * @param spent the amount spent
      * @return the percent used, or null if the limit isn't positive
      */
-    static BigDecimal percentUsed(final BigDecimal limit, final BigDecimal spent) {
+    static BigDecimal percentUsed(
+            final BigDecimal limit,
+            final BigDecimal spent
+    ) {
         if (limit.signum() <= 0) {
             return null;
         }
@@ -345,17 +373,29 @@ public class BudgetService {
      * @return the updated category or an error
      * @throws IOException if a datastore operation fails
      */
-    public Map<String, Object> updateCategory(String clientId, String budgetId, String categoryId, 
-            String name, BigDecimal limit) throws IOException {
-        return dataStore.withExclusiveLock(() -> updateCategoryWithLock(clientId, budgetId, categoryId, name, limit));
+    public Map<String, Object> updateCategory(
+            final String clientId,
+            final String budgetId,
+            final String categoryId,
+            final String name,
+            final BigDecimal limit
+    ) throws IOException {
+        return dataStore.withExclusiveLock(() -> updateCategoryWithLock(
+                clientId, budgetId, categoryId, name, limit));
     }
 
-    private Map<String, Object> updateCategoryWithLock(String clientId, String budgetId, String categoryId,
-            String name, BigDecimal limit) throws IOException {
+    private Map<String, Object> updateCategoryWithLock(
+            final String clientId,
+            final String budgetId,
+            final String categoryId,
+            final String name,
+            final BigDecimal limit
+    ) throws IOException {
         Map<String, Object> result = new HashMap<>();
 
-        if (clientId == null || clientId.isBlank() || budgetId == null || budgetId.isBlank() || 
-                categoryId == null || categoryId.isBlank()) {
+        if (clientId == null || clientId.isBlank()
+                || budgetId == null || budgetId.isBlank()
+                || categoryId == null || categoryId.isBlank()) {
             result.put("success", false);
             result.put("error", 400);
             result.put("reason", "missing required value");
@@ -383,14 +423,18 @@ public class BudgetService {
             return result;
         }
 
-        List<String> allClients = dataStore.readList("clients.json", new TypeReference<>() { });
+        List<String> allClients = dataStore.readList(
+                "clients.json", new TypeReference<>() { });
 
-        List<Budget> allBudgets = dataStore.readList(BUDGETS_FILE, new TypeReference<>() { });
+        List<Budget> allBudgets = dataStore.readList(
+                BUDGETS_FILE, new TypeReference<>() { });
 
-        List<Category> allCategories = dataStore.readList(CATEGORIES_FILE, new TypeReference<>() { });
+        List<Category> allCategories = dataStore.readList(
+                CATEGORIES_FILE, new TypeReference<>() { });
 
 
-        boolean clientExists = allClients.stream().anyMatch(c -> c.equalsIgnoreCase(clientId.trim()));
+        boolean clientExists = allClients.stream()
+                .anyMatch(c -> c.equalsIgnoreCase(clientId.trim()));
 
         if (!clientExists) {
             result.put("success", false);
@@ -399,9 +443,10 @@ public class BudgetService {
             return result;
         }
 
-        // boolean budgetExists = allBudgets.stream().anyMatch(b -> b.getId().equals(budgetId.trim()));
-        Budget budget = allBudgets.stream().filter(b -> b.getId().equals(budgetId.trim()))
-                                        .findFirst().orElse(null);
+        Budget budget = allBudgets.stream()
+                .filter(b -> b.getId().equals(budgetId.trim()))
+                .findFirst()
+                .orElse(null);
 
         if (budget == null || budget.getClientId() == null
                 || !budget.getClientId().equalsIgnoreCase(clientId.trim())) {
@@ -412,7 +457,8 @@ public class BudgetService {
         }
 
         Category existingCategory = allCategories.stream()
-            .filter(c -> c.getId().equals(categoryId.trim()) && c.getBudgetId().equals(budgetId.trim()))
+            .filter(c -> c.getId().equals(categoryId.trim())
+                    && c.getBudgetId().equals(budgetId.trim()))
             .findFirst()
             .orElse(null);
 
@@ -425,7 +471,8 @@ public class BudgetService {
 
         if (name != null) {
             Category duplicate = allCategories.stream()
-                .filter(c -> c.getBudgetId().equals(budgetId.trim()) && !c.getId().equals(existingCategory.getId()) 
+                .filter(c -> c.getBudgetId().equals(budgetId.trim())
+                    && !c.getId().equals(existingCategory.getId())
                     && c.getName().equalsIgnoreCase(name.trim()))
                 .findFirst()
                 .orElse(null);

@@ -1,7 +1,6 @@
 package com.collective404.budget.model;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
 
 /**
  * Represents one category contained in a budget in the budget API.
@@ -36,7 +35,12 @@ public final class Category {
      * @param name The category name
      * @param limit The category spending limit
      */
-    public Category(String budgetId, final String id, String name, BigDecimal limit) {
+    public Category(
+            final String budgetId,
+            final String id,
+            final String name,
+            final BigDecimal limit
+    ) {
         this.budgetId = budgetId;
         this.id = id;
         this.name = name;
@@ -82,10 +86,10 @@ public final class Category {
     /**
      * Sets the category's budget ID.
      *
-     * @param id The budget ID
+     * @param budgetId the budget ID
      */
-    public void setBudgetId(String id) {
-        this.budgetId = id;
+    public void setBudgetId(final String budgetId) {
+        this.budgetId = budgetId;
     }
 
     /**
@@ -102,7 +106,7 @@ public final class Category {
      *
      * @param name The name
      */
-    public void setName(String name) {
+    public void setName(final String name) {
         this.name = name;
     }
 
@@ -111,7 +115,7 @@ public final class Category {
      *
      * @param limit The limit
      */
-    public void setLimit(BigDecimal limit) {
+    public void setLimit(final BigDecimal limit) {
         this.limit = limit;
     }
 
