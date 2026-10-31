@@ -5,16 +5,17 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
  *
- * BudgetApplication
+ * BudgetApplication.
  */
 @SpringBootApplication
 public final class BudgetApplication {
 
-    /** private constructor to prevent instantiation */
-    private BudgetApplication() {}
+    /** private constructor to prevent instantiation. */
+    private BudgetApplication() {
+    }
 
     /**
-     * Application Entry Point
+     * Application Entry Point.
      * @param args command line arguments
      */
     public static void main(final String[] args) {
