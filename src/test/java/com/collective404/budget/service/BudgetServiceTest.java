@@ -287,7 +287,7 @@ class BudgetServiceTest {
                 .thenReturn(List.of());
 
         final var result = service.createCategory(
-                "clientId", BUDGET_ID, "Food", money("100.00"));
+                "clientId", BUDGET_ID, null, "Food", money("100.00"));
 
         assertAll(
                 () -> assertEquals(false, result.get("success")),
@@ -311,7 +311,7 @@ class BudgetServiceTest {
                 .thenReturn(new ArrayList<>());
 
         final var result = service.createCategory(
-                "clientId", BUDGET_ID, "Food", money("100.00"));
+                "clientId", BUDGET_ID, null, "Food", money("100.00"));
 
         assertAll(
                 () -> assertEquals(true, result.get("success")),

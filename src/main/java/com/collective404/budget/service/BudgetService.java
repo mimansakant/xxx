@@ -57,6 +57,7 @@ public class BudgetService {
      *
      * @param clientId the caller's client identifier
      * @param budgetId the budget identifier, or {@code null} to create a budget
+     * @param budgetName the name for a newly created budget
      * @param name the category name
      * @param limit the category spending limit
      * @return the created category or error message
@@ -64,12 +65,14 @@ public class BudgetService {
     public Map<String, Object> createCategory(
         final String clientId,
         final String budgetId,
+        final String budgetName,
         final String name,
         final BigDecimal limit
     ) throws IOException {
         return dataStore.withExclusiveLock(() -> createCategoryWithLock(
             clientId,
             budgetId,
+            budgetName,
             name,
             limit
         ));
@@ -78,6 +81,7 @@ public class BudgetService {
     private Map<String, Object> createCategoryWithLock(
         final String clientId,
         final String budgetId,
+        final String budgetName,
         final String name,
         final BigDecimal limit
     ) throws IOException {
@@ -95,6 +99,7 @@ public class BudgetService {
             new TypeReference<>() { }
         );
         String newBudgetId = null;
+        String resolvedBudgetName = null;
 
         /* check 1: validate that the category values given are acc allowed */
         /* validate no nulls/empty strings */
@@ -102,6 +107,14 @@ public class BudgetService {
             result.put("success", false);
             result.put("error", 400);
             result.put("reason", "missing required value");
+            return result;
+        }
+        if ((budgetId == null || budgetId.isBlank())
+            && (budgetName == null || budgetName.isBlank())) {
+            result.put("success", false);
+            result.put("error", 400);
+            result.put("reason",
+                "budgetName is required when budgetId is omitted");
             return result;
         }
         /* validate limit outside of null*/
@@ -140,7 +153,7 @@ public class BudgetService {
         /*
          * Check that a provided budget ID exists and belongs to the client.
          */
-        if (budgetId != null && !budgetId.isEmpty()) {
+        if (budgetId != null && !budgetId.isBlank()) {
             Budget budget = allBudgets.stream()
                 .filter(b -> b.getId().equals(budgetId.trim()))
                 .findFirst()
@@ -179,18 +192,20 @@ public class BudgetService {
             /* Budget exists, the client exists, and the category is new. */
             /* so set new budgetId */
             newBudgetId = budgetId.trim();
+            resolvedBudgetName = budget.getName();
         }
 
         /* if budgetId not given then create new budget */
-        if (budgetId == null || budgetId.isEmpty()) {
+        if (budgetId == null || budgetId.isBlank()) {
             Budget newBudget = new Budget(
                 UUID.randomUUID().toString(),
-                "dont_matter_yet",
+                budgetName.trim(),
                     clientId
             );
             allBudgets.add(newBudget);
             dataStore.writeList(BUDGETS_FILE, allBudgets);
             newBudgetId = newBudget.getId();
+            resolvedBudgetName = newBudget.getName();
         }
 
         /* atp budget exists so create new category */
@@ -204,6 +219,7 @@ public class BudgetService {
         dataStore.writeList(CATEGORIES_FILE, allCategories);
         result.put("success", true);
         result.put("returnValue", finalCategory);
+        result.put("budgetName", resolvedBudgetName);
         return result;
     }
 

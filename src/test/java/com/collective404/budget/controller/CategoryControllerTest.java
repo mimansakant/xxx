@@ -65,9 +65,44 @@ class CategoryControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").isNotEmpty())
                 .andExpect(jsonPath("$.name").value("Groceries"))
+                .andExpect(jsonPath("$.budgetName").value("Budget One"))
                 .andExpect(jsonPath("$.limit").value(125.50))
                 .andExpect(jsonPath("$.amountSpent").value(0.00))
                 .andExpect(jsonPath("$.remainingAmount").value(125.50));
+    }
+
+    @Test
+    void createCategoryCreatesNamedBudgetWhenBudgetIdIsOmitted()
+            throws Exception {
+        mockMvc.perform(post(CATEGORY_ENDPOINT)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "clientId": "client-1",
+                                  "budgetName": "Monthly",
+                                  "name": "Groceries",
+                                  "limit": 125.50
+                                }
+                                """))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.budgetName").value("Monthly"));
+    }
+
+    @Test
+    void createCategoryRequiresBudgetNameWhenBudgetIdIsOmitted()
+            throws Exception {
+        mockMvc.perform(post(CATEGORY_ENDPOINT)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "clientId": "client-1",
+                                  "name": "Groceries",
+                                  "limit": 125.50
+                                }
+                                """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.reason").value(
+                        "budgetName is required when budgetId is omitted"));
     }
 
     @Test

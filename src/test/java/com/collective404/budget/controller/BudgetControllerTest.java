@@ -109,12 +109,13 @@ class BudgetControllerTest {
                 "error", 403,
                 "reason", "budgetId does not belong to clientId");
         when(budgetService.createCategory(
-                "clientId", BUDGET_ID, "Food", new BigDecimal("100.00")))
+                "clientId", BUDGET_ID, null, "Food",
+                new BigDecimal("100.00")))
                 .thenReturn(error);
 
         final ResponseEntity<?> response = controller.createCategory(
                 new CategoryRequest(
-                        "clientId", BUDGET_ID, "Food",
+                        "clientId", BUDGET_ID, null, "Food",
                         new BigDecimal("100.00")));
 
         assertAll(

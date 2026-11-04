@@ -71,6 +71,7 @@ public class BudgetController {
         final Map<String, Object> result = budgetService.createCategory(
             categoryRequest.getClientId(),
             categoryRequest.getBudgetId(),
+            categoryRequest.getBudgetName(),
             categoryRequest.getName(),
             categoryRequest.getLimit()
         );
@@ -83,7 +84,8 @@ public class BudgetController {
                 );
             }
             return ResponseEntity.status(HttpStatus.CREATED)
-                .body(CategoryResponse.from(category));
+                .body(CategoryResponse.from(
+                    category, (String) result.get("budgetName")));
         }
 
         final Object error = result.get("error");
