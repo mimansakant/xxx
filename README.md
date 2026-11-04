@@ -182,3 +182,22 @@ tests once the API is running.
 ## Project management
 https://docs.google.com/document/d/1dPkSL4XaQVGZ5zcGpYZGQl_Knnaq3DSBpCox5-VsUOk/edit?usp=sharing
 https://docs.google.com/document/d/1uZDjhIlISiKRD8sdttvT3Qu4LVy5J90z3o2sYpQBNwg/edit?usp=sharing
+
+## AI Disclosure
+AI was used in our project for the following:
+- Creating automated test suites: prompts were to create code for specified test case branches
+- Create the baseline folder structure with file stubs
+- Create the original checkstyle.xml, which was then edited to follow that of the Miniproject
+- Create BudgetDataStore. Prompted to create a class for file reads and writes, resulting code edited for errors
+- Fixing Checkstyle errors using following prompt:
+```
+i have a checkstyle report in @checkstyle.html. Please edit @BudgetControllerTest.java, @CategoryControllerTest.java, @CategoryUpdateControllerTest.java, @BudgetReportResponse.java, @CategoryRequest.java, @CategoryResponse.java, @CategoryUpdateRequest.java, @Budget.java, @Category.java, @Purchase.java, @BudgetService.java, @BudgetServiceTest.java, @CategoryServiceTest.java @CategoryUpdateServiceTest.java @BudgetDataStore.java @InputValidator.java, @InputValidatorUnitTests.java SUCH THAT they fix these errors (ONLY fix these errors, do not try to otherwise optomize or edit code)
+```
+- Adding 1 new functionality to version 2 of POST /budget/category using following prompt:
+```
+change the necessary code in @BudgetService.java, @BudgetController.java, @CategoryRequest.java and @CategoryResponse.java so that in the path where no budgetId is supplied and hence createCategory needs to create a new budget, the client is required to input a budget name in the request body
+**only update the code related to createCategory
+```
+
+### Tool List
+- VSCode Copilot

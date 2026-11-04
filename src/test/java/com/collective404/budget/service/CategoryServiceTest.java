@@ -27,11 +27,14 @@ import org.junit.jupiter.api.io.TempDir;
  */
 class CategoryServiceTest {
 
+    /** JSON mapper used to verify persisted data. */
     private final ObjectMapper objectMapper = new ObjectMapper();
 
+    /** Temporary directory used by the file-backed datastore. */
     @TempDir
-    Path tempDir;
+    private Path tempDir;
 
+    /** Service under test. */
     private BudgetService service;
 
     @BeforeEach
@@ -39,8 +42,10 @@ class CategoryServiceTest {
         Files.writeString(tempDir.resolve("clients.json"), "[\"client-1\"]");
         Files.writeString(
                 tempDir.resolve("budgets.json"),
-                "[{\"id\":\"budget-1\",\"name\":\"Budget One\",\"clientId\":\"client-1\"},"
-                        + "{\"id\":\"budget-2\",\"name\":\"Budget Two\",\"clientId\":\"client-1\"}]"
+                "[{\"id\":\"budget-1\",\"name\":\"Budget One\","
+                        + "\"clientId\":\"client-1\"},"
+                        + "{\"id\":\"budget-2\",\"name\":\"Budget Two\","
+                        + "\"clientId\":\"client-1\"}]"
         );
         Files.writeString(tempDir.resolve("categories.json"), "[]");
         service = new BudgetService(new BudgetDataStore(objectMapper, tempDir));
@@ -49,7 +54,8 @@ class CategoryServiceTest {
     @Test
     void createsAndPersistsCategoryWithRoundedLimit() throws Exception {
         final Map<String, Object> result = service.createCategory(
-                "client-1", "budget-1", "Groceries", new BigDecimal("23.459"));
+                "client-1", "budget-1", null,
+                "Groceries", new BigDecimal("23.459"));
 
         assertEquals(true, result.get("success"));
         final Category category = (Category) result.get("returnValue");
@@ -63,12 +69,16 @@ class CategoryServiceTest {
     @Test
     void rejectsCaseInsensitiveDuplicateButAllowsSameNameInAnotherBudget()
             throws Exception {
-        service.createCategory("client-1", "budget-1", "Groceries", new BigDecimal("20.00"));
+        service.createCategory(
+                "client-1", "budget-1", null,
+                "Groceries", new BigDecimal("20.00"));
 
         final Map<String, Object> duplicate = service.createCategory(
-                "client-1", "budget-1", "gROCERIES", new BigDecimal("30.00"));
+                "client-1", "budget-1", null,
+                "gROCERIES", new BigDecimal("30.00"));
         final Map<String, Object> otherBudget = service.createCategory(
-                "client-1", "budget-2", "Groceries", new BigDecimal("30.00"));
+                "client-1", "budget-2", null,
+                "Groceries", new BigDecimal("30.00"));
 
         assertEquals(409, duplicate.get("error"));
         assertEquals(true, otherBudget.get("success"));
@@ -78,47 +88,63 @@ class CategoryServiceTest {
     @Test
     void createsBudgetWhenBudgetIdIsOmitted() throws Exception {
         final Map<String, Object> result = service.createCategory(
-                "client-1", null, "Utilities", new BigDecimal("75.00"));
+                "client-1", null, "Home", "Utilities",
+                new BigDecimal("75.00"));
         final Category category = (Category) result.get("returnValue");
         final List<Budget> savedBudgets = readBudgets();
 
         assertEquals(true, result.get("success"));
         assertEquals(3, savedBudgets.size());
         assertTrue(savedBudgets.stream().anyMatch(budget ->
-                budget.getId().equals(category.getBudgetId())));
+                budget.getId().equals(category.getBudgetId())
+                        && budget.getName().equals("Home")));
+        assertEquals("Home", result.get("budgetName"));
         assertEquals(category.getId(), readCategories().get(0).getId());
     }
 
     @Test
     void rejectsUnknownClientBudgetAndInvalidValues() throws Exception {
         assertEquals(404, service.createCategory(
-                "missing-client", "budget-1", "Food", new BigDecimal("20.00")).get("error"));
+                "missing-client", "budget-1", null, "Food",
+                new BigDecimal("20.00")).get("error"));
         assertEquals(404, service.createCategory(
-                "client-1", "missing-budget", "Food", new BigDecimal("20.00")).get("error"));
+                "client-1", "missing-budget", null, "Food",
+                new BigDecimal("20.00")).get("error"));
         assertEquals(400, service.createCategory(
-                null, "budget-1", "Food", new BigDecimal("20.00")).get("error"));
+                null, "budget-1", null, "Food",
+                new BigDecimal("20.00")).get("error"));
         assertEquals(400, service.createCategory(
-                "client-1", "budget-1", "123!@#", new BigDecimal("20.00")).get("error"));
+                "client-1", "budget-1", null, "123!@#",
+                new BigDecimal("20.00")).get("error"));
         assertEquals(400, service.createCategory(
-                "client-1", "budget-1", "Food", BigDecimal.ZERO).get("error"));
+                "client-1", "budget-1", null, "Food",
+                BigDecimal.ZERO).get("error"));
         assertEquals(false, service.createCategory(
-                "client-1", "budget-1", "Food", new BigDecimal("-1.00")).get("success"));
+                "client-1", "budget-1", null, "Food",
+                new BigDecimal("-1.00")).get("success"));
+        assertEquals(400, service.createCategory(
+                "client-1", null, null, "Food",
+                new BigDecimal("20.00")).get("error"));
         assertTrue(readCategories().isEmpty());
     }
 
     @Test
-    void rejectsBudgetOwnedByAnotherClientWithoutCreatingCategory() throws Exception {
+    void rejectsBudgetOwnedByAnotherClientWithoutCreatingCategory()
+            throws Exception {
         Files.writeString(
                 tempDir.resolve("budgets.json"),
-                "[{\"id\":\"budget-1\",\"name\":\"Budget One\",\"clientId\":\"another-client\"}]"
+                "[{\"id\":\"budget-1\",\"name\":\"Budget One\","
+                        + "\"clientId\":\"another-client\"}]"
         );
 
         final Map<String, Object> result = service.createCategory(
-                "client-1", "budget-1", "Food", new BigDecimal("20.00"));
+                "client-1", "budget-1", null,
+                "Food", new BigDecimal("20.00"));
 
         assertEquals(false, result.get("success"));
         assertEquals(403, result.get("error"));
-        assertEquals("budgetId does not belong to clientId", result.get("reason"));
+        assertEquals(
+                "budgetId does not belong to clientId", result.get("reason"));
         assertTrue(readCategories().isEmpty());
     }
 
@@ -130,20 +156,25 @@ class CategoryServiceTest {
             final Future<Map<String, Object>> first = executor.submit(() -> {
                 start.await();
                 return service.createCategory(
-                        "client-1", "budget-1", "Groceries", new BigDecimal("20.00"));
+                        "client-1", "budget-1", null, "Groceries",
+                        new BigDecimal("20.00"));
             });
             final Future<Map<String, Object>> second = executor.submit(() -> {
                 start.await();
                 return service.createCategory(
-                        "client-1", "budget-1", "groceries", new BigDecimal("25.00"));
+                        "client-1", "budget-1", null, "groceries",
+                        new BigDecimal("25.00"));
             });
 
             start.countDown();
-            final List<Map<String, Object>> results = List.of(first.get(), second.get());
+            final List<Map<String, Object>> results =
+                    List.of(first.get(), second.get());
             assertEquals(1, results.stream()
-                    .filter(result -> Boolean.TRUE.equals(result.get("success"))).count());
+                    .filter(result -> Boolean.TRUE.equals(
+                            result.get("success"))).count());
             assertEquals(1, results.stream()
-                    .filter(result -> Integer.valueOf(409).equals(result.get("error"))).count());
+                    .filter(result -> Integer.valueOf(409).equals(
+                            result.get("error"))).count());
             assertEquals(1, readCategories().size());
         } finally {
             executor.shutdownNow();

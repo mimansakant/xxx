@@ -4,10 +4,13 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 /**
- * Validator for API inputs
+ * Validator for API inputs.
  */
 
-public class InputValidator {
+public final class InputValidator {
+
+    private InputValidator() {
+    }
 
     /**
      * Checks that an ID String is a UUID in standard form.
@@ -39,7 +42,7 @@ public class InputValidator {
         } catch (NumberFormatException e) {
             return false;
         }
-        if ((limitNum.scale() > 2) || limitNum.compareTo(BigDecimal.ZERO) <= 0) {
+        if (limitNum.scale() > 2 || limitNum.compareTo(BigDecimal.ZERO) <= 0) {
             return false;
         }
         return true;

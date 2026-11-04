@@ -19,14 +19,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Tests for update category
+ * Tests for updating a category.
  */
 class CategoryUpdateServiceTest {
 
+    /** Service under test. */
     private BudgetService service;
 
+    /** Temporary directory used by the file-backed datastore. */
     @TempDir
-    Path tempDir;
+    private Path tempDir;
 
     @BeforeEach
     void setUp() throws Exception {
@@ -52,7 +54,8 @@ class CategoryUpdateServiceTest {
 
         Files.writeString(tempDir.resolve("purchases.json"), "[]");
 
-        BudgetDataStore dataStore = new BudgetDataStore(new ObjectMapper(), tempDir);
+        final BudgetDataStore dataStore = new BudgetDataStore(
+                new ObjectMapper(), tempDir);
 
         service = new BudgetService(dataStore);
     }
@@ -78,8 +81,9 @@ class CategoryUpdateServiceTest {
 
         ObjectMapper mapper = new ObjectMapper();
 
-        List<Category> savedCategories = mapper.readValue(tempDir.resolve("categories.json").toFile(), 
-            new TypeReference<List<Category>>() { });
+        List<Category> savedCategories = mapper.readValue(
+                tempDir.resolve("categories.json").toFile(),
+                new TypeReference<List<Category>>() { });
 
         assertEquals(1, savedCategories.size());
         assertEquals("Food", savedCategories.get(0).getName());
@@ -89,7 +93,8 @@ class CategoryUpdateServiceTest {
 
     @Test
     void updatesNameOnly() throws Exception {
-        Map<String, Object> result = service.updateCategory("client-1", "budget-1", "category-1", "Food", null);
+        Map<String, Object> result = service.updateCategory(
+                "client-1", "budget-1", "category-1", "Food", null);
 
         assertTrue((Boolean) result.get("success"));
 
@@ -100,8 +105,9 @@ class CategoryUpdateServiceTest {
 
     @Test
     void updatesLimitOnly() throws Exception {
-        Map<String, Object> result = service.updateCategory("client-1", "budget-1", "category-1", null, 
-            new BigDecimal("150.00"));
+        Map<String, Object> result = service.updateCategory(
+                "client-1", "budget-1", "category-1", null,
+                new BigDecimal("150.00"));
 
         assertTrue((Boolean) result.get("success"));
 
@@ -112,7 +118,8 @@ class CategoryUpdateServiceTest {
 
     @Test
     void rejectsNoUpdateFields() throws Exception {
-        Map<String, Object> result = service.updateCategory("client-1", "budget-1", "category-1", null, null);
+        Map<String, Object> result = service.updateCategory(
+                "client-1", "budget-1", "category-1", null, null);
 
         assertEquals(false, result.get("success"));
         assertEquals(400, result.get("error"));
