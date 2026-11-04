@@ -7,6 +7,7 @@ import com.collective404.budget.model.Budget;
 import com.collective404.budget.model.Category;
 import com.collective404.budget.model.Purchase;
 import com.collective404.budget.store.BudgetDataStore;
+import com.collective404.budget.validation.InputValidator;
 import com.fasterxml.jackson.core.type.TypeReference;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -104,7 +105,7 @@ public class BudgetService {
             return result;
         }
         /* validate limit outside of null*/
-        if (!(limit.compareTo(BigDecimal.ZERO) > 0)) {
+        if (!InputValidator.isValidLimit(limit.toString())) {
             result.put("success", false);
             result.put("error", 400);
             result.put("reason", "invalid limit");
