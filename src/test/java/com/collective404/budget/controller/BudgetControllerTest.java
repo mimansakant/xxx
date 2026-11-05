@@ -2,9 +2,7 @@ package com.collective404.budget.controller;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -32,13 +30,18 @@ import org.springframework.http.ResponseEntity;
 @ExtendWith(MockitoExtension.class)
 class BudgetControllerTest {
 
-    private static final String BUDGET_ID = "11111111-1111-1111-1111-111111111111";
+    /** A valid budget identifier used in requests. */
+    private static final String BUDGET_ID =
+            "11111111-1111-1111-1111-111111111111";
 
+    /** Mock budget service used by the controller. */
     @Mock
     private BudgetService budgetService;
 
+    /** Controller under test. */
     private BudgetController controller;
 
+    /** Creates the controller before each test. */
     @BeforeEach
     void setUp() {
         controller = new BudgetController(budgetService);
@@ -46,12 +49,14 @@ class BudgetControllerTest {
 
     @Test
     void returns200WithReport() throws IOException {
-        final BudgetReportResponse report = new BudgetReportResponse(BUDGET_ID, "Fall semester",
-                new BigDecimal("200.00"), new BigDecimal("50.00"), new BigDecimal("150.00"),
+        final BudgetReportResponse report = new BudgetReportResponse(
+                BUDGET_ID, "Fall semester", new BigDecimal("200.00"),
+                new BigDecimal("50.00"), new BigDecimal("150.00"),
                 new BigDecimal("25.00"), List.of(), List.of());
         when(budgetService.getBudgetReport(BUDGET_ID)).thenReturn(report);
 
-        final ResponseEntity<?> response = controller.getBudgetReport(BUDGET_ID);
+        final ResponseEntity<?> response =
+                controller.getBudgetReport(BUDGET_ID);
 
         assertAll(
                 () -> assertEquals(HttpStatus.OK, response.getStatusCode()),
@@ -62,16 +67,20 @@ class BudgetControllerTest {
     void returns404WhenBudgetMissing() throws IOException {
         when(budgetService.getBudgetReport(BUDGET_ID)).thenReturn(null);
 
-        final ResponseEntity<?> response = controller.getBudgetReport(BUDGET_ID);
+        final ResponseEntity<?> response =
+                controller.getBudgetReport(BUDGET_ID);
 
         assertAll(
-                () -> assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode()),
-                () -> assertEquals(404, ((Map<?, ?>) response.getBody()).get("status")));
+                () -> assertEquals(
+                        HttpStatus.NOT_FOUND, response.getStatusCode()),
+                () -> assertEquals(
+                        404, ((Map<?, ?>) response.getBody()).get("status")));
     }
 
     @Test
     void returns400ForNonUuidIdAndSkipsService() throws IOException {
-        final ResponseEntity<?> response = controller.getBudgetReport("not-a-uuid");
+        final ResponseEntity<?> response =
+                controller.getBudgetReport("not-a-uuid");
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         verify(budgetService, never()).getBudgetReport(anyString());
@@ -79,13 +88,18 @@ class BudgetControllerTest {
 
     @Test
     void returns500WhenDataUnavailable() throws IOException {
-        when(budgetService.getBudgetReport(BUDGET_ID)).thenThrow(new IOException("disk gone"));
+        when(budgetService.getBudgetReport(BUDGET_ID))
+                .thenThrow(new IOException("disk gone"));
 
-        final ResponseEntity<?> response = controller.getBudgetReport(BUDGET_ID);
+        final ResponseEntity<?> response =
+                controller.getBudgetReport(BUDGET_ID);
 
         assertAll(
-                () -> assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode()),
-                () -> assertEquals(500, ((Map<?, ?>) response.getBody()).get("status")));
+                () -> assertEquals(
+                        HttpStatus.INTERNAL_SERVER_ERROR,
+                        response.getStatusCode()),
+                () -> assertEquals(
+                        500, ((Map<?, ?>) response.getBody()).get("status")));
     }
 
     @Test
@@ -99,10 +113,13 @@ class BudgetControllerTest {
                 .thenReturn(error);
 
         final ResponseEntity<?> response = controller.createCategory(
-                new CategoryRequest("clientId", BUDGET_ID, "Food", new BigDecimal("100.00")));
+                new CategoryRequest(
+                        "clientId", BUDGET_ID, "Food",
+                        new BigDecimal("100.00")));
 
         assertAll(
-                () -> assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode()),
+                () -> assertEquals(
+                        HttpStatus.FORBIDDEN, response.getStatusCode()),
                 () -> assertSame(error, response.getBody()));
     }
 }

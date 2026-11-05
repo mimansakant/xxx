@@ -35,30 +35,48 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class BudgetServiceTest {
 
-    private static final String BUDGET_ID = "11111111-1111-1111-1111-111111111111";
-    private static final String OTHER_BUDGET_ID = "99999999-9999-9999-9999-999999999999";
-    private static final String FOOD_ID = "22222222-2222-2222-2222-222222222222";
-    private static final String RENT_ID = "33333333-3333-3333-3333-333333333333";
-    private static final String OTHER_CAT_ID = "44444444-4444-4444-4444-444444444444";
+    /** Identifier of the budget under test. */
+    private static final String BUDGET_ID =
+            "11111111-1111-1111-1111-111111111111";
+    /** Identifier of a different budget. */
+    private static final String OTHER_BUDGET_ID =
+            "99999999-9999-9999-9999-999999999999";
+    /** Identifier of the food category. */
+    private static final String FOOD_ID =
+            "22222222-2222-2222-2222-222222222222";
+    /** Identifier of the rent category. */
+    private static final String RENT_ID =
+            "33333333-3333-3333-3333-333333333333";
+    /** Identifier of another category. */
+    private static final String OTHER_CAT_ID =
+            "44444444-4444-4444-4444-444444444444";
+    /** Zero amount with two decimal places. */
     private static final BigDecimal ZERO = new BigDecimal("0.00");
 
+    /** Mock datastore used by the service. */
     @Mock
     private BudgetDataStore dataStore;
 
+    /** Service under test. */
     private BudgetService service;
 
     @BeforeEach
     void setUp() throws IOException {
         service = new BudgetService(dataStore);
-        lenient().when(dataStore.withExclusiveLock(any())).thenAnswer(
-                invocation -> invocation.<DataStoreOperation<?>>getArgument(0).execute());
+        lenient().when(dataStore.withExclusiveLock(any()))
+                .thenAnswer(invocation -> invocation
+                        .<DataStoreOperation<?>>getArgument(0).execute());
     }
 
     private static BigDecimal money(final String value) {
         return new BigDecimal(value);
     }
 
-    private static Category category(final String id, final String name, final String limit) {
+    private static Category category(
+            final String id,
+            final String name,
+            final String limit
+    ) {
         return new Category(BUDGET_ID, id, name, money(limit));
     }
 
@@ -75,26 +93,35 @@ class BudgetServiceTest {
             final List<Category> categories,
             final List<Purchase> purchases
     ) throws IOException {
-        when(dataStore.<Budget>readList(eq(BudgetService.BUDGETS_FILE), any()))
-                .thenReturn(List.of(new Budget(BUDGET_ID, "Fall semester", "clientId")));
-        when(dataStore.<Category>readList(eq(BudgetService.CATEGORIES_FILE), any()))
+        when(dataStore.<Budget>readList(
+                eq(BudgetService.BUDGETS_FILE), any()))
+                .thenReturn(List.of(
+                        new Budget(BUDGET_ID, "Fall semester", "clientId")));
+        when(dataStore.<Category>readList(
+                eq(BudgetService.CATEGORIES_FILE), any()))
                 .thenReturn(categories);
-        when(dataStore.<Purchase>readList(eq(BudgetService.PURCHASES_FILE), any()))
+        when(dataStore.<Purchase>readList(
+                eq(BudgetService.PURCHASES_FILE), any()))
                 .thenReturn(purchases);
     }
 
     @Test
     void unknownBudgetReturnsNullAndSkipsPurchases() throws IOException {
-        when(dataStore.<Budget>readList(eq(BudgetService.BUDGETS_FILE), any()))
-                .thenReturn(List.of(new Budget(OTHER_BUDGET_ID, "Someone else", "clientId")));
+        when(dataStore.<Budget>readList(
+                eq(BudgetService.BUDGETS_FILE), any()))
+                .thenReturn(List.of(
+                        new Budget(
+                                OTHER_BUDGET_ID, "Someone else", "clientId")));
 
         assertNull(service.getBudgetReport(BUDGET_ID));
-        verify(dataStore, never()).readList(eq(BudgetService.PURCHASES_FILE), any());
+        verify(dataStore, never()).readList(
+                eq(BudgetService.PURCHASES_FILE), any());
     }
 
     @Test
     void emptyBudgetsFileReturnsNull() throws IOException {
-        when(dataStore.<Budget>readList(eq(BudgetService.BUDGETS_FILE), any())).thenReturn(null);
+        when(dataStore.<Budget>readList(
+                eq(BudgetService.BUDGETS_FILE), any())).thenReturn(null);
 
         assertNull(service.getBudgetReport(BUDGET_ID));
     }
@@ -115,10 +142,12 @@ class BudgetServiceTest {
     }
 
     @Test
-    void categoryWithNoPurchasesShowsItsFullLimitRemaining() throws IOException {
+    void categoryWithNoPurchasesShowsItsFullLimitRemaining()
+            throws IOException {
         givenData(List.of(category(FOOD_ID, "Food", "200.00")), List.of());
 
-        final CategoryReport food = service.getBudgetReport(BUDGET_ID).categories().get(0);
+        final CategoryReport food = service.getBudgetReport(BUDGET_ID)
+                .categories().get(0);
 
         assertAll(
                 () -> assertEquals(money("0.00"), food.spent()),
@@ -153,7 +182,8 @@ class BudgetServiceTest {
     void overspentCategoryHasNegativeRemaining() throws IOException {
         givenData(List.of(category(FOOD_ID, "Food", "100.00")),
                 List.of(purchase("p1", FOOD_ID, "150.00", "2026-10-01")));
-        final CategoryReport food = service.getBudgetReport(BUDGET_ID).categories().get(0);
+        final CategoryReport food = service.getBudgetReport(BUDGET_ID)
+                .categories().get(0);
 
         assertAll(
                 () -> assertEquals(money("-50.00"), food.remaining()),
@@ -167,25 +197,33 @@ class BudgetServiceTest {
         final BudgetReportResponse report = service.getBudgetReport(BUDGET_ID);
 
         assertAll(
-                () -> assertEquals(money("3.34"), report.categories().get(0).spent()),
-                () -> assertEquals(money("6.66"), report.categories().get(0).remaining()),
-                () -> assertEquals(money("3.34"), report.purchases().get(0).amount()));
+                () -> assertEquals(
+                        money("3.34"), report.categories().get(0).spent()),
+                () -> assertEquals(
+                        money("6.66"), report.categories().get(0).remaining()),
+                () -> assertEquals(
+                        money("3.34"), report.purchases().get(0).amount()));
     }
 
     @Test
     void ignoresOtherBudgetsAndOrphanPurchases() throws IOException {
         givenData(
                 List.of(category(FOOD_ID, "Food", "100.00"),
-                        new Category(OTHER_BUDGET_ID, OTHER_CAT_ID, "Food", money("500.00"))),
+                        new Category(
+                                OTHER_BUDGET_ID, OTHER_CAT_ID, "Food",
+                                money("500.00"))),
                 List.of(purchase("mine", FOOD_ID, "10.00", "2026-10-01"),
                         purchase("theirs", OTHER_CAT_ID, "99.00", "2026-10-01"),
-                        purchase("orphan", "missing-category", "5.00", "2026-10-01")));
+                        purchase(
+                                "orphan", "missing-category", "5.00",
+                                "2026-10-01")));
         final BudgetReportResponse report = service.getBudgetReport(BUDGET_ID);
 
         assertAll(
                 () -> assertEquals(1, report.categories().size()),
                 () -> assertEquals(1, report.purchases().size()),
-                () -> assertEquals("mine", report.purchases().get(0).purchaseId()),
+                () -> assertEquals(
+                        "mine", report.purchases().get(0).purchaseId()),
                 () -> assertEquals(money("10.00"), report.totalSpent()));
     }
 
@@ -194,7 +232,10 @@ class BudgetServiceTest {
         givenData(List.of(category(FOOD_ID, "Food", "100.00")),
                 List.of(purchase("p1", FOOD_ID, "10.00", "2026-10-01")));
 
-        assertEquals("Food", service.getBudgetReport(BUDGET_ID).purchases().get(0).categoryName());
+        assertEquals(
+                "Food",
+                service.getBudgetReport(BUDGET_ID).purchases().get(0)
+                        .categoryName());
     }
 
     @Test
@@ -206,8 +247,11 @@ class BudgetServiceTest {
         final List<BudgetReportResponse.PurchaseSummary> purchases =
                 service.getBudgetReport(BUDGET_ID).purchases();
 
-        assertEquals(List.of("early", "late"),
-                purchases.stream().map(BudgetReportResponse.PurchaseSummary::purchaseId).toList());
+        assertEquals(
+                List.of("early", "late"),
+                purchases.stream()
+                        .map(BudgetReportResponse.PurchaseSummary::purchaseId)
+                        .toList());
     }
 
     @Test
@@ -225,16 +269,21 @@ class BudgetServiceTest {
         when(dataStore.<Budget>readList(eq(BudgetService.BUDGETS_FILE), any()))
                 .thenThrow(new IOException("disk gone"));
 
-        assertThrows(IOException.class, () -> service.getBudgetReport(BUDGET_ID));
+        assertThrows(
+                IOException.class, () -> service.getBudgetReport(BUDGET_ID));
     }
 
     @Test
     void rejectsCategoryWhenBudgetBelongsToAnotherClient() throws IOException {
-        when(dataStore.<Budget>readList(eq(BudgetService.BUDGETS_FILE), any()))
-                .thenReturn(List.of(new Budget(BUDGET_ID, "Fall semester", "other-client")));
+        when(dataStore.<Budget>readList(
+                eq(BudgetService.BUDGETS_FILE), any()))
+                .thenReturn(List.of(
+                        new Budget(
+                                BUDGET_ID, "Fall semester", "other-client")));
         when(dataStore.<String>readList(eq("clients.json"), any()))
                 .thenReturn(List.of("clientId"));
-        when(dataStore.<Category>readList(eq(BudgetService.CATEGORIES_FILE), any()))
+        when(dataStore.<Category>readList(
+                eq(BudgetService.CATEGORIES_FILE), any()))
                 .thenReturn(List.of());
 
         final var result = service.createCategory(
@@ -243,17 +292,22 @@ class BudgetServiceTest {
         assertAll(
                 () -> assertEquals(false, result.get("success")),
                 () -> assertEquals(403, result.get("error")),
-                () -> assertEquals("budgetId does not belong to clientId", result.get("reason")));
-        verify(dataStore, never()).writeList(eq(BudgetService.CATEGORIES_FILE), any());
+                () -> assertEquals(
+                        "budgetId does not belong to clientId",
+                        result.get("reason")));
+        verify(dataStore, never()).writeList(
+                eq(BudgetService.CATEGORIES_FILE), any());
     }
 
     @Test
     void createsCategoryWhenBudgetBelongsToClient() throws IOException {
         when(dataStore.<Budget>readList(eq(BudgetService.BUDGETS_FILE), any()))
-                .thenReturn(List.of(new Budget(BUDGET_ID, "Fall semester", "CLIENTID")));
+                .thenReturn(List.of(
+                        new Budget(BUDGET_ID, "Fall semester", "CLIENTID")));
         when(dataStore.<String>readList(eq("clients.json"), any()))
                 .thenReturn(List.of("clientId"));
-        when(dataStore.<Category>readList(eq(BudgetService.CATEGORIES_FILE), any()))
+        when(dataStore.<Category>readList(
+                eq(BudgetService.CATEGORIES_FILE), any()))
                 .thenReturn(new ArrayList<>());
 
         final var result = service.createCategory(
@@ -271,6 +325,7 @@ class BudgetServiceTest {
         assertAll(
                 () -> assertEquals(ZERO, BudgetService.roundUp(null)),
                 () -> assertEquals(ZERO, BudgetService.roundDown(null)),
-                () -> assertNull(BudgetService.percentUsed(ZERO, money("5.00"))));
+                () -> assertNull(
+                        BudgetService.percentUsed(ZERO, money("5.00"))));
     }
 }
