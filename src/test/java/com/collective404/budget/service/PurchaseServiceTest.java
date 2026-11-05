@@ -23,9 +23,13 @@ import org.springframework.web.server.ResponseStatusException;
 /** Unit tests for client access to budgets when creating purchases. */
 final class PurchaseServiceTest {
 
+    /** Category identifier shared by purchase tests. */
     private static final String CATEGORY_ID = "cat-1";
+    /** Client identifier shared by purchase tests. */
     private static final String CLIENT_ID = "client-1";
+    /** Budget identifier shared by purchase tests. */
     private static final String BUDGET_ID = "budget-1";
+    /** Purchase amount shared by purchase tests. */
     private static final BigDecimal PURCHASE_AMOUNT = new BigDecimal("12.50");
 
     /**
@@ -49,7 +53,8 @@ final class PurchaseServiceTest {
     @Test
     void rejectsOtherClientsBudgetWithForbiddenStatus() throws IOException {
         final PurchaseService service = serviceWithBudgetOwner("other-client");
-        assertEquals(HttpStatus.FORBIDDEN, statusWhenCreatingPurchase(service),
+        assertEquals(HttpStatus.FORBIDDEN,
+                statusWhenCreatingPurchase(service),
                 "Unauthorized budget access must be forbidden");
     }
 
@@ -61,7 +66,8 @@ final class PurchaseServiceTest {
     @Test
     void ownerPurchaseHasExpectedCategory() throws IOException {
         final PurchaseService service = serviceWithBudgetOwner(CLIENT_ID);
-        final Purchase purchase = service.createPurchase(request(), CATEGORY_ID);
+        final Purchase purchase = service.createPurchase(
+                request(), CATEGORY_ID);
         assertEquals(CATEGORY_ID, purchase.getCategoryId(),
                 "The purchase must use the requested category");
     }
@@ -74,7 +80,8 @@ final class PurchaseServiceTest {
     @Test
     void ownerPurchaseHasExpectedAmount() throws IOException {
         final PurchaseService service = serviceWithBudgetOwner(CLIENT_ID);
-        final Purchase purchase = service.createPurchase(request(), CATEGORY_ID);
+        final Purchase purchase = service.createPurchase(
+                request(), CATEGORY_ID);
         assertEquals(PURCHASE_AMOUNT, purchase.getAmount(),
                 "The purchase must keep the requested amount");
     }
