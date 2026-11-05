@@ -47,4 +47,13 @@ public final class InputValidator {
         }
         return true;
     }
+
+    public static boolean isValidAmount(final BigDecimal amount) {
+        if (amount == null
+                || amount.compareTo(BigDecimal.ZERO) <= 0
+                || amount.scale() > 2) {
+            return false;
+        }
+        return true;
+    }
 }
