@@ -6,15 +6,16 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import com.collective404.budget.dto.BudgetReportResponse;
 import com.collective404.budget.dto.CategoryRequest;
 import com.collective404.budget.dto.CategoryResponse;
 import com.collective404.budget.model.Category;
+import com.collective404.budget.service.BudgetReportResult;
 import com.collective404.budget.service.BudgetService;
 import com.collective404.budget.dto.CategoryUpdateRequest;
 import com.collective404.budget.validation.InputValidator;
@@ -33,6 +34,9 @@ import java.util.Map;
     methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PATCH}
 )
 public class BudgetController {
+
+    /** Header that carries the caller's API key. */
+    static final String API_KEY_HEADER = "X-API-Key";
 
     /** the service. */
     private final BudgetService budgetService;
@@ -96,31 +100,38 @@ public class BudgetController {
     }
 
 /**
- * Returns the spending report for one budget.
+ * Returns the spending report for one budget. The caller identifies itself
+ * with its API key in the X-API-Key header and can only see its own budgets.
  *
- * <p>200 with the report, 400 if the ID isn't a UUID,
- * 404 if no budget has that ID,
- * and 500 if the data files can't be read.
+ * <p>200 with the report, 400 if the ID isn't a UUID, 401 if the API key is
+ * missing or unknown, 403 if the budget belongs to another client, 404 if no
+ * budget has that ID, and 500 if the data files can't be read.
  *
  * @param budgetId the budget ID
+ * @param apiKey the caller's API key
  * @return the report or an error body
  */
 @GetMapping("/budget/{budgetId}")
 public ResponseEntity<?> getBudgetReport(
-    @PathVariable("budgetId") final String budgetId
+    @PathVariable("budgetId") final String budgetId,
+    @RequestHeader(value = API_KEY_HEADER, required = false)
+    final String apiKey
 ) {
     if (!InputValidator.isValidUuid(budgetId)) {
         return error(HttpStatus.BAD_REQUEST,
             "budgetId must be a valid UUID");
     }
+    if (apiKey == null || apiKey.isBlank()) {
+        return error(HttpStatus.UNAUTHORIZED,
+            "Missing " + API_KEY_HEADER + " header");
+    }
     try {
-        final BudgetReportResponse report = budgetService
-                                .getBudgetReport(budgetId);
-        if (report == null) {
-            return error(HttpStatus.NOT_FOUND,
-                "No budget found with id " + budgetId);
+        final BudgetReportResult result =
+            budgetService.getBudgetReport(budgetId, apiKey.trim());
+        if (result.isOk()) {
+            return ResponseEntity.ok(result.report());
         }
-        return ResponseEntity.ok(report);
+        return error(HttpStatus.valueOf(result.status()), result.reason());
     } catch (IOException e) {
         return error(HttpStatus.INTERNAL_SERVER_ERROR,
             "Budget data is unavailable");
