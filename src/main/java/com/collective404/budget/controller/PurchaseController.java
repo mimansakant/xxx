@@ -16,10 +16,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 @RequestMapping("/purchases")
 public class PurchaseController {
 
-    /** The service used by the controller */
+    /** The service used by the controller. */
     private final PurchaseService purchaseService;
 
-    /** Constructs a PurchaseController
+    /** Constructs a PurchaseController.
      *
      * @param purchaseService the service used by the controller
      */
@@ -28,15 +28,17 @@ public class PurchaseController {
     }
 
     /**
-     * Posts a purchase to the client's requested category
+     * Posts a purchase to the client's requested category.
      *
-     * @param request the request with purchase information to be added
-     * @return HTTP status 201 if successful, or 400 if required information is not included in the request
+     * @param request the request with purchase information to
+     *                be added
+     * @return HTTP status 201 if successful, or 400 if
+     *                required information is not included in the request
      * @throws IOException
      */
     @PostMapping
-    public ResponseEntity<Purchase> addPurchase(
-            @RequestBody PurchaseRequest request) throws IOException {
+    public final ResponseEntity<Purchase> addPurchase(
+            @RequestBody final PurchaseRequest request) throws IOException {
 
         // Temporary: category selection will be implemented next.
         String categoryId = request.getCategory();
@@ -47,8 +49,16 @@ public class PurchaseController {
         return ResponseEntity.status(HttpStatus.CREATED).body(purchase);
     }
 
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<String> handleInvalidAmount(final IllegalArgumentException e) {
+    /**
+     * Handles illegal argument exceptions by returning
+     * HTTP status 400 Bad Request.
+     *
+     * @param e the exception
+     * @return HTTP status 400
+     */
+    final @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<String> handleInvalidAmount(
+            final IllegalArgumentException e) {
         return ResponseEntity.badRequest().body(e.getMessage());
     }
 }

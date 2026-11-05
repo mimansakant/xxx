@@ -6,27 +6,27 @@ import java.math.BigDecimal;
 
 public class PurchaseResponse {
 
-    /** Purchase ID */
+    /** The ID of the purchase. */
     private String id;
 
-    /** ID of category that purchase is in */
+    /** The ID of category that purchase is in. */
     private String categoryId;
 
-    /** Purchase name */
+    /** The purchase name. */
     private String name;
 
-    /** Purchase amount */
+    /** The purchase amount. */
     private BigDecimal amount;
 
-    /** Purchase date */
+    /** The purchase date. */
     private String date;
 
-    /** Default empty constructor */
+    /** Default empty constructor. */
     public PurchaseResponse() {
         // This constructor is intentionally left empty.
     }
 
-    /** Constructs a PurchaseResponse
+    /** Constructs a PurchaseResponse.
      *
      * @param id the purchase ID
      * @param categoryId the ID of the category the purchase is in
@@ -45,7 +45,7 @@ public class PurchaseResponse {
     }
 
     /**
-     * Gets the ID of the purchase
+     * Gets the ID of the purchase.
      *
      * @return the purchase ID
      */
@@ -54,7 +54,7 @@ public class PurchaseResponse {
     }
 
     /**
-     * Sets the ID of the purchase
+     * Sets the ID of the purchase.
      *
      * @param id the purchase ID
      */
@@ -63,7 +63,7 @@ public class PurchaseResponse {
     }
 
     /**
-     * Gets the ID of the category the purchase is in
+     * Gets the ID of the category the purchase is in.
      *
      * @return the category ID
      */
@@ -72,7 +72,7 @@ public class PurchaseResponse {
     }
 
     /**
-     * Sets the ID of the category the purchase is in
+     * Sets the ID of the category the purchase is in.
      *
      * @param categoryId the ID of the category to put this purchase in
      */
@@ -81,7 +81,7 @@ public class PurchaseResponse {
     }
 
     /**
-     * Gets the purchase name
+     * Gets the purchase name.
      *
      * @return the purchase name
      */
@@ -90,7 +90,7 @@ public class PurchaseResponse {
     }
 
     /**
-     * Sets the purchase name
+     * Sets the purchase name.
      *
      * @param name the name to assign to the purchase
      */
@@ -99,7 +99,7 @@ public class PurchaseResponse {
     }
 
     /**
-     * Gets the purchase amount
+     * Gets the purchase amount.
      *
      * @return the purchase amount
      */
@@ -108,16 +108,17 @@ public class PurchaseResponse {
     }
 
     /**
-     * Sets the purchase amount
+     * Sets the purchase amount.
      *
-     * @param amount the amount (in dollars up to two decimal points) of the purchase
+     * @param amount the amount (in dollars up to two decimal points)
+     *               of the purchase
      */
     public final void setAmount(final BigDecimal amount) {
         this.amount = amount;
     }
 
     /**
-     * Gets the date of the purchase
+     * Gets the date of the purchase.
      *
      * @return the purchase date
      */
@@ -126,7 +127,7 @@ public class PurchaseResponse {
     }
 
     /**
-     * Sets the date of the purchase
+     * Sets the date of the purchase.
      *
      * @param date the purchase date (in DD-MM-YYYY format)
      */

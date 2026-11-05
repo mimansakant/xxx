@@ -3,7 +3,6 @@ import com.collective404.budget.dto.PurchaseRequest;
 import com.collective404.budget.model.Purchase;
 import java.time.LocalDate;
 import java.util.UUID;
-import java.math.BigDecimal;
 import com.collective404.budget.store.BudgetDataStore;
 import com.collective404.budget.validation.InputValidator;
 import org.springframework.stereotype.Service;
@@ -18,11 +17,11 @@ import com.collective404.budget.model.Category;
 @Service
 public class PurchaseService {
 
-    /** Datastore providing access to JSON files in resources/data directory */
+    /** Datastore providing access to JSON files in resources/data directory. */
     private final BudgetDataStore dataStore;
 
     /**
-     * Constructs a PurchaseService
+     * Constructs a PurchaseService.
      *
      * @param dataStore the datastore with path to data directory
      */
@@ -31,7 +30,7 @@ public class PurchaseService {
     }
 
     /**
-     * Creates a new purchase from a request
+     * Creates a new purchase from a request.
      *
      * @param request the PurchaseRequest with information for the new purchase
      * @param categoryId the ID of the category that owns the purchase
@@ -107,7 +106,7 @@ public class PurchaseService {
     }
 
     /**
-     * Saves a purchase to the datastore
+     * Saves a purchase to the datastore.
      *
      * @param purchase the purchase to be saved
      * @throws IOException if reading or writing to the datastore fails

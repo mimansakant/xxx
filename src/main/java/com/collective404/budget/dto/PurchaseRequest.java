@@ -5,23 +5,23 @@ import java.math.BigDecimal;
 
 public class PurchaseRequest {
 
-    /** The ID of the client that owns the purchase */
+    /** The ID of the client that owns the purchase. */
     private String clientId;
 
-    /** The ID of the budget that owns the purchase */
+    /** The ID of the budget that owns the purchase. */
     private String budgetId;
 
-    /** The name of the purchase */
+    /** The name of the purchase. */
     private String name;
 
-    /** The amount of the purchase */
+    /** The amount of the purchase. */
     private BigDecimal amount;
 
-    /** The name of the category that owns the purchase */
+    /** The name of the category that owns the purchase. */
     private String category;
 
     /**
-     * Gets the ID of the client that owns the purchase
+     * Gets the ID of the client that owns the purchase.
      *
      * @return the client ID
      */
@@ -30,7 +30,7 @@ public class PurchaseRequest {
     }
 
     /**
-     * Sets the ID of the client that owns the purchase
+     * Sets the ID of the client that owns the purchase.
      *
      * @param clientId the client ID
      */
@@ -39,7 +39,7 @@ public class PurchaseRequest {
     }
 
     /**
-     * Gets the ID of the budget that owns the purchase
+     * Gets the ID of the budget that owns the purchase.
      *
      * @return the budget ID
      */
@@ -48,7 +48,7 @@ public class PurchaseRequest {
     }
 
     /**
-     * Sets the ID of the budget that owns the purchase
+     * Sets the ID of the budget that owns the purchase.
      *
      * @param budgetId the budget ID
      */
@@ -57,7 +57,7 @@ public class PurchaseRequest {
     }
 
     /**
-     * Gets the purchase name
+     * Gets the purchase name.
      *
      * @return the purchase name
      */
@@ -66,7 +66,7 @@ public class PurchaseRequest {
     }
 
     /**
-     * Sets the purchase name
+     * Sets the purchase name.
      *
      * @param name the purchase name
      */
@@ -75,7 +75,7 @@ public class PurchaseRequest {
     }
 
     /**
-     * Gets the purchase amount
+     * Gets the purchase amount.
      *
      * @return the purchase amount
      */
@@ -84,7 +84,7 @@ public class PurchaseRequest {
     }
 
     /**
-     * Sets the purchase amount
+     * Sets the purchase amount.
      *
      * @param amount the purchase amount (in dollars up to two decimal points)
      */
@@ -93,7 +93,7 @@ public class PurchaseRequest {
     }
 
     /**
-     * Gets the name of the category that owns the purchase
+     * Gets the name of the category that owns the purchase.
      *
      * @return the category name
      */
@@ -102,7 +102,7 @@ public class PurchaseRequest {
     }
 
     /**
-     * Sets the name of the category that owns the purchase
+     * Sets the name of the category that owns the purchase.
      *
      * @param category the category name
      */
