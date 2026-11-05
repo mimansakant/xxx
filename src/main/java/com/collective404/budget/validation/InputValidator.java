@@ -30,7 +30,8 @@ public final class InputValidator {
     }
 
     /**
-     * Checks that a budget limit is greater than zero with no more than 2 decimal places.
+     * Checks that a budget limit is greater than zero with no more than 2
+     * decimal places.
      *
      * @param limit the limit to check
      * @return true if the limit is valid
@@ -49,7 +50,8 @@ public final class InputValidator {
     }
 
     /**
-     * Checks that a purchase amount is greater than zero with no more than 2 decimal places.
+     * Checks that a purchase amount is greater than zero with no more than 2
+     * decimal places.
      *
      * @param amount the amount to check
      * @return true if the amount is valid
