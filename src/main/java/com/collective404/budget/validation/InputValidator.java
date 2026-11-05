@@ -2,12 +2,31 @@ package com.collective404.budget.validation;
 
 import java.math.BigDecimal;
 import java.util.UUID;
+import com.collective404.budget.dto.PurchaseRequest;
 
 /**
  * Validator for API inputs.
  */
 
 public final class InputValidator {
+
+    /**
+     * Checks required purchase fields and amount before calling the service.
+     *
+     * @param request purchase payload
+     * @return true when the payload is valid
+     */
+    public static boolean isValidPurchaseRequest(
+            final PurchaseRequest request) {
+        return request != null
+                && request.getClientId() != null
+                && !request.getClientId().isBlank()
+                && request.getBudgetId() != null
+                && !request.getBudgetId().isBlank()
+                && request.getName() != null
+                && !request.getName().isBlank()
+                && isValidAmount(request.getAmount());
+    }
 
     private InputValidator() {
     }

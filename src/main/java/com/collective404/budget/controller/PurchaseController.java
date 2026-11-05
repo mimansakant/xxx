@@ -1,64 +1,53 @@
 package com.collective404.budget.controller;
 
-import com.collective404.budget.service.PurchaseService;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RequestMapping;
 import com.collective404.budget.dto.PurchaseRequest;
 import com.collective404.budget.model.Purchase;
+import com.collective404.budget.service.PurchaseService;
+import com.collective404.budget.validation.InputValidator;
 import java.io.IOException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
+/** REST endpoint for recording purchases. */
 @RestController
 @RequestMapping("/purchases")
-public class PurchaseController {
+public final class PurchaseController {
 
-    /** The service used by the controller. */
+    /** Service for purchase operations. */
     private final PurchaseService purchaseService;
 
-    /** Constructs a PurchaseController.
+    /**
+     * Creates the controller.
      *
-     * @param purchaseService the service used by the controller
+     * @param purchaseService service used for purchases
      */
     public PurchaseController(final PurchaseService purchaseService) {
         this.purchaseService = purchaseService;
     }
 
     /**
-     * Posts a purchase to the client's requested category.
+     * Records a purchase after validating its input.
      *
-     * @param request the request with purchase information to
-     *                be added
-     * @return HTTP status 201 if successful, or 400 if
-     *                required information is not included in the request
-     * @throws IOException
+     * @param request purchase information
+     * @return the newly created purchase
+     * @throws IOException when the datastore cannot be accessed
      */
     @PostMapping
-    public final ResponseEntity<Purchase> addPurchase(
+    public ResponseEntity<Purchase> addPurchase(
             @RequestBody final PurchaseRequest request) throws IOException {
+        if (!InputValidator.isValidPurchaseRequest(request)) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "Invalid purchase request");
+        }
 
-        // Temporary: category selection will be implemented next.
-        String categoryId = request.getCategory();
-
-        Purchase purchase = purchaseService.createPurchase(request, categoryId);
+        final Purchase purchase = purchaseService.createPurchase(
+                request, request.getCategory());
         purchaseService.savePurchase(purchase);
-
         return ResponseEntity.status(HttpStatus.CREATED).body(purchase);
-    }
-
-    /**
-     * Handles illegal argument exceptions by returning
-     * HTTP status 400 Bad Request.
-     *
-     * @param e the exception
-     * @return HTTP status 400
-     */
-    final @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<String> handleInvalidAmount(
-            final IllegalArgumentException e) {
-        return ResponseEntity.badRequest().body(e.getMessage());
     }
 }
