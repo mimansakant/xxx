@@ -10,14 +10,22 @@ import org.junit.jupiter.api.Test;
 /** Unit tests for purchase request validation. */
 final class InputValidatorUnitTests {
 
-    /** Checks that the validator rejects invalid amounts. */
+    /** Checks that zero purchase amounts are rejected. */
     @Test
-    void rejectsInvalidPurchaseAmount() {
+    void rejectsZeroPurchaseAmount() {
         final PurchaseRequest request = validRequest();
-        request.setAmount(new BigDecimal("0"));
-        assertFalse(InputValidator.isValidPurchaseRequest(request));
+        request.setAmount(BigDecimal.ZERO);
+        assertFalse(InputValidator.isValidPurchaseRequest(request),
+                "A purchase amount must be positive");
+    }
+
+    /** Checks that amounts with too many decimal places are rejected. */
+    @Test
+    void rejectsPurchaseAmountWithThreeDecimals() {
+        final PurchaseRequest request = validRequest();
         request.setAmount(new BigDecimal("1.001"));
-        assertFalse(InputValidator.isValidPurchaseRequest(request));
+        assertFalse(InputValidator.isValidPurchaseRequest(request),
+                "A purchase amount must have no more than two decimals");
     }
 
     /** Checks that required fields are enforced. */
@@ -25,13 +33,15 @@ final class InputValidatorUnitTests {
     void rejectsMissingRequiredFields() {
         final PurchaseRequest request = validRequest();
         request.setBudgetId(" ");
-        assertFalse(InputValidator.isValidPurchaseRequest(request));
+        assertFalse(InputValidator.isValidPurchaseRequest(request),
+                "A blank budget ID must be rejected");
     }
 
     /** Checks that normal payloads are accepted. */
     @Test
     void acceptsValidPurchase() {
-        assertTrue(InputValidator.isValidPurchaseRequest(validRequest()));
+        assertTrue(InputValidator.isValidPurchaseRequest(validRequest()),
+                "A complete valid purchase request must be accepted");
     }
 
     private PurchaseRequest validRequest() {
