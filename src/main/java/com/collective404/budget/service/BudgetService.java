@@ -5,6 +5,7 @@ import com.collective404.budget.dto.BudgetReportResponse.CategoryReport;
 import com.collective404.budget.dto.BudgetReportResponse.PurchaseSummary;
 import com.collective404.budget.model.Budget;
 import com.collective404.budget.model.Category;
+import com.collective404.budget.model.Client;
 import com.collective404.budget.model.Purchase;
 import com.collective404.budget.store.BudgetDataStore;
 import com.collective404.budget.validation.InputValidator;
@@ -34,6 +35,9 @@ public class BudgetService {
 
     /** Data file holding purchases. */
     static final String PURCHASES_FILE = "purchases.json";
+
+    /** Data file holding clients and their API keys. */
+    static final String CLIENTS_FILE = "clients.json";
 
     /** A zero amount with two decimal places. */
     private static final BigDecimal ZERO = new BigDecimal("0.00");
@@ -224,26 +228,51 @@ public class BudgetService {
     }
 
     /**
-     * Builds the spending report for one budget: spent, remaining, and percent
-     * used per category, overall totals, and the budget's purchases. Reads all
-     * three files under one
-     * lock so the report is a consistent snapshot. Does not modify any data.
+     * Builds the spending report for one budget, if the caller owns it: spent,
+     * remaining, and percent used per category, overall totals, and the
+     * budget's purchases. Reads every file under one lock so the report is a
+     * consistent snapshot. Does not modify any data.
+     *
+     * <p>Returns 401 if no client has the API key, 404 if no budget has the
+     * ID, 403 if the budget belongs to a different client, and 200 with the
+     * report otherwise.
      *
      * @param budgetId the budget to report on
-     * @return the report, or null if no budget has this ID
+     * @param apiKey the API key from the X-API-Key header
+     * @return the report, or the status and reason it was refused
      * @throws IOException if the data files can't be read
      */
-    public BudgetReportResponse getBudgetReport(final String budgetId)
-            throws IOException {
-        return dataStore.withExclusiveLock(() -> buildReport(budgetId));
+    public BudgetReportResult getBudgetReport(
+            final String budgetId, final String apiKey) throws IOException {
+        return dataStore.withExclusiveLock(
+                () -> buildReportForClient(budgetId, apiKey));
     }
 
-    private BudgetReportResponse buildReport(final String budgetId)
-            throws IOException {
+    private BudgetReportResult buildReportForClient(
+            final String budgetId, final String apiKey) throws IOException {
+        final Client client = findClientByApiKey(apiKey);
+        if (client == null) {
+            return BudgetReportResult.error(
+                    BudgetReportResult.UNAUTHORIZED, "Invalid API key");
+        }
         final Budget budget = findBudget(budgetId);
         if (budget == null) {
-            return null;
+            return BudgetReportResult.error(
+                    BudgetReportResult.NOT_FOUND,
+                    "No budget found with id " + budgetId);
         }
+        if (budget.getClientId() == null
+                || !budget.getClientId().equalsIgnoreCase(client.getId())) {
+            return BudgetReportResult.error(
+                    BudgetReportResult.FORBIDDEN,
+                    "budgetId does not belong to this client");
+        }
+        return BudgetReportResult.ok(buildReport(budget));
+    }
+
+    private BudgetReportResponse buildReport(final Budget budget)
+            throws IOException {
+        final String budgetId = budget.getId();
 
         final List<Category> categories = new ArrayList<>();
         for (final Category category : readCategories()) {
@@ -300,6 +329,20 @@ public class BudgetService {
                 remaining(totalLimit, totalSpent),
                 percentUsed(totalLimit, totalSpent), categoryReports,
                 purchaseSummaries);
+    }
+
+    private Client findClientByApiKey(final String apiKey)
+            throws IOException {
+        final List<Client> clients = dataStore.readList(
+                CLIENTS_FILE, new TypeReference<List<Client>>() { });
+        if (clients != null) {
+            for (final Client client : clients) {
+                if (apiKey.equals(client.getApiKey())) {
+                    return client;
+                }
+            }
+        }
+        return null;
     }
 
     private Budget findBudget(final String budgetId) throws IOException {

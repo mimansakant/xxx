@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 
 import com.collective404.budget.dto.BudgetReportResponse;
 import com.collective404.budget.dto.CategoryRequest;
+import com.collective404.budget.service.BudgetReportResult;
 import com.collective404.budget.service.BudgetService;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -34,6 +35,16 @@ class BudgetControllerTest {
     private static final String BUDGET_ID =
             "11111111-1111-1111-1111-111111111111";
 
+    /** A client's API key used in requests. */
+    private static final String API_KEY =
+            "66666666-6666-6666-6666-666666666666";
+
+    /** A budget ID that isn't a UUID. */
+    private static final String BAD_ID = "not-a-uuid";
+
+    /** Key of the status number in error bodies. */
+    private static final String STATUS = "status";
+
     /** Mock budget service used by the controller. */
     @Mock
     private BudgetService budgetService;
@@ -47,59 +58,125 @@ class BudgetControllerTest {
         controller = new BudgetController(budgetService);
     }
 
+    private static Object bodyStatus(final ResponseEntity<?> response) {
+        return ((Map<?, ?>) response.getBody()).get(STATUS);
+    }
+
     @Test
     void returns200WithReport() throws IOException {
         final BudgetReportResponse report = new BudgetReportResponse(
                 BUDGET_ID, "Fall semester", new BigDecimal("200.00"),
                 new BigDecimal("50.00"), new BigDecimal("150.00"),
                 new BigDecimal("25.00"), List.of(), List.of());
-        when(budgetService.getBudgetReport(BUDGET_ID)).thenReturn(report);
+        when(budgetService.getBudgetReport(BUDGET_ID, API_KEY))
+                .thenReturn(BudgetReportResult.ok(report));
 
         final ResponseEntity<?> response =
-                controller.getBudgetReport(BUDGET_ID);
+                controller.getBudgetReport(BUDGET_ID, API_KEY);
 
         assertAll(
-                () -> assertEquals(HttpStatus.OK, response.getStatusCode()),
-                () -> assertSame(report, response.getBody()));
+                () -> assertEquals(HttpStatus.OK, response.getStatusCode(),
+                        "status 200"),
+                () -> assertSame(report, response.getBody(),
+                        "body is the report"));
+    }
+
+    @Test
+    void trimsApiKeyBeforeLookup() throws IOException {
+        when(budgetService.getBudgetReport(BUDGET_ID, API_KEY))
+                .thenReturn(BudgetReportResult.ok(null));
+
+        assertEquals(HttpStatus.OK,
+                controller.getBudgetReport(BUDGET_ID, " " + API_KEY + " ")
+                        .getStatusCode(),
+                "surrounding spaces are ignored");
+    }
+
+    @Test
+    void returns400ForNonUuidId() throws IOException {
+        final ResponseEntity<?> response =
+                controller.getBudgetReport(BAD_ID, API_KEY);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode(),
+                "status 400");
+    }
+
+    @Test
+    void badIdNeverReachesService() throws IOException {
+        controller.getBudgetReport(BAD_ID, API_KEY);
+
+        verify(budgetService, never()).getBudgetReport(anyString(),
+                anyString());
+    }
+
+    @Test
+    void returns401WhenApiKeyMissing() throws IOException {
+        final ResponseEntity<?> response =
+                controller.getBudgetReport(BUDGET_ID, null);
+
+        assertAll(
+                () -> assertEquals(HttpStatus.UNAUTHORIZED,
+                        response.getStatusCode(), "status 401"),
+                () -> assertEquals(401, bodyStatus(response), "401 in body"));
+    }
+
+    @Test
+    void returns401WhenApiKeyBlank() throws IOException {
+        assertEquals(HttpStatus.UNAUTHORIZED,
+                controller.getBudgetReport(BUDGET_ID, "   ").getStatusCode(),
+                "blank key gives 401");
+    }
+
+    @Test
+    void missingKeyNeverReachesService() throws IOException {
+        controller.getBudgetReport(BUDGET_ID, null);
+
+        verify(budgetService, never()).getBudgetReport(anyString(),
+                anyString());
+    }
+
+    @Test
+    void passesServiceRefusalThrough() throws IOException {
+        when(budgetService.getBudgetReport(BUDGET_ID, API_KEY))
+                .thenReturn(BudgetReportResult.error(
+                        BudgetReportResult.FORBIDDEN, "not yours"));
+
+        final ResponseEntity<?> response =
+                controller.getBudgetReport(BUDGET_ID, API_KEY);
+
+        assertAll(
+                () -> assertEquals(HttpStatus.FORBIDDEN,
+                        response.getStatusCode(), "status 403"),
+                () -> assertEquals(403, bodyStatus(response), "403 in body"),
+                () -> assertEquals("not yours",
+                        ((Map<?, ?>) response.getBody()).get("reason"),
+                        "reason from the service"));
     }
 
     @Test
     void returns404WhenBudgetMissing() throws IOException {
-        when(budgetService.getBudgetReport(BUDGET_ID)).thenReturn(null);
+        when(budgetService.getBudgetReport(BUDGET_ID, API_KEY))
+                .thenReturn(BudgetReportResult.error(
+                        BudgetReportResult.NOT_FOUND, "no budget"));
 
-        final ResponseEntity<?> response =
-                controller.getBudgetReport(BUDGET_ID);
-
-        assertAll(
-                () -> assertEquals(
-                        HttpStatus.NOT_FOUND, response.getStatusCode()),
-                () -> assertEquals(
-                        404, ((Map<?, ?>) response.getBody()).get("status")));
-    }
-
-    @Test
-    void returns400ForNonUuidIdAndSkipsService() throws IOException {
-        final ResponseEntity<?> response =
-                controller.getBudgetReport("not-a-uuid");
-
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        verify(budgetService, never()).getBudgetReport(anyString());
+        assertEquals(HttpStatus.NOT_FOUND,
+                controller.getBudgetReport(BUDGET_ID, API_KEY)
+                        .getStatusCode(),
+                "status 404");
     }
 
     @Test
     void returns500WhenDataUnavailable() throws IOException {
-        when(budgetService.getBudgetReport(BUDGET_ID))
+        when(budgetService.getBudgetReport(BUDGET_ID, API_KEY))
                 .thenThrow(new IOException("disk gone"));
 
         final ResponseEntity<?> response =
-                controller.getBudgetReport(BUDGET_ID);
+                controller.getBudgetReport(BUDGET_ID, API_KEY);
 
         assertAll(
-                () -> assertEquals(
-                        HttpStatus.INTERNAL_SERVER_ERROR,
-                        response.getStatusCode()),
-                () -> assertEquals(
-                        500, ((Map<?, ?>) response.getBody()).get("status")));
+                () -> assertEquals(HttpStatus.INTERNAL_SERVER_ERROR,
+                        response.getStatusCode(), "status 500"),
+                () -> assertEquals(500, bodyStatus(response), "500 in body"));
     }
 
     @Test
@@ -119,8 +196,9 @@ class BudgetControllerTest {
                         new BigDecimal("100.00")));
 
         assertAll(
-                () -> assertEquals(
-                        HttpStatus.FORBIDDEN, response.getStatusCode()),
-                () -> assertSame(error, response.getBody()));
+                () -> assertEquals(HttpStatus.FORBIDDEN,
+                        response.getStatusCode(), "status 403"),
+                () -> assertSame(error, response.getBody(),
+                        "body is the service error"));
     }
 }

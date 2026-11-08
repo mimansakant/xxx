@@ -77,28 +77,29 @@ The budget and category must already exist, normally through
 reports; changing the limit also changes the remaining amount, percentage
 used, and total planned spending.
 
-### `GET /budget` — Retrieve a budget report
+### `GET /budget/{budgetId}` — Retrieve a budget report
 
-The caller provides their client ID. The request has no body and does not
-modify stored data.
+The caller sends the budget ID in the path and its API key in the
+`X-API-Key` header. A client can only read its own budgets. The request has
+no body and does not modify stored data.
 
-The report includes every category (including the budget's automatically
-available **Miscellaneous** category), the client's current purchases, and
-category and overall totals. For each category, the service calculates the
-limit, amount spent, amount remaining, and percentage used from the client's
-purchases. Purchases without a matching category are counted under
-Miscellaneous.
+The report includes every category in the budget, the budget's purchases,
+and category and overall totals. For each category, the service calculates
+the limit, amount spent, amount remaining, and percentage used. Purchase
+amounts round up and remaining amounts round down. Remaining can go negative
+when a category is overspent.
 
 - Success returns **200 OK** with the report.
-- A missing client ID returns **400 Bad Request**.
-- A client with no budget returns **404 Not Found** with an error message.
-- An unavailable datastore returns **500 Internal Server Error** with an
-  error message.
-- Repeating the request without intervening data changes returns the same
-  report. The operation has no side effects.
+- A budget ID that isn't a UUID returns **400 Bad Request**.
+- A missing or unknown API key returns **401 Unauthorized**.
+- A budget that belongs to another client returns **403 Forbidden**.
+- A budget ID that doesn't exist returns **404 Not Found**.
+- An unavailable datastore returns **500 Internal Server Error**.
 
-The budget is created when its first category is created. Updates, purchase
-creation, and purchase deletion are reflected in subsequent reports.
+Errors return a JSON body with `status` (the HTTP code) and `reason`.
+Repeating the request without intervening data changes returns the same
+report. Updates, purchase creation, and purchase deletion are reflected in
+subsequent reports.
 
 ### `POST /purchases` — Add a purchase
 
