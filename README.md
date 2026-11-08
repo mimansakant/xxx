@@ -35,15 +35,16 @@ as the API is implemented.
 
 ### `POST /budget/category` — Create a category
 
-The caller provides a client identifier, a category name, and a non-zero
-spending limit in dollars. A budget identifier may also be provided. If there
-is no budget identifier, the service creates a budget for the client along
-with the category.
+The caller provides their API key in the `X-API-Key` header, a category name,
+and a non-zero spending limit in dollars. A budget identifier may also be
+provided. If there is no budget identifier, the service creates a budget for
+the authenticated client along with the category.
 
 - The name must be a non-empty, meaningful string (not only numbers or
   symbols), and must be unique within the budget, ignoring letter case.
 - The limit must be numeric and have no more than two decimal places.
 - A provided budget identifier must be valid and belong to the caller.
+- A missing or unknown API key returns **401 Unauthorized**.
 - On success, the service returns **201 Created** with the category ID, name,
   limit, amount spent (`$0.00` initially), and remaining amount (initially the
   limit).
@@ -198,6 +199,10 @@ i have a checkstyle report in @checkstyle.html. Please edit @BudgetControllerTes
 ```
 change the necessary code in @BudgetService.java, @BudgetController.java, @CategoryRequest.java and @CategoryResponse.java so that in the path where no budgetId is supplied and hence createCategory needs to create a new budget, the client is required to input a budget name in the request body
 **only update the code related to createCategory
+```
+- Converted clientId usage to x-api-key usage following another route's logic in POST /budget/category using following prompt:
+```
+edit createCategoryWithLock in @BudgetService.java to support the new addition of apiKey in place of clientId. apiKey is what a unique client holds. The logic for checking it should be similar to that seen in buildReportForClient in the same file
 ```
 
 ### Tool List

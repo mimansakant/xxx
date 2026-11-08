@@ -27,6 +27,11 @@ import org.junit.jupiter.api.io.TempDir;
  */
 class CategoryServiceTest {
 
+    /** API key used to authenticate category creation. */
+    private static final String API_KEY = "api-key-1";
+    /** Client ID stored on budgets. */
+    private static final String CLIENT_ID = "client-1";
+
     /** JSON mapper used to verify persisted data. */
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -39,7 +44,10 @@ class CategoryServiceTest {
 
     @BeforeEach
     void setUp() throws Exception {
-        Files.writeString(tempDir.resolve("clients.json"), "[\"client-1\"]");
+        Files.writeString(
+                tempDir.resolve("clients.json"),
+                "[{\"id\":\"client-1\",\"name\":\"Client One\","
+                        + "\"apiKey\":\"api-key-1\"}]");
         Files.writeString(
                 tempDir.resolve("budgets.json"),
                 "[{\"id\":\"budget-1\",\"name\":\"Budget One\","
@@ -52,10 +60,10 @@ class CategoryServiceTest {
     }
 
     @Test
-    void createsAndPersistsCategoryWithRoundedLimit() throws Exception {
+    void createsAndPersistsCategoryWithValidLimit() throws Exception {
         final Map<String, Object> result = service.createCategory(
-                "client-1", "budget-1", null,
-                "Groceries", new BigDecimal("23.459"));
+                API_KEY, "budget-1", null,
+                "Groceries", new BigDecimal("23.45"));
 
         assertEquals(true, result.get("success"));
         final Category category = (Category) result.get("returnValue");
@@ -70,14 +78,14 @@ class CategoryServiceTest {
     void rejectsCaseInsensitiveDuplicateButAllowsSameNameInAnotherBudget()
             throws Exception {
         service.createCategory(
-                "client-1", "budget-1", null,
+                API_KEY, "budget-1", null,
                 "Groceries", new BigDecimal("20.00"));
 
         final Map<String, Object> duplicate = service.createCategory(
-                "client-1", "budget-1", null,
+                API_KEY, "budget-1", null,
                 "gROCERIES", new BigDecimal("30.00"));
         final Map<String, Object> otherBudget = service.createCategory(
-                "client-1", "budget-2", null,
+                API_KEY, "budget-2", null,
                 "Groceries", new BigDecimal("30.00"));
 
         assertEquals(409, duplicate.get("error"));
@@ -88,7 +96,7 @@ class CategoryServiceTest {
     @Test
     void createsBudgetWhenBudgetIdIsOmitted() throws Exception {
         final Map<String, Object> result = service.createCategory(
-                "client-1", null, "Home", "Utilities",
+                API_KEY, null, "Home", "Utilities",
                 new BigDecimal("75.00"));
         final Category category = (Category) result.get("returnValue");
         final List<Budget> savedBudgets = readBudgets();
@@ -97,33 +105,34 @@ class CategoryServiceTest {
         assertEquals(3, savedBudgets.size());
         assertTrue(savedBudgets.stream().anyMatch(budget ->
                 budget.getId().equals(category.getBudgetId())
-                        && budget.getName().equals("Home")));
+                        && budget.getName().equals("Home")
+                        && budget.getClientId().equals(CLIENT_ID)));
         assertEquals("Home", result.get("budgetName"));
         assertEquals(category.getId(), readCategories().get(0).getId());
     }
 
     @Test
     void rejectsUnknownClientBudgetAndInvalidValues() throws Exception {
-        assertEquals(404, service.createCategory(
+        assertEquals(401, service.createCategory(
                 "missing-client", "budget-1", null, "Food",
                 new BigDecimal("20.00")).get("error"));
         assertEquals(404, service.createCategory(
-                "client-1", "missing-budget", null, "Food",
+                API_KEY, "missing-budget", null, "Food",
                 new BigDecimal("20.00")).get("error"));
-        assertEquals(400, service.createCategory(
+        assertEquals(401, service.createCategory(
                 null, "budget-1", null, "Food",
                 new BigDecimal("20.00")).get("error"));
         assertEquals(400, service.createCategory(
-                "client-1", "budget-1", null, "123!@#",
+                API_KEY, "budget-1", null, "123!@#",
                 new BigDecimal("20.00")).get("error"));
         assertEquals(400, service.createCategory(
-                "client-1", "budget-1", null, "Food",
+                API_KEY, "budget-1", null, "Food",
                 BigDecimal.ZERO).get("error"));
         assertEquals(false, service.createCategory(
-                "client-1", "budget-1", null, "Food",
+                API_KEY, "budget-1", null, "Food",
                 new BigDecimal("-1.00")).get("success"));
         assertEquals(400, service.createCategory(
-                "client-1", null, null, "Food",
+                API_KEY, null, null, "Food",
                 new BigDecimal("20.00")).get("error"));
         assertTrue(readCategories().isEmpty());
     }
@@ -138,13 +147,14 @@ class CategoryServiceTest {
         );
 
         final Map<String, Object> result = service.createCategory(
-                "client-1", "budget-1", null,
+                API_KEY, "budget-1", null,
                 "Food", new BigDecimal("20.00"));
 
         assertEquals(false, result.get("success"));
         assertEquals(403, result.get("error"));
         assertEquals(
-                "budgetId does not belong to clientId", result.get("reason"));
+                "budgetId does not belong to this client",
+                result.get("reason"));
         assertTrue(readCategories().isEmpty());
     }
 
@@ -156,13 +166,13 @@ class CategoryServiceTest {
             final Future<Map<String, Object>> first = executor.submit(() -> {
                 start.await();
                 return service.createCategory(
-                        "client-1", "budget-1", null, "Groceries",
+                        API_KEY, "budget-1", null, "Groceries",
                         new BigDecimal("20.00"));
             });
             final Future<Map<String, Object>> second = executor.submit(() -> {
                 start.await();
                 return service.createCategory(
-                        "client-1", "budget-1", null, "groceries",
+                        API_KEY, "budget-1", null, "groceries",
                         new BigDecimal("25.00"));
             });
 

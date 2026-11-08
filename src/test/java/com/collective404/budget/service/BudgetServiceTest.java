@@ -66,8 +66,6 @@ class BudgetServiceTest {
     /** API key of the client that doesn't own the budget. */
     private static final String OTHER_API_KEY =
             "88888888-8888-8888-8888-888888888888";
-    /** Client ID used by the createCategory tests. */
-    private static final String PLAIN_CLIENT_ID = "clientId";
     /** Name of the budget under test. */
     private static final String BUDGET_NAME = "Fall semester";
     /** Name of the food category. */
@@ -444,9 +442,10 @@ class BudgetServiceTest {
                 eq(BudgetService.BUDGETS_FILE), any()))
                 .thenReturn(List.of(
                         new Budget(BUDGET_ID, BUDGET_NAME, budgetOwner)));
-        when(dataStore.<String>readList(
+        when(dataStore.<Client>readList(
                 eq(BudgetService.CLIENTS_FILE), any()))
-                .thenReturn(List.of(PLAIN_CLIENT_ID));
+                .thenReturn(List.of(new Client(
+                        CLIENT_ID, "Walmart", API_KEY)));
         when(dataStore.<Category>readList(
                 eq(BudgetService.CATEGORIES_FILE), any()))
                 .thenReturn(categories);
@@ -457,14 +456,14 @@ class BudgetServiceTest {
         givenCategoryData("other-client", List.of());
 
         final Map<String, Object> result = service.createCategory(
-                PLAIN_CLIENT_ID, BUDGET_ID, FOOD, money(HUNDRED));
+                API_KEY, BUDGET_ID, null, FOOD, money(HUNDRED));
 
         assertAll(
                 () -> assertEquals(false, result.get("success"),
                         "request fails"),
                 () -> assertEquals(403, result.get("error"),
                         "status is 403"),
-                () -> assertEquals("budgetId does not belong to clientId",
+                () -> assertEquals("budgetId does not belong to this client",
                         result.get("reason"), "reason explains why"));
     }
 
@@ -473,7 +472,7 @@ class BudgetServiceTest {
         givenCategoryData("other-client", List.of());
 
         service.createCategory(
-                PLAIN_CLIENT_ID, BUDGET_ID, FOOD, money(HUNDRED));
+                API_KEY, BUDGET_ID, null, FOOD, money(HUNDRED));
 
         verify(dataStore, never()).writeList(
                 eq(BudgetService.CATEGORIES_FILE), any());
@@ -481,10 +480,10 @@ class BudgetServiceTest {
 
     @Test
     void createsCategoryWhenBudgetBelongsToClient() throws IOException {
-        givenCategoryData("CLIENTID", new ArrayList<>());
+        givenCategoryData(CLIENT_ID, new ArrayList<>());
 
         final Map<String, Object> result = service.createCategory(
-                PLAIN_CLIENT_ID, BUDGET_ID, FOOD, money(HUNDRED));
+                API_KEY, BUDGET_ID, null, FOOD, money(HUNDRED));
 
         assertAll(
                 () -> assertEquals(true, result.get("success"),
@@ -496,10 +495,10 @@ class BudgetServiceTest {
 
     @Test
     void createdCategoryIsSaved() throws IOException {
-        givenCategoryData("CLIENTID", new ArrayList<>());
+        givenCategoryData(CLIENT_ID, new ArrayList<>());
 
         service.createCategory(
-                PLAIN_CLIENT_ID, BUDGET_ID, FOOD, money(HUNDRED));
+                API_KEY, BUDGET_ID, null, FOOD, money(HUNDRED));
 
         verify(dataStore).writeList(eq(BudgetService.CATEGORIES_FILE), any());
     }
