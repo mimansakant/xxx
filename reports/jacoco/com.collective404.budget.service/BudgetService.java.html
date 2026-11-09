@@ -1,0 +1,585 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BudgetService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Budget Service</a> &gt; <a href="index.source.html" class="el_package">com.collective404.budget.service</a> &gt; <span class="el_source">BudgetService.java</span></div><h1>BudgetService.java</h1><pre class="source lang-java linenums">package com.collective404.budget.service;
+
+import com.collective404.budget.dto.BudgetReportResponse;
+import com.collective404.budget.dto.BudgetReportResponse.CategoryReport;
+import com.collective404.budget.dto.BudgetReportResponse.PurchaseSummary;
+import com.collective404.budget.model.Budget;
+import com.collective404.budget.model.Category;
+import com.collective404.budget.model.Client;
+import com.collective404.budget.model.Purchase;
+import com.collective404.budget.store.BudgetDataStore;
+import com.collective404.budget.validation.InputValidator;
+import com.fasterxml.jackson.core.type.TypeReference;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import org.springframework.stereotype.Service;
+
+/**
+ * Business logic for budgets and categories.
+ */
+@Service
+public class BudgetService {
+
+    /** Data file holding budgets. */
+    static final String BUDGETS_FILE = &quot;budgets.json&quot;;
+
+    /** Data file holding categories. */
+    static final String CATEGORIES_FILE = &quot;categories.json&quot;;
+
+    /** Data file holding purchases. */
+    static final String PURCHASES_FILE = &quot;purchases.json&quot;;
+
+    /** Data file holding clients and their API keys. */
+    static final String CLIENTS_FILE = &quot;clients.json&quot;;
+
+    /** A zero amount with two decimal places. */
+<span class="fc" id="L43">    private static final BigDecimal ZERO = new BigDecimal(&quot;0.00&quot;);</span>
+    /** The multiplier used to calculate percentages. */
+<span class="fc" id="L45">    private static final BigDecimal HUNDRED = new BigDecimal(&quot;100&quot;);</span>
+
+    /** Store used to read and write budget data. */
+    private final BudgetDataStore dataStore;
+
+    /**
+     * Constructs the service.
+     *
+     * @param dataStore the shared data store
+     */
+<span class="fc" id="L55">    public BudgetService(final BudgetDataStore dataStore) {</span>
+<span class="fc" id="L56">        this.dataStore = dataStore;</span>
+<span class="fc" id="L57">    }</span>
+
+    /**
+     * Creates a category in the caller's budget, creating a budget if needed.
+     *
+     * @param apiKey the API key from the X-API-Key header
+     * @param budgetId the budget identifier, or {@code null} to create a budget
+     * @param budgetName the name for a newly created budget
+     * @param name the category name
+     * @param limit the category spending limit
+     * @return the created category or error message
+     */
+    public Map&lt;String, Object&gt; createCategory(
+        final String apiKey,
+        final String budgetId,
+        final String budgetName,
+        final String name,
+        final BigDecimal limit
+    ) throws IOException {
+<span class="fc" id="L76">        return dataStore.withExclusiveLock(() -&gt; createCategoryWithLock(</span>
+            apiKey,
+            budgetId,
+            budgetName,
+            name,
+            limit
+        ));
+    }
+
+    private Map&lt;String, Object&gt; createCategoryWithLock(
+        final String apiKey,
+        final String budgetId,
+        final String budgetName,
+        final String name,
+        final BigDecimal limit
+    ) throws IOException {
+<span class="fc" id="L92">        Map&lt;String, Object&gt; result = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L93">        List&lt;Client&gt; allClients = dataStore.readList(</span>
+            CLIENTS_FILE,
+<span class="fc" id="L95">            new TypeReference&lt;&gt;() { }</span>
+        );
+
+        /* check 1: validate that the category values given are acc allowed */
+        /* validate no nulls/empty strings */
+<span class="fc" id="L100">        Client client = findClientByApiKey(allClients, apiKey);</span>
+<span class="fc bfc" id="L101" title="All 2 branches covered.">        if (client == null) {</span>
+<span class="fc" id="L102">            result.put(&quot;success&quot;, false);</span>
+<span class="fc" id="L103">            result.put(&quot;error&quot;, 401);</span>
+<span class="fc" id="L104">            result.put(&quot;reason&quot;, &quot;Invalid API key&quot;);</span>
+<span class="fc" id="L105">            return result;</span>
+        }
+<span class="pc bpc" id="L107" title="2 of 4 branches missed.">        if (name == null || limit == null) {</span>
+<span class="nc" id="L108">            result.put(&quot;success&quot;, false);</span>
+<span class="nc" id="L109">            result.put(&quot;error&quot;, 400);</span>
+<span class="nc" id="L110">            result.put(&quot;reason&quot;, &quot;missing required value&quot;);</span>
+<span class="nc" id="L111">            return result;</span>
+        }
+<span class="fc" id="L113">        List&lt;Budget&gt; allBudgets = dataStore.readList(</span>
+            BUDGETS_FILE,
+<span class="fc" id="L115">            new TypeReference&lt;&gt;() { }</span>
+        );
+<span class="fc" id="L117">        List&lt;Category&gt; allCategories = dataStore.readList(</span>
+            CATEGORIES_FILE,
+<span class="fc" id="L119">            new TypeReference&lt;&gt;() { }</span>
+        );
+<span class="fc" id="L121">        String newBudgetId = null;</span>
+<span class="fc" id="L122">        String resolvedBudgetName = null;</span>
+<span class="pc bpc" id="L123" title="1 of 6 branches missed.">        if ((budgetId == null || budgetId.isBlank())</span>
+<span class="pc bpc" id="L124" title="1 of 2 branches missed.">            &amp;&amp; (budgetName == null || budgetName.isBlank())) {</span>
+<span class="fc" id="L125">            result.put(&quot;success&quot;, false);</span>
+<span class="fc" id="L126">            result.put(&quot;error&quot;, 400);</span>
+<span class="fc" id="L127">            result.put(&quot;reason&quot;,</span>
+                &quot;budgetName is required when budgetId is omitted&quot;);
+<span class="fc" id="L129">            return result;</span>
+        }
+        /* validate limit outside of null*/
+<span class="fc bfc" id="L132" title="All 2 branches covered.">        if (!InputValidator.isValidLimit(limit.toString())) {</span>
+<span class="fc" id="L133">            result.put(&quot;success&quot;, false);</span>
+<span class="fc" id="L134">            result.put(&quot;error&quot;, 400);</span>
+<span class="fc" id="L135">            result.put(&quot;reason&quot;, &quot;invalid limit&quot;);</span>
+<span class="fc" id="L136">            return result;</span>
+        }
+
+        /*
+         * Validate that the name is nonempty and contains at least one
+         * character.
+         */
+<span class="fc bfc" id="L143" title="All 2 branches covered.">        if (!name.matches(&quot;.*[A-Za-z].*&quot;)) {</span>
+<span class="fc" id="L144">            result.put(&quot;success&quot;, false);</span>
+<span class="fc" id="L145">            result.put(&quot;error&quot;, 400);</span>
+<span class="fc" id="L146">            result.put(&quot;reason&quot;, &quot;invalid category name&quot;);</span>
+<span class="fc" id="L147">            return result;</span>
+        }
+
+        /*
+         * Check that a provided budget ID exists and belongs to the client.
+         */
+<span class="pc bpc" id="L153" title="1 of 4 branches missed.">        if (budgetId != null &amp;&amp; !budgetId.isBlank()) {</span>
+<span class="fc" id="L154">            Budget budget = allBudgets.stream()</span>
+<span class="fc" id="L155">                .filter(b -&gt; b.getId().equals(budgetId.trim()))</span>
+<span class="fc" id="L156">                .findFirst()</span>
+<span class="fc" id="L157">                .orElse(null);</span>
+<span class="fc bfc" id="L158" title="All 2 branches covered.">            if (budget == null) {</span>
+<span class="fc" id="L159">                result.put(&quot;success&quot;, false);</span>
+<span class="fc" id="L160">                result.put(&quot;error&quot;, 404);</span>
+<span class="fc" id="L161">                result.put(&quot;reason&quot;, &quot;budgetId not found&quot;);</span>
+<span class="fc" id="L162">                return result;</span>
+            }
+<span class="pc bpc" id="L164" title="1 of 2 branches missed.">            if (budget.getClientId() == null</span>
+<span class="fc bfc" id="L165" title="All 2 branches covered.">                || !budget.getClientId().equalsIgnoreCase(client.getId())) {</span>
+<span class="fc" id="L166">                result.put(&quot;success&quot;, false);</span>
+<span class="fc" id="L167">                result.put(&quot;error&quot;, 403);</span>
+<span class="fc" id="L168">                result.put(&quot;reason&quot;,</span>
+                    &quot;budgetId does not belong to this client&quot;);
+<span class="fc" id="L170">                return result;</span>
+            }
+
+            /* check if category alr exists */
+<span class="fc" id="L174">            Category existingCategory = allCategories.stream()</span>
+<span class="fc" id="L175">            .filter(category -&gt;</span>
+<span class="fc bfc" id="L176" title="All 2 branches covered.">                category.getBudgetId().equals(budgetId.trim())</span>
+                    &amp;&amp;
+<span class="pc bpc" id="L178" title="1 of 2 branches missed.">                category.getName().equalsIgnoreCase(name.trim())</span>
+            )
+<span class="fc" id="L180">            .findFirst()</span>
+<span class="fc" id="L181">            .orElse(null);</span>
+<span class="fc bfc" id="L182" title="All 2 branches covered.">            if (existingCategory != null) {</span>
+<span class="fc" id="L183">                result.put(&quot;success&quot;, false);</span>
+<span class="fc" id="L184">                result.put(&quot;error&quot;, 409);</span>
+<span class="fc" id="L185">                result.put(&quot;reason&quot;, &quot;category with given name already exists&quot;);</span>
+<span class="fc" id="L186">                result.put(&quot;existingCategoryId&quot;, existingCategory.getId());</span>
+<span class="fc" id="L187">                return result;</span>
+            }
+
+            /* Budget exists, the client exists, and the category is new. */
+            /* so set new budgetId */
+<span class="fc" id="L192">            newBudgetId = budgetId.trim();</span>
+<span class="fc" id="L193">            resolvedBudgetName = budget.getName();</span>
+        }
+
+        /* if budgetId not given then create new budget */
+<span class="pc bpc" id="L197" title="1 of 4 branches missed.">        if (budgetId == null || budgetId.isBlank()) {</span>
+<span class="fc" id="L198">            Budget newBudget = new Budget(</span>
+<span class="fc" id="L199">                UUID.randomUUID().toString(),</span>
+<span class="fc" id="L200">                budgetName.trim(),</span>
+<span class="fc" id="L201">                    client.getId()</span>
+            );
+<span class="fc" id="L203">            allBudgets.add(newBudget);</span>
+<span class="fc" id="L204">            dataStore.writeList(BUDGETS_FILE, allBudgets);</span>
+<span class="fc" id="L205">            newBudgetId = newBudget.getId();</span>
+<span class="fc" id="L206">            resolvedBudgetName = newBudget.getName();</span>
+        }
+
+        /* atp budget exists so create new category */
+<span class="fc" id="L210">        Category finalCategory = new Category(</span>
+            newBudgetId,
+<span class="fc" id="L212">            UUID.randomUUID().toString(),</span>
+<span class="fc" id="L213">            name.trim(),</span>
+<span class="fc" id="L214">            limit.setScale(2, RoundingMode.DOWN)</span>
+        );
+<span class="fc" id="L216">        allCategories.add(finalCategory);</span>
+<span class="fc" id="L217">        dataStore.writeList(CATEGORIES_FILE, allCategories);</span>
+<span class="fc" id="L218">        result.put(&quot;success&quot;, true);</span>
+<span class="fc" id="L219">        result.put(&quot;returnValue&quot;, finalCategory);</span>
+<span class="fc" id="L220">        result.put(&quot;budgetName&quot;, resolvedBudgetName);</span>
+<span class="fc" id="L221">        return result;</span>
+    }
+
+    /**
+     * Builds the spending report for one budget, if the caller owns it: spent,
+     * remaining, and percent used per category, overall totals, and the
+     * budget's purchases. Reads every file under one lock so the report is a
+     * consistent snapshot. Does not modify any data.
+     *
+     * &lt;p&gt;Returns 401 if no client has the API key, 404 if no budget has the
+     * ID, 403 if the budget belongs to a different client, and 200 with the
+     * report otherwise.
+     *
+     * @param budgetId the budget to report on
+     * @param apiKey the API key from the X-API-Key header
+     * @return the report, or the status and reason it was refused
+     * @throws IOException if the data files can't be read
+     */
+    public BudgetReportResult getBudgetReport(
+            final String budgetId, final String apiKey) throws IOException {
+<span class="fc" id="L241">        return dataStore.withExclusiveLock(</span>
+<span class="fc" id="L242">                () -&gt; buildReportForClient(budgetId, apiKey));</span>
+    }
+
+    private BudgetReportResult buildReportForClient(
+            final String budgetId, final String apiKey) throws IOException {
+<span class="fc" id="L247">        final Client client = findClientByApiKey(apiKey);</span>
+<span class="fc bfc" id="L248" title="All 2 branches covered.">        if (client == null) {</span>
+<span class="fc" id="L249">            return BudgetReportResult.error(</span>
+                    BudgetReportResult.UNAUTHORIZED, &quot;Invalid API key&quot;);
+        }
+<span class="fc" id="L252">        final Budget budget = findBudget(budgetId);</span>
+<span class="fc bfc" id="L253" title="All 2 branches covered.">        if (budget == null) {</span>
+<span class="fc" id="L254">            return BudgetReportResult.error(</span>
+                    BudgetReportResult.NOT_FOUND,
+                    &quot;No budget found with id &quot; + budgetId);
+        }
+<span class="fc bfc" id="L258" title="All 2 branches covered.">        if (budget.getClientId() == null</span>
+<span class="fc bfc" id="L259" title="All 2 branches covered.">                || !budget.getClientId().equalsIgnoreCase(client.getId())) {</span>
+<span class="fc" id="L260">            return BudgetReportResult.error(</span>
+                    BudgetReportResult.FORBIDDEN,
+                    &quot;budgetId does not belong to this client&quot;);
+        }
+<span class="fc" id="L264">        return BudgetReportResult.ok(buildReport(budget));</span>
+    }
+
+    private BudgetReportResponse buildReport(final Budget budget)
+            throws IOException {
+<span class="fc" id="L269">        final String budgetId = budget.getId();</span>
+
+<span class="fc" id="L271">        final List&lt;Category&gt; categories = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L272" title="All 2 branches covered.">        for (final Category category : readCategories()) {</span>
+<span class="fc bfc" id="L273" title="All 2 branches covered.">            if (budgetId.equals(category.getBudgetId())) {</span>
+<span class="fc" id="L274">                categories.add(category);</span>
+            }
+<span class="fc" id="L276">        }</span>
+
+<span class="fc" id="L278">        final Map&lt;String, Category&gt; categoriesById = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L279">        final Map&lt;String, BigDecimal&gt; spentById = new HashMap&lt;&gt;();</span>
+<span class="fc bfc" id="L280" title="All 2 branches covered.">        for (final Category category : categories) {</span>
+<span class="fc" id="L281">            categoriesById.put(category.getId(), category);</span>
+<span class="fc" id="L282">            spentById.put(category.getId(), ZERO);</span>
+<span class="fc" id="L283">        }</span>
+
+        // Purchases don't store a budget ID, so a purchase belongs to this
+        // budget
+        // when its category does.
+<span class="fc" id="L288">        BigDecimal totalSpent = ZERO;</span>
+<span class="fc" id="L289">        final List&lt;PurchaseSummary&gt; purchaseSummaries = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L290" title="All 2 branches covered.">        for (final Purchase purchase : readPurchases()) {</span>
+<span class="fc" id="L291">            final Category owner = categoriesById.get(purchase.getCategoryId());</span>
+<span class="fc bfc" id="L292" title="All 2 branches covered.">            if (owner == null) {</span>
+<span class="fc" id="L293">                continue;</span>
+            }
+<span class="fc" id="L295">            final BigDecimal amount = roundUp(purchase.getAmount());</span>
+<span class="fc" id="L296">            totalSpent = totalSpent.add(amount);</span>
+<span class="fc" id="L297">            spentById.merge(owner.getId(), amount, BigDecimal::add);</span>
+<span class="fc" id="L298">            purchaseSummaries.add(new PurchaseSummary(</span>
+<span class="fc" id="L299">                    purchase.getId(), owner.getId(), owner.getName(),</span>
+<span class="fc" id="L300">                    purchase.getName(), amount, purchase.getDate()));</span>
+<span class="fc" id="L301">        }</span>
+
+<span class="fc" id="L303">        BigDecimal totalLimit = ZERO;</span>
+<span class="fc" id="L304">        final List&lt;CategoryReport&gt; categoryReports = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L305" title="All 2 branches covered.">        for (final Category category : categories) {</span>
+<span class="fc" id="L306">            final BigDecimal limit = roundDown(category.getLimit());</span>
+<span class="fc" id="L307">            final BigDecimal spent = spentById.get(category.getId());</span>
+<span class="fc" id="L308">            totalLimit = totalLimit.add(limit);</span>
+<span class="fc" id="L309">            categoryReports.add(new CategoryReport(</span>
+<span class="fc" id="L310">                    category.getId(), category.getName(), limit, spent,</span>
+<span class="fc" id="L311">                    remaining(limit, spent), percentUsed(limit, spent)));</span>
+<span class="fc" id="L312">        }</span>
+
+<span class="fc" id="L314">        purchaseSummaries.sort(Comparator</span>
+<span class="fc" id="L315">                .comparing(</span>
+                        PurchaseSummary::date,
+<span class="fc" id="L317">                        Comparator.nullsLast(Comparator.naturalOrder()))</span>
+<span class="fc" id="L318">                .thenComparing(PurchaseSummary::purchaseId,</span>
+<span class="fc" id="L319">                        Comparator.nullsLast(Comparator.naturalOrder())));</span>
+
+<span class="fc" id="L321">        return new BudgetReportResponse(</span>
+<span class="fc" id="L322">                budget.getId(), budget.getName(), totalLimit, totalSpent,</span>
+<span class="fc" id="L323">                remaining(totalLimit, totalSpent),</span>
+<span class="fc" id="L324">                percentUsed(totalLimit, totalSpent), categoryReports,</span>
+                purchaseSummaries);
+    }
+
+    private Client findClientByApiKey(final String apiKey)
+            throws IOException {
+<span class="fc" id="L330">        final List&lt;Client&gt; clients = dataStore.readList(</span>
+<span class="fc" id="L331">                CLIENTS_FILE, new TypeReference&lt;List&lt;Client&gt;&gt;() { });</span>
+<span class="fc" id="L332">        return findClientByApiKey(clients, apiKey);</span>
+    }
+
+    private Client findClientByApiKey(
+            final List&lt;Client&gt; clients,
+            final String apiKey
+    ) {
+<span class="fc bfc" id="L339" title="All 4 branches covered.">        if (apiKey != null &amp;&amp; clients != null) {</span>
+<span class="fc bfc" id="L340" title="All 2 branches covered.">            for (final Client client : clients) {</span>
+<span class="fc bfc" id="L341" title="All 2 branches covered.">                if (apiKey.equals(client.getApiKey())) {</span>
+<span class="fc" id="L342">                    return client;</span>
+                }
+<span class="fc" id="L344">            }</span>
+        }
+<span class="fc" id="L346">        return null;</span>
+    }
+
+    private Budget findBudget(final String budgetId) throws IOException {
+<span class="fc" id="L350">        final List&lt;Budget&gt; budgets = dataStore.readList(</span>
+<span class="fc" id="L351">                BUDGETS_FILE, new TypeReference&lt;List&lt;Budget&gt;&gt;() { });</span>
+<span class="fc bfc" id="L352" title="All 2 branches covered.">        if (budgets != null) {</span>
+<span class="fc bfc" id="L353" title="All 2 branches covered.">            for (final Budget budget : budgets) {</span>
+<span class="fc bfc" id="L354" title="All 2 branches covered.">                if (budgetId.equals(budget.getId())) {</span>
+<span class="fc" id="L355">                    return budget;</span>
+                }
+<span class="fc" id="L357">            }</span>
+        }
+<span class="fc" id="L359">        return null;</span>
+    }
+
+    private List&lt;Category&gt; readCategories() throws IOException {
+<span class="fc" id="L363">        final List&lt;Category&gt; categories = dataStore.readList(</span>
+<span class="fc" id="L364">                CATEGORIES_FILE, new TypeReference&lt;List&lt;Category&gt;&gt;() { });</span>
+<span class="fc bfc" id="L365" title="All 2 branches covered.">        return categories == null ? List.of() : categories;</span>
+    }
+
+    private List&lt;Purchase&gt; readPurchases() throws IOException {
+<span class="fc" id="L369">        final List&lt;Purchase&gt; purchases = dataStore.readList(</span>
+<span class="fc" id="L370">                PURCHASES_FILE, new TypeReference&lt;List&lt;Purchase&gt;&gt;() { });</span>
+<span class="fc bfc" id="L371" title="All 2 branches covered.">        return purchases == null ? List.of() : purchases;</span>
+    }
+
+    /**
+     * Rounds a purchase amount up to cents, as the team agreed for purchases.
+     *
+     * @param amount the amount, may be null
+     * @return the rounded amount, or 0.00 if null
+     */
+    static BigDecimal roundUp(final BigDecimal amount) {
+<span class="fc bfc" id="L381" title="All 2 branches covered.">        return amount == null ? ZERO : amount.setScale(2, RoundingMode.CEILING);</span>
+    }
+
+    /**
+     * Rounds a limit or remaining amount down to cents.
+     *
+     * @param amount the amount, may be null
+     * @return the rounded amount, or 0.00 if null
+     */
+    static BigDecimal roundDown(final BigDecimal amount) {
+<span class="fc bfc" id="L391" title="All 2 branches covered.">        return amount == null ? ZERO : amount.setScale(2, RoundingMode.FLOOR);</span>
+    }
+
+    /**
+     * Limit minus spent, rounded down. Negative when the limit is exceeded.
+     *
+     * @param limit the limit
+     * @param spent the amount spent
+     * @return the remaining amount
+     */
+    static BigDecimal remaining(
+            final BigDecimal limit,
+            final BigDecimal spent
+    ) {
+<span class="fc" id="L405">        return roundDown(limit.subtract(spent));</span>
+    }
+
+    /**
+     * Spent as a percent of limit, rounded half up to 2 decimals.
+     *
+     * @param limit the limit
+     * @param spent the amount spent
+     * @return the percent used, or null if the limit isn't positive
+     */
+    static BigDecimal percentUsed(
+            final BigDecimal limit,
+            final BigDecimal spent
+    ) {
+<span class="fc bfc" id="L419" title="All 2 branches covered.">        if (limit.signum() &lt;= 0) {</span>
+<span class="fc" id="L420">            return null;</span>
+        }
+<span class="fc" id="L422">        return spent.multiply(HUNDRED).divide(limit, 2, RoundingMode.HALF_UP);</span>
+    }
+
+
+    /**
+     * Updates an existing budget category.
+     *
+     * @param clientId the client identifier
+     * @param budgetId the budget identifier
+     * @param categoryId the category identifier
+     * @param name the new name, or null if unchanged
+     * @param limit the new limit, or null if unchanged
+     * @return the updated category or an error
+     * @throws IOException if a datastore operation fails
+     */
+    public Map&lt;String, Object&gt; updateCategory(
+            final String clientId,
+            final String budgetId,
+            final String categoryId,
+            final String name,
+            final BigDecimal limit
+    ) throws IOException {
+<span class="fc" id="L444">        return dataStore.withExclusiveLock(() -&gt; updateCategoryWithLock(</span>
+                clientId, budgetId, categoryId, name, limit));
+    }
+
+    private Map&lt;String, Object&gt; updateCategoryWithLock(
+            final String clientId,
+            final String budgetId,
+            final String categoryId,
+            final String name,
+            final BigDecimal limit
+    ) throws IOException {
+<span class="fc" id="L455">        Map&lt;String, Object&gt; result = new HashMap&lt;&gt;();</span>
+
+<span class="pc bpc" id="L457" title="3 of 6 branches missed.">        if (clientId == null || clientId.isBlank()</span>
+<span class="pc bpc" id="L458" title="2 of 4 branches missed.">                || budgetId == null || budgetId.isBlank()</span>
+<span class="pc bpc" id="L459" title="1 of 2 branches missed.">                || categoryId == null || categoryId.isBlank()) {</span>
+<span class="nc" id="L460">            result.put(&quot;success&quot;, false);</span>
+<span class="nc" id="L461">            result.put(&quot;error&quot;, 400);</span>
+<span class="nc" id="L462">            result.put(&quot;reason&quot;, &quot;missing required value&quot;);</span>
+<span class="nc" id="L463">            return result;</span>
+        }
+
+<span class="fc bfc" id="L466" title="All 4 branches covered.">        if (name == null &amp;&amp; limit == null) {</span>
+<span class="fc" id="L467">            result.put(&quot;success&quot;, false);</span>
+<span class="fc" id="L468">            result.put(&quot;error&quot;, 400);</span>
+<span class="fc" id="L469">            result.put(&quot;reason&quot;, &quot;no update fields provided&quot;);</span>
+<span class="fc" id="L470">            return result;</span>
+        }
+
+<span class="fc bfc" id="L473" title="All 4 branches covered.">        if (name != null &amp;&amp; !name.matches(&quot;.*[A-Za-z].*&quot;)) {</span>
+<span class="fc" id="L474">            result.put(&quot;success&quot;, false);</span>
+<span class="fc" id="L475">            result.put(&quot;error&quot;, 400);</span>
+<span class="fc" id="L476">            result.put(&quot;reason&quot;, &quot;invalid category name&quot;);</span>
+<span class="fc" id="L477">            return result;</span>
+        }
+
+<span class="fc bfc" id="L480" title="All 4 branches covered.">        if (limit != null &amp;&amp; limit.compareTo(BigDecimal.ZERO) &lt;= 0) {</span>
+<span class="fc" id="L481">            result.put(&quot;success&quot;, false);</span>
+<span class="fc" id="L482">            result.put(&quot;error&quot;, 400);</span>
+<span class="fc" id="L483">            result.put(&quot;reason&quot;, &quot;invalid limit&quot;);</span>
+<span class="fc" id="L484">            return result;</span>
+        }
+
+<span class="fc" id="L487">        List&lt;String&gt; allClients = dataStore.readList(</span>
+<span class="fc" id="L488">                &quot;clients.json&quot;, new TypeReference&lt;&gt;() { });</span>
+
+<span class="fc" id="L490">        List&lt;Budget&gt; allBudgets = dataStore.readList(</span>
+<span class="fc" id="L491">                BUDGETS_FILE, new TypeReference&lt;&gt;() { });</span>
+
+<span class="fc" id="L493">        List&lt;Category&gt; allCategories = dataStore.readList(</span>
+<span class="fc" id="L494">                CATEGORIES_FILE, new TypeReference&lt;&gt;() { });</span>
+
+
+<span class="fc" id="L497">        boolean clientExists = allClients.stream()</span>
+<span class="fc" id="L498">                .anyMatch(c -&gt; c.equalsIgnoreCase(clientId.trim()));</span>
+
+<span class="pc bpc" id="L500" title="1 of 2 branches missed.">        if (!clientExists) {</span>
+<span class="nc" id="L501">            result.put(&quot;success&quot;, false);</span>
+<span class="nc" id="L502">            result.put(&quot;error&quot;, 404);</span>
+<span class="nc" id="L503">            result.put(&quot;reason&quot;, &quot;clientId not found&quot;);</span>
+<span class="nc" id="L504">            return result;</span>
+        }
+
+<span class="fc" id="L507">        Budget budget = allBudgets.stream()</span>
+<span class="fc" id="L508">                .filter(b -&gt; b.getId().equals(budgetId.trim()))</span>
+<span class="fc" id="L509">                .findFirst()</span>
+<span class="fc" id="L510">                .orElse(null);</span>
+
+<span class="pc bpc" id="L512" title="2 of 4 branches missed.">        if (budget == null || budget.getClientId() == null</span>
+<span class="fc bfc" id="L513" title="All 2 branches covered.">                || !budget.getClientId().equalsIgnoreCase(clientId.trim())) {</span>
+<span class="fc" id="L514">            result.put(&quot;success&quot;, false);</span>
+<span class="fc" id="L515">            result.put(&quot;error&quot;, 404);</span>
+<span class="fc" id="L516">            result.put(&quot;reason&quot;, &quot;budgetId not found&quot;);</span>
+<span class="fc" id="L517">            return result;</span>
+        }
+
+<span class="fc" id="L520">        Category existingCategory = allCategories.stream()</span>
+<span class="fc bfc" id="L521" title="All 2 branches covered.">            .filter(c -&gt; c.getId().equals(categoryId.trim())</span>
+<span class="pc bpc" id="L522" title="1 of 2 branches missed.">                    &amp;&amp; c.getBudgetId().equals(budgetId.trim()))</span>
+<span class="fc" id="L523">            .findFirst()</span>
+<span class="fc" id="L524">            .orElse(null);</span>
+
+<span class="fc bfc" id="L526" title="All 2 branches covered.">        if (existingCategory == null) {</span>
+<span class="fc" id="L527">            result.put(&quot;success&quot;, false);</span>
+<span class="fc" id="L528">            result.put(&quot;error&quot;, 404);</span>
+<span class="fc" id="L529">            result.put(&quot;reason&quot;, &quot;categoryId not found&quot;);</span>
+<span class="fc" id="L530">            return result;</span>
+        }
+
+<span class="fc bfc" id="L533" title="All 2 branches covered.">        if (name != null) {</span>
+<span class="fc" id="L534">            Category duplicate = allCategories.stream()</span>
+<span class="pc bpc" id="L535" title="1 of 2 branches missed.">                .filter(c -&gt; c.getBudgetId().equals(budgetId.trim())</span>
+<span class="fc bfc" id="L536" title="All 2 branches covered.">                    &amp;&amp; !c.getId().equals(existingCategory.getId())</span>
+<span class="fc bfc" id="L537" title="All 2 branches covered.">                    &amp;&amp; c.getName().equalsIgnoreCase(name.trim()))</span>
+<span class="fc" id="L538">                .findFirst()</span>
+<span class="fc" id="L539">                .orElse(null);</span>
+
+<span class="fc bfc" id="L541" title="All 2 branches covered.">            if (duplicate != null) {</span>
+<span class="fc" id="L542">                result.put(&quot;success&quot;, false);</span>
+<span class="fc" id="L543">                result.put(&quot;error&quot;, 409);</span>
+<span class="fc" id="L544">                result.put(&quot;reason&quot;, &quot;category with given name already exists&quot;);</span>
+<span class="fc" id="L545">                result.put(&quot;existingCategoryId&quot;, duplicate.getId());</span>
+<span class="fc" id="L546">                return result;</span>
+            }
+        }
+
+        // Calculate spending for the category
+<span class="fc" id="L551">        List&lt;Purchase&gt; allPurchases = dataStore.readList(</span>
+<span class="fc" id="L552">            PURCHASES_FILE, new TypeReference&lt;&gt;() { });</span>
+
+<span class="fc" id="L554">        BigDecimal amountSpent = BigDecimal.ZERO.setScale(2);</span>
+
+<span class="pc bpc" id="L556" title="1 of 2 branches missed.">        for (Purchase purchase : allPurchases) {</span>
+<span class="nc bnc" id="L557" title="All 2 branches missed.">            if (purchase.getCategoryId().equals(existingCategory.getId())) {</span>
+<span class="nc" id="L558">                BigDecimal amount = purchase.getAmount()</span>
+<span class="nc" id="L559">                    .setScale(2, RoundingMode.CEILING);</span>
+<span class="nc" id="L560">                amountSpent = amountSpent.add(amount);</span>
+            }
+<span class="nc" id="L562">        }</span>
+
+<span class="fc bfc" id="L564" title="All 2 branches covered.">        if (name != null) {</span>
+<span class="fc" id="L565">            existingCategory.setName(name.trim());</span>
+        }
+
+<span class="fc bfc" id="L568" title="All 2 branches covered.">        if (limit != null) {</span>
+<span class="fc" id="L569">            existingCategory.setLimit(limit.setScale(2, RoundingMode.DOWN));</span>
+        }
+
+        // calc remaining budget
+<span class="fc" id="L573">        BigDecimal remainingAmount = existingCategory.getLimit()</span>
+<span class="fc" id="L574">            .subtract(amountSpent).setScale(2, RoundingMode.FLOOR);</span>
+
+<span class="fc" id="L576">        dataStore.writeList(CATEGORIES_FILE, allCategories);</span>
+<span class="fc" id="L577">        result.put(&quot;success&quot;, true);</span>
+<span class="fc" id="L578">        result.put(&quot;returnValue&quot;, existingCategory);</span>
+<span class="fc" id="L579">        result.put(&quot;amountSpent&quot;, amountSpent);</span>
+<span class="fc" id="L580">        result.put(&quot;remainingAmount&quot;, remainingAmount);</span>
+
+<span class="fc" id="L582">        return result;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

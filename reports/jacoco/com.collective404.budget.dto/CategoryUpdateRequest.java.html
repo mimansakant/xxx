@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CategoryUpdateRequest.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Budget Service</a> &gt; <a href="index.source.html" class="el_package">com.collective404.budget.dto</a> &gt; <span class="el_source">CategoryUpdateRequest.java</span></div><h1>CategoryUpdateRequest.java</h1><pre class="source lang-java linenums">
+package com.collective404.budget.dto;
+
+import java.math.BigDecimal;
+
+/**
+ * Request body for updating a budget category.
+ */
+public final class CategoryUpdateRequest {
+
+    /** The client requesting the update. */
+    private String clientId;
+    /** The budget containing the category. */
+    private String budgetId;
+    /** The category to update. */
+    private String categoryId;
+    /** The replacement category name, if supplied. */
+    private String name;
+    /** The replacement spending limit, if supplied. */
+    private BigDecimal limit;
+
+    /** Creates an empty request for JSON deserialization. */
+<span class="fc" id="L23">    public CategoryUpdateRequest() {</span>
+<span class="fc" id="L24">    }</span>
+
+    /**
+     * Creates a category update request.
+     *
+     * @param clientId the client requesting the update
+     * @param budgetId the budget containing the category
+     * @param categoryId the category to update
+     * @param name the replacement category name
+     * @param limit the replacement spending limit
+     */
+    public CategoryUpdateRequest(
+            final String clientId,
+            final String budgetId,
+            final String categoryId,
+            final String name,
+            final BigDecimal limit
+<span class="nc" id="L41">    ) {</span>
+<span class="nc" id="L42">        this.clientId = clientId;</span>
+<span class="nc" id="L43">        this.budgetId = budgetId;</span>
+<span class="nc" id="L44">        this.categoryId = categoryId;</span>
+<span class="nc" id="L45">        this.name = name;</span>
+<span class="nc" id="L46">        this.limit = limit;</span>
+<span class="nc" id="L47">    }</span>
+
+    /** @return the client ID */
+    public String getClientId() {
+<span class="fc" id="L51">        return clientId;</span>
+    }
+
+    /** @param clientId the client ID */
+    public void setClientId(final String clientId) {
+<span class="fc" id="L56">        this.clientId = clientId;</span>
+<span class="fc" id="L57">    }</span>
+
+    /** @return the budget ID */
+    public String getBudgetId() {
+<span class="fc" id="L61">        return budgetId;</span>
+    }
+
+    /** @param budgetId the budget ID */
+    public void setBudgetId(final String budgetId) {
+<span class="fc" id="L66">        this.budgetId = budgetId;</span>
+<span class="fc" id="L67">    }</span>
+
+    /** @return the category ID */
+    public String getCategoryId() {
+<span class="fc" id="L71">        return categoryId;</span>
+    }
+
+    /** @param categoryId the category ID */
+    public void setCategoryId(final String categoryId) {
+<span class="fc" id="L76">        this.categoryId = categoryId;</span>
+<span class="fc" id="L77">    }</span>
+
+    /** @return the replacement category name */
+    public String getName() {
+<span class="fc" id="L81">        return name;</span>
+    }
+
+    /** @param name the replacement category name */
+    public void setName(final String name) {
+<span class="fc" id="L86">        this.name = name;</span>
+<span class="fc" id="L87">    }</span>
+
+    /** @return the replacement spending limit */
+    public BigDecimal getLimit() {
+<span class="fc" id="L91">        return limit;</span>
+    }
+
+    /** @param limit the replacement spending limit */
+    public void setLimit(final BigDecimal limit) {
+<span class="fc" id="L96">        this.limit = limit;</span>
+<span class="fc" id="L97">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PurchaseResponse.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Budget Service</a> &gt; <a href="index.source.html" class="el_package">com.collective404.budget.dto</a> &gt; <span class="el_source">PurchaseResponse.java</span></div><h1>PurchaseResponse.java</h1><pre class="source lang-java linenums">
+
+package com.collective404.budget.dto;
+
+import java.math.BigDecimal;
+
+public class PurchaseResponse {
+
+    /** The ID of the purchase. */
+    private String id;
+
+    /** The ID of category that purchase is in. */
+    private String categoryId;
+
+    /** The purchase name. */
+    private String name;
+
+    /** The purchase amount. */
+    private BigDecimal amount;
+
+    /** The purchase date. */
+    private String date;
+
+    /** Default empty constructor. */
+<span class="nc" id="L25">    public PurchaseResponse() {</span>
+        // This constructor is intentionally left empty.
+<span class="nc" id="L27">    }</span>
+
+    /** Constructs a PurchaseResponse.
+     *
+     * @param id the purchase ID
+     * @param categoryId the ID of the category the purchase is in
+     * @param name the purchase name
+     * @param amount the purchase amount
+     * @param date the purchase date
+     */
+    public PurchaseResponse(final String id, final String categoryId,
+                            final String name, final BigDecimal amount,
+<span class="nc" id="L39">                            final String date) {</span>
+<span class="nc" id="L40">        this.id = id;</span>
+<span class="nc" id="L41">        this.categoryId = categoryId;</span>
+<span class="nc" id="L42">        this.name = name;</span>
+<span class="nc" id="L43">        this.amount = amount;</span>
+<span class="nc" id="L44">        this.date = date;</span>
+<span class="nc" id="L45">    }</span>
+
+    /**
+     * Gets the ID of the purchase.
+     *
+     * @return the purchase ID
+     */
+    public final String getId() {
+<span class="nc" id="L53">        return id;</span>
+    }
+
+    /**
+     * Sets the ID of the purchase.
+     *
+     * @param id the purchase ID
+     */
+    public final void setId(final String id) {
+<span class="nc" id="L62">        this.id = id;</span>
+<span class="nc" id="L63">    }</span>
+
+    /**
+     * Gets the ID of the category the purchase is in.
+     *
+     * @return the category ID
+     */
+    public final String getCategoryId() {
+<span class="nc" id="L71">        return categoryId;</span>
+    }
+
+    /**
+     * Sets the ID of the category the purchase is in.
+     *
+     * @param categoryId the ID of the category to put this purchase in
+     */
+    public final void setCategoryId(final String categoryId) {
+<span class="nc" id="L80">        this.categoryId = categoryId;</span>
+<span class="nc" id="L81">    }</span>
+
+    /**
+     * Gets the purchase name.
+     *
+     * @return the purchase name
+     */
+    public final String getName() {
+<span class="nc" id="L89">        return name;</span>
+    }
+
+    /**
+     * Sets the purchase name.
+     *
+     * @param name the name to assign to the purchase
+     */
+    public final void setName(final String name) {
+<span class="nc" id="L98">        this.name = name;</span>
+<span class="nc" id="L99">    }</span>
+
+    /**
+     * Gets the purchase amount.
+     *
+     * @return the purchase amount
+     */
+    public final BigDecimal getAmount() {
+<span class="nc" id="L107">        return amount;</span>
+    }
+
+    /**
+     * Sets the purchase amount.
+     *
+     * @param amount the amount (in dollars up to two decimal points)
+     *               of the purchase
+     */
+    public final void setAmount(final BigDecimal amount) {
+<span class="nc" id="L117">        this.amount = amount;</span>
+<span class="nc" id="L118">    }</span>
+
+    /**
+     * Gets the date of the purchase.
+     *
+     * @return the purchase date
+     */
+    public final String getDate() {
+<span class="nc" id="L126">        return date;</span>
+    }
+
+    /**
+     * Sets the date of the purchase.
+     *
+     * @param date the purchase date (in DD-MM-YYYY format)
+     */
+    public final void setDate(final String date) {
+<span class="nc" id="L135">        this.date = date;</span>
+<span class="nc" id="L136">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

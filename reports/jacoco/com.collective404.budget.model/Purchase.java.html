@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Purchase.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Budget Service</a> &gt; <a href="index.source.html" class="el_package">com.collective404.budget.model</a> &gt; <span class="el_source">Purchase.java</span></div><h1>Purchase.java</h1><pre class="source lang-java linenums">package com.collective404.budget.model;
+
+import java.math.BigDecimal;
+
+public final class Purchase {
+
+    /** The ID of the category that the purchase belongs to. */
+    private String categoryId;
+
+    /** The purchase ID. */
+    private String id;
+
+    /** The purchase name. */
+    private String name;
+
+    /** The purchase amount. */
+    private BigDecimal amount;
+
+    /** The purchase date. */
+    private String date;
+
+    /**
+     * Constructs a purchase.
+     *
+     * @param categoryId the ID of the category that the purchase belongs to
+     * @param id the purchase ID
+     * @param name The purchase name
+     * @param amount The purchase amount
+     * @param date The purchase date
+     */
+    public Purchase(
+            final String categoryId,
+            final String id,
+            final String name,
+            final BigDecimal amount,
+            final String date
+<span class="fc" id="L37">    ) {</span>
+<span class="fc" id="L38">        this.categoryId = categoryId;</span>
+<span class="fc" id="L39">        this.id = id;</span>
+<span class="fc" id="L40">        this.name = name;</span>
+<span class="fc" id="L41">        this.amount = amount;</span>
+<span class="fc" id="L42">        this.date = date;</span>
+<span class="fc" id="L43">    }</span>
+
+    /**
+     * Gets the purchase's category ID.
+     *
+     * @return the category ID
+     */
+    public String getCategoryId() {
+<span class="fc" id="L51">        return this.categoryId;</span>
+    }
+
+    /**
+     * Gets the purchase's ID.
+     *
+     * @return the ID
+     */
+    public String getId() {
+<span class="fc" id="L60">        return this.id;</span>
+    }
+
+    /**
+     * Gets the purchase's name.
+     *
+     * @return the name
+     */
+    public String getName() {
+<span class="fc" id="L69">        return this.name;</span>
+    }
+
+    /**
+     * Gets the purchase's amount.
+     *
+     * @return the amount
+     */
+    public BigDecimal getAmount() {
+<span class="fc" id="L78">        return this.amount;</span>
+    }
+
+    /**
+     * Gets the purchase's date.
+     *
+     * @return the date
+     */
+    public String getDate() {
+<span class="fc" id="L87">        return this.date;</span>
+    }
+
+    /**
+     * Sets the purchase's category ID.
+     *
+     * @param categoryId the category ID
+     */
+    public void setCategoryId(final String categoryId) {
+<span class="nc" id="L96">        this.categoryId = categoryId;</span>
+<span class="nc" id="L97">    }</span>
+
+    /**
+     * Sets the purchase's ID.
+     *
+     * @param id the purchase ID
+     */
+    public void setId(final String id) {
+<span class="nc" id="L105">        this.id = id;</span>
+<span class="nc" id="L106">    }</span>
+
+    /**
+     * Sets the purchase's name.
+     *
+     * @param name The name
+     */
+    public void setName(final String name) {
+<span class="nc" id="L114">        this.name = name;</span>
+<span class="nc" id="L115">    }</span>
+
+    /**
+     * Sets the purchase's amount.
+     *
+     * @param amount The amount
+     */
+    public void setAmount(final BigDecimal amount) {
+<span class="nc" id="L123">        this.amount = amount;</span>
+<span class="nc" id="L124">    }</span>
+
+    /**
+     * Sets the purchase's date.
+     *
+     * @param date The date
+     */
+    public void setDate(final String date) {
+<span class="nc" id="L132">        this.date = date;</span>
+<span class="nc" id="L133">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>
