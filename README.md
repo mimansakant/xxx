@@ -172,12 +172,17 @@ tests once the API is running.
 ├── postman/
 │   ├── budget-api.postman_collection.json
 │   └── local.postman_environment.json
+├── reports/
+│   ├── checkstyle/
+│   ├── jacoco/
+│   └── pmd/
 ├── src/
 │   ├── main/
 │   │   ├── data/
 │   │   └── java/com/collective404/budget/
 │   └── test/java/com/collective404/budget/
 ├── pom.xml
+├── AI Disclosure.md
 └── README.md
 ```
 
