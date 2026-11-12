@@ -21,6 +21,10 @@ edit createCategoryWithLock in @BudgetService.java to support the new addition o
 ```
 add some postman tests for the post /budget/category endpoint to @post-category.postman_collection.json . I specifically want these cases: (1) valid client api key & valid budget belonging to client & valid category name + limit, (2) invalid client api key, (3) valid api key, invalid budget, (4) valid api and budget ids, but budget does not belong to given client, (5) valid api and budget ids but limit given has more then 2 decimal places. Use the format seen in @get-budget.postman_collection.json as a reference
 ```
+- Changed local.postman_environment.json to hold a template for testing using following prompt (2k tokens)
+```
+okay. i did some online research and the internet says @local.postman_environment.json should store and run environment-specific variables like local server URLs, API keys, and test credentials. HOWEVER as its not good to commit secrets, I would like you to edit the file to make it a template file. So it holds variables and such that @post-category.postman_collection.json and @get-budget.postman_collection.json need to run. Please edit it for me accordingly!
+```
 
 ### Tool List
 - VSCode Copilot
