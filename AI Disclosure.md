@@ -17,6 +17,10 @@ change the necessary code in @BudgetService.java, @BudgetController.java, @Categ
 ```
 edit createCategoryWithLock in @BudgetService.java to support the new addition of apiKey in place of clientId. apiKey is what a unique client holds. The logic for checking it should be similar to that seen in buildReportForClient in the same file
 ```
+- Added postman tests for POST /budget/category route using following prompt (4k tokens):
+```
+add some postman tests for the post /budget/category endpoint to @post-category.postman_collection.json . I specifically want these cases: (1) valid client api key & valid budget belonging to client & valid category name + limit, (2) invalid client api key, (3) valid api key, invalid budget, (4) valid api and budget ids, but budget does not belong to given client, (5) valid api and budget ids but limit given has more then 2 decimal places. Use the format seen in @get-budget.postman_collection.json as a reference
+```
 
 ### Tool List
 - VSCode Copilot
