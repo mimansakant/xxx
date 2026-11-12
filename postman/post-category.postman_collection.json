@@ -1,0 +1,146 @@
+{
+  "info": {
+    "name": "POST /budget/category",
+    "description": "Set apiKey to a valid client's key, budgetId to a budget owned by that client, and otherClientBudgetId to a budget owned by a different client.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Create category in own budget (201)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "X-API-Key", "value": "{{apiKey}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"budgetId\": \"{{budgetId}}\",\n  \"name\": \"Postman category\",\n  \"limit\": 125.50\n}"
+        },
+        "url": "{{baseUrl}}/budget/category"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('status 201', () => pm.response.to.have.status(201));",
+              "const body = pm.response.json();",
+              "pm.test('created category details', () => { pm.expect(body.id).to.be.a('string').and.not.empty; pm.expect(body.name).to.eql('Postman category'); pm.expect(body.budgetName).to.be.a('string').and.not.empty; pm.expect(body.limit).to.eql(125.50); });",
+              "pm.test('initial amounts', () => { pm.expect(body.amountSpent).to.eql(0.00); pm.expect(body.remainingAmount).to.eql(125.50); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Invalid API key (401)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "X-API-Key", "value": "00000000-0000-0000-0000-000000000000" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"budgetId\": \"{{budgetId}}\",\n  \"name\": \"Invalid key category\",\n  \"limit\": 125.50\n}"
+        },
+        "url": "{{baseUrl}}/budget/category"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('status 401', () => pm.response.to.have.status(401));",
+              "pm.test('error reason', () => pm.expect(pm.response.json().reason).to.eql('Invalid API key'));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Unknown budget (404)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "X-API-Key", "value": "{{apiKey}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"budgetId\": \"00000000-0000-0000-0000-000000000000\",\n  \"name\": \"Unknown budget category\",\n  \"limit\": 125.50\n}"
+        },
+        "url": "{{baseUrl}}/budget/category"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('status 404', () => pm.response.to.have.status(404));",
+              "pm.test('error reason', () => pm.expect(pm.response.json().reason).to.eql('budgetId not found'));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Budget owned by another client (403)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "X-API-Key", "value": "{{apiKey}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"budgetId\": \"{{otherClientBudgetId}}\",\n  \"name\": \"Other client budget category\",\n  \"limit\": 125.50\n}"
+        },
+        "url": "{{baseUrl}}/budget/category"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('status 403', () => pm.response.to.have.status(403));",
+              "pm.test('error reason', () => pm.expect(pm.response.json().reason).to.eql('budgetId does not belong to this client'));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Limit with more than two decimal places (400)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "X-API-Key", "value": "{{apiKey}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"budgetId\": \"{{budgetId}}\",\n  \"name\": \"Invalid precision category\",\n  \"limit\": 125.555\n}"
+        },
+        "url": "{{baseUrl}}/budget/category"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('status 400', () => pm.response.to.have.status(400));",
+              "pm.test('error reason', () => pm.expect(pm.response.json().reason).to.eql('invalid limit'));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    }
+  ]
+}

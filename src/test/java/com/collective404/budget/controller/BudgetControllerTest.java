@@ -184,15 +184,16 @@ class BudgetControllerTest {
         final Map<String, Object> error = Map.of(
                 "success", false,
                 "error", 403,
-                "reason", "budgetId does not belong to clientId");
+                "reason", "budgetId does not belong to this client");
         when(budgetService.createCategory(
-                "clientId", BUDGET_ID, "Food", new BigDecimal("100.00")))
+                API_KEY, BUDGET_ID, null, "Food",
+                new BigDecimal("100.00")))
                 .thenReturn(error);
 
         final ResponseEntity<?> response = controller.createCategory(
                 new CategoryRequest(
-                        "clientId", BUDGET_ID, "Food",
-                        new BigDecimal("100.00")));
+                        BUDGET_ID, null, "Food", new BigDecimal("100.00")),
+                API_KEY);
 
         assertAll(
                 () -> assertEquals(HttpStatus.FORBIDDEN,

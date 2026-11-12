@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BudgetReportResult.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Budget Service</a> &gt; <a href="index.source.html" class="el_package">com.collective404.budget.service</a> &gt; <span class="el_source">BudgetReportResult.java</span></div><h1>BudgetReportResult.java</h1><pre class="source lang-java linenums">package com.collective404.budget.service;
+
+import com.collective404.budget.dto.BudgetReportResponse;
+
+/**
+ * Outcome of a budget report request: either the report, or the HTTP status
+ * and reason explaining why the caller can't have it.
+ *
+ * @param status the HTTP status code for the response
+ * @param reason why the request failed, or null on success
+ * @param report the report on success, or null on failure
+ */
+<span class="fc" id="L13">public record BudgetReportResult(</span>
+        int status,
+        String reason,
+        BudgetReportResponse report
+) {
+
+    /** Status code for a successful report. */
+    public static final int OK = 200;
+
+    /** Status code when the API key is missing or unknown. */
+    public static final int UNAUTHORIZED = 401;
+
+    /** Status code when the budget belongs to another client. */
+    public static final int FORBIDDEN = 403;
+
+    /** Status code when no budget has the requested ID. */
+    public static final int NOT_FOUND = 404;
+
+    /**
+     * Builds a successful result.
+     *
+     * @param report the report
+     * @return the result
+     */
+    public static BudgetReportResult ok(final BudgetReportResponse report) {
+<span class="fc" id="L38">        return new BudgetReportResult(OK, null, report);</span>
+    }
+
+    /**
+     * Builds a failed result.
+     *
+     * @param status the HTTP status code
+     * @param reason why the request failed
+     * @return the result
+     */
+    public static BudgetReportResult error(
+            final int status, final String reason) {
+<span class="fc" id="L50">        return new BudgetReportResult(status, reason, null);</span>
+    }
+
+    /**
+     * Whether the caller gets the report.
+     *
+     * @return true if the request succeeded
+     */
+    public boolean isOk() {
+<span class="fc bfc" id="L59" title="All 2 branches covered.">        return status == OK;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

@@ -23,6 +23,8 @@ class CategoryControllerTest {
 
     /** Category creation endpoint. */
     private static final String CATEGORY_ENDPOINT = "/budget/category";
+    /** API key of the client in the fixture. */
+    private static final String API_KEY = "api-key-1";
 
     /** Mock HTTP client for controller requests. */
     private MockMvc mockMvc;
@@ -33,7 +35,10 @@ class CategoryControllerTest {
 
     @BeforeEach
     void setUp() throws Exception {
-        Files.writeString(tempDir.resolve("clients.json"), "[\"client-1\"]");
+        Files.writeString(
+                tempDir.resolve("clients.json"),
+                "[{\"id\":\"client-1\",\"name\":\"Client One\","
+                        + "\"apiKey\":\"api-key-1\"}]");
         Files.writeString(
                 tempDir.resolve("budgets.json"),
                 "[{\"id\":\"budget-1\",\"name\":\"Budget One\","
@@ -53,10 +58,10 @@ class CategoryControllerTest {
     void createCategoryReturnsCreatedCategoryWithInitialAmounts()
             throws Exception {
         mockMvc.perform(post(CATEGORY_ENDPOINT)
+                        .header("X-API-Key", API_KEY)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
-                                  "clientId": "client-1",
                                   "budgetId": "budget-1",
                                   "name": "Groceries",
                                   "limit": 125.50
@@ -65,18 +70,53 @@ class CategoryControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").isNotEmpty())
                 .andExpect(jsonPath("$.name").value("Groceries"))
+                .andExpect(jsonPath("$.budgetName").value("Budget One"))
                 .andExpect(jsonPath("$.limit").value(125.50))
                 .andExpect(jsonPath("$.amountSpent").value(0.00))
                 .andExpect(jsonPath("$.remainingAmount").value(125.50));
     }
 
     @Test
-    void createCategoryReturnsBadRequestForInvalidInput() throws Exception {
+    void createCategoryCreatesNamedBudgetWhenBudgetIdIsOmitted()
+            throws Exception {
         mockMvc.perform(post(CATEGORY_ENDPOINT)
+                        .header("X-API-Key", API_KEY)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
-                                  "clientId": "client-1",
+                                  "budgetName": "Monthly",
+                                  "name": "Groceries",
+                                  "limit": 125.50
+                                }
+                                """))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.budgetName").value("Monthly"));
+    }
+
+    @Test
+    void createCategoryRequiresBudgetNameWhenBudgetIdIsOmitted()
+            throws Exception {
+        mockMvc.perform(post(CATEGORY_ENDPOINT)
+                        .header("X-API-Key", API_KEY)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "name": "Groceries",
+                                  "limit": 125.50
+                                }
+                                """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.reason").value(
+                        "budgetName is required when budgetId is omitted"));
+    }
+
+    @Test
+    void createCategoryReturnsBadRequestForInvalidInput() throws Exception {
+        mockMvc.perform(post(CATEGORY_ENDPOINT)
+                        .header("X-API-Key", API_KEY)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
                                   "budgetId": "budget-1",
                                   "name": "123!@#",
                                   "limit": 125.50
@@ -91,10 +131,10 @@ class CategoryControllerTest {
     @Test
     void createCategoryReturnsNotFoundForUnknownBudget() throws Exception {
         mockMvc.perform(post(CATEGORY_ENDPOINT)
+                        .header("X-API-Key", API_KEY)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
-                                  "clientId": "client-1",
                                   "budgetId": "missing-budget",
                                   "name": "Groceries",
                                   "limit": 125.50
@@ -116,10 +156,10 @@ class CategoryControllerTest {
         );
 
         mockMvc.perform(post(CATEGORY_ENDPOINT)
+                        .header("X-API-Key", API_KEY)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
-                                  "clientId": "client-1",
                                   "budgetId": "budget-1",
                                   "name": "Groceries",
                                   "limit": 125.50
@@ -129,7 +169,7 @@ class CategoryControllerTest {
                 .andExpect(jsonPath("$.success").value(false))
                 .andExpect(jsonPath("$.error").value(403))
                 .andExpect(jsonPath("$.reason").value(
-                        "budgetId does not belong to clientId"));
+                        "budgetId does not belong to this client"));
     }
 
     @Test
@@ -137,17 +177,18 @@ class CategoryControllerTest {
             throws Exception {
         final String request = """
                 {
-                  "clientId": "client-1",
                   "budgetId": "budget-1",
                   "name": "Groceries",
                   "limit": 125.50
                 }
                 """;
         mockMvc.perform(post(CATEGORY_ENDPOINT)
+                        .header("X-API-Key", API_KEY)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(request))
                 .andExpect(status().isCreated());
         mockMvc.perform(post(CATEGORY_ENDPOINT)
+                        .header("X-API-Key", API_KEY)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(request))
                 .andExpect(status().isConflict())
@@ -159,8 +200,44 @@ class CategoryControllerTest {
     @Test
     void createCategoryReturnsBadRequestForMalformedJson() throws Exception {
         mockMvc.perform(post(CATEGORY_ENDPOINT)
+                        .header("X-API-Key", API_KEY)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{"))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void createCategoryReturnsUnauthorizedForUnknownApiKey() throws Exception {
+        mockMvc.perform(post(CATEGORY_ENDPOINT)
+                        .header("X-API-Key", "unknown-key")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "budgetId": "budget-1",
+                                  "name": "Groceries",
+                                  "limit": 125.50
+                                }
+                                """))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.success").value(false))
+                .andExpect(jsonPath("$.error").value(401))
+                .andExpect(jsonPath("$.reason").value("Invalid API key"));
+    }
+
+    @Test
+    void createCategoryReturnsUnauthorizedWhenApiKeyIsMissing()
+            throws Exception {
+        mockMvc.perform(post(CATEGORY_ENDPOINT)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "budgetId": "budget-1",
+                                  "name": "Groceries",
+                                  "limit": 125.50
+                                }
+                                """))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.success").value(false))
+                .andExpect(jsonPath("$.error").value(401));
     }
 }

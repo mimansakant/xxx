@@ -1,0 +1,36 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+Budget Service,com.collective404.budget.store,BudgetDataStore,31,89,2,2,4,21,3,5,1,5
+Budget Service,com.collective404.budget.model,Purchase,20,33,0,0,10,12,5,6,5,6
+Budget Service,com.collective404.budget.model,Client,3,33,0,0,1,15,1,7,1,7
+Budget Service,com.collective404.budget.model,Budget,0,36,0,0,0,16,0,8,0,8
+Budget Service,com.collective404.budget.model,Category,0,46,0,0,0,20,0,10,0,10
+Budget Service,com.collective404.budget,BudgetApplication,5,0,0,0,2,0,1,0,1,0
+Budget Service,com.collective404.budget.controller,PurchaseController,31,0,2,0,9,0,3,0,2,0
+Budget Service,com.collective404.budget.controller,BudgetController,61,206,4,18,12,50,4,12,0,5
+Budget Service,com.collective404.budget.dto,BudgetReportResponse.CategoryReport,0,21,0,0,0,1,0,1,0,1
+Budget Service,com.collective404.budget.dto,CategoryResponse,27,63,0,0,14,21,7,8,7,8
+Budget Service,com.collective404.budget.dto,CategoryUpdateRequest,18,38,0,0,7,17,1,11,1,11
+Budget Service,com.collective404.budget.dto,BudgetReportResponse,0,27,0,0,0,1,0,1,0,1
+Budget Service,com.collective404.budget.dto,BudgetReportResponse.PurchaseSummary,0,21,0,0,0,1,0,1,0,1
+Budget Service,com.collective404.budget.dto,CategoryRequest,0,46,0,0,0,20,0,10,0,10
+Budget Service,com.collective404.budget.dto,PurchaseResponse,56,0,0,0,24,0,12,0,12,0
+Budget Service,com.collective404.budget.dto,PurchaseRequest,3,35,0,0,1,15,1,10,1,10
+Budget Service,com.collective404.budget.validation,InputValidator,5,77,10,20,3,22,10,9,0,4
+Budget Service,com.collective404.budget.service,BudgetService.new TypeReference() {...},0,3,0,0,0,1,0,1,0,1
+Budget Service,com.collective404.budget.service,BudgetService.new TypeReference() {...},0,3,0,0,0,1,0,1,0,1
+Budget Service,com.collective404.budget.service,BudgetService.new TypeReference() {...},0,3,0,0,0,1,0,1,0,1
+Budget Service,com.collective404.budget.service,BudgetService.new TypeReference() {...},0,3,0,0,0,1,0,1,0,1
+Budget Service,com.collective404.budget.service,BudgetService.new TypeReference() {...},0,3,0,0,0,1,0,1,0,1
+Budget Service,com.collective404.budget.service,BudgetService.new TypeReference() {...},0,3,0,0,0,1,0,1,0,1
+Budget Service,com.collective404.budget.service,BudgetService.new TypeReference() {...},0,3,0,0,0,1,0,1,0,1
+Budget Service,com.collective404.budget.service,BudgetReportResult,0,34,0,2,0,4,0,5,0,4
+Budget Service,com.collective404.budget.service,BudgetService.new TypeReference() {...},0,3,0,0,0,1,0,1,0,1
+Budget Service,com.collective404.budget.service,BudgetService.new TypeReference() {...},0,3,0,0,0,1,0,1,0,1
+Budget Service,com.collective404.budget.service,BudgetService.new TypeReference() {...},0,3,0,0,0,1,0,1,0,1
+Budget Service,com.collective404.budget.service,BudgetService.new TypeReference() {...},0,3,0,0,0,1,0,1,0,1
+Budget Service,com.collective404.budget.service,PurchaseService.new TypeReference() {...},3,0,0,0,1,0,1,0,1,0
+Budget Service,com.collective404.budget.service,PurchaseService.new TypeReference() {...},0,3,0,0,0,1,0,1,0,1
+Budget Service,com.collective404.budget.service,PurchaseService.new TypeReference() {...},0,3,0,0,0,1,0,1,0,1
+Budget Service,com.collective404.budget.service,PurchaseService.new TypeReference() {...},0,3,0,0,0,1,0,1,0,1
+Budget Service,com.collective404.budget.service,PurchaseService,54,132,9,9,10,32,10,6,2,5
+Budget Service,com.collective404.budget.service,BudgetService,78,1138,22,116,17,239,21,75,0,27

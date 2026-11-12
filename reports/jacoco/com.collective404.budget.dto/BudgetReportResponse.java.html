@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BudgetReportResponse.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Budget Service</a> &gt; <a href="index.source.html" class="el_package">com.collective404.budget.dto</a> &gt; <span class="el_source">BudgetReportResponse.java</span></div><h1>BudgetReportResponse.java</h1><pre class="source lang-java linenums">package com.collective404.budget.dto;
+
+import java.math.BigDecimal;
+import java.util.List;
+
+/**
+ * Response body for GET /budget/{budgetId}.
+ *
+ * &lt;p&gt;Money values have 2 decimal places. Purchase amounts are rounded up,
+ * remaining amounts are rounded down, and percent used is rounded half up.
+ * Percent used is null when there is no positive limit to divide by.
+ *
+ * @param budgetId the budget ID
+ * @param budgetName the budget name
+ * @param totalLimit the sum of all category limits
+ * @param totalSpent the sum of all purchases in the budget
+ * @param totalRemaining total limit minus total spent (can be negative)
+ * @param totalPercentUsed total spent as a percent of total limit
+ * @param categories one row per category in the budget
+ * @param purchases every purchase in the budget, oldest first
+ */
+<span class="fc" id="L22">public record BudgetReportResponse(</span>
+        String budgetId,
+        String budgetName,
+        BigDecimal totalLimit,
+        BigDecimal totalSpent,
+        BigDecimal totalRemaining,
+        BigDecimal totalPercentUsed,
+        List&lt;CategoryReport&gt; categories,
+        List&lt;PurchaseSummary&gt; purchases
+) {
+
+    /**
+     * Spending numbers for one category.
+     *
+     * @param categoryId the category ID
+     * @param name the category name
+     * @param limit the spending limit
+     * @param spent the total of the category's purchases
+     * @param remaining limit minus spent (negative when overspent)
+     * @param percentUsed spent as a percent of limit
+     */
+<span class="fc" id="L43">    public record CategoryReport(</span>
+            String categoryId,
+            String name,
+            BigDecimal limit,
+            BigDecimal spent,
+            BigDecimal remaining,
+            BigDecimal percentUsed
+    ) {
+    }
+
+    /**
+     * One purchase as shown in the report.
+     *
+     * @param purchaseId the purchase ID
+     * @param categoryId the ID of the category it counts under
+     * @param categoryName the name of that category
+     * @param name the purchase name
+     * @param amount the purchase amount
+     * @param date the purchase date
+     */
+<span class="fc" id="L63">    public record PurchaseSummary(</span>
+            String purchaseId,
+            String categoryId,
+            String categoryName,
+            String name,
+            BigDecimal amount,
+            String date
+    ) {
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

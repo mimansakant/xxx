@@ -56,13 +56,16 @@ public class BudgetController {
      * Creates a category, optionally in an existing budget
      * owned by the client.
      *
-     * @param categoryRequest the category and client details
+     * @param categoryRequest the category and budget details
+     * @param apiKey the caller's API key
      * @return the created category or an error response
      * @throws IOException if the data files can't be accessed
      */
     @PostMapping("/budget/category")
     public ResponseEntity<?> createCategory(
-        @RequestBody final CategoryRequest categoryRequest
+        @RequestBody final CategoryRequest categoryRequest,
+        @RequestHeader(value = API_KEY_HEADER, required = false)
+        final String apiKey
     ) throws IOException {
         if (categoryRequest == null) {
             final Map<String, Object> error = new HashMap<>();
@@ -73,8 +76,9 @@ public class BudgetController {
         }
 
         final Map<String, Object> result = budgetService.createCategory(
-            categoryRequest.getClientId(),
+            apiKey == null ? null : apiKey.trim(),
             categoryRequest.getBudgetId(),
+            categoryRequest.getBudgetName(),
             categoryRequest.getName(),
             categoryRequest.getLimit()
         );
@@ -87,7 +91,8 @@ public class BudgetController {
                 );
             }
             return ResponseEntity.status(HttpStatus.CREATED)
-                .body(CategoryResponse.from(category));
+                .body(CategoryResponse.from(
+                    category, (String) result.get("budgetName")));
         }
 
         final Object error = result.get("error");

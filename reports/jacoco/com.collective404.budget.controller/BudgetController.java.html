@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BudgetController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Budget Service</a> &gt; <a href="index.source.html" class="el_package">com.collective404.budget.controller</a> &gt; <span class="el_source">BudgetController.java</span></div><h1>BudgetController.java</h1><pre class="source lang-java linenums">package com.collective404.budget.controller;
+
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
+import com.collective404.budget.dto.CategoryRequest;
+import com.collective404.budget.dto.CategoryResponse;
+import com.collective404.budget.model.Category;
+import com.collective404.budget.service.BudgetReportResult;
+import com.collective404.budget.service.BudgetService;
+import com.collective404.budget.dto.CategoryUpdateRequest;
+import com.collective404.budget.validation.InputValidator;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * REST controller for the BudgetService API.
+ */
+@RestController
+@CrossOrigin(
+    origins = &quot;http://localhost:5500&quot;,
+    allowedHeaders = {&quot;X-API-Key&quot;, &quot;Content-Type&quot;},
+    methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PATCH}
+)
+public class BudgetController {
+
+    /** Header that carries the caller's API key. */
+    static final String API_KEY_HEADER = &quot;X-API-Key&quot;;
+
+    /** the service. */
+    private final BudgetService budgetService;
+
+    /**
+     * The api controller constructor.
+     *
+     * @param budgetService the budgetAPIService
+     */
+    public BudgetController(
+        final BudgetService budgetService
+<span class="fc" id="L51">    ) {</span>
+<span class="fc" id="L52">        this.budgetService = budgetService;</span>
+<span class="fc" id="L53">    }</span>
+
+    /**
+     * Creates a category, optionally in an existing budget
+     * owned by the client.
+     *
+     * @param categoryRequest the category and budget details
+     * @param apiKey the caller's API key
+     * @return the created category or an error response
+     * @throws IOException if the data files can't be accessed
+     */
+    @PostMapping(&quot;/budget/category&quot;)
+    public ResponseEntity&lt;?&gt; createCategory(
+        @RequestBody final CategoryRequest categoryRequest,
+        @RequestHeader(value = API_KEY_HEADER, required = false)
+        final String apiKey
+    ) throws IOException {
+<span class="pc bpc" id="L70" title="1 of 2 branches missed.">        if (categoryRequest == null) {</span>
+<span class="nc" id="L71">            final Map&lt;String, Object&gt; error = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L72">            error.put(&quot;success&quot;, false);</span>
+<span class="nc" id="L73">            error.put(&quot;error&quot;, HttpStatus.BAD_REQUEST.value());</span>
+<span class="nc" id="L74">            error.put(&quot;reason&quot;, &quot;missing required value&quot;);</span>
+<span class="nc" id="L75">            return ResponseEntity.badRequest().body(error);</span>
+        }
+
+<span class="fc" id="L78">        final Map&lt;String, Object&gt; result = budgetService.createCategory(</span>
+<span class="fc bfc" id="L79" title="All 2 branches covered.">            apiKey == null ? null : apiKey.trim(),</span>
+<span class="fc" id="L80">            categoryRequest.getBudgetId(),</span>
+<span class="fc" id="L81">            categoryRequest.getBudgetName(),</span>
+<span class="fc" id="L82">            categoryRequest.getName(),</span>
+<span class="fc" id="L83">            categoryRequest.getLimit()</span>
+        );
+
+<span class="fc bfc" id="L86" title="All 2 branches covered.">        if (Boolean.TRUE.equals(result.get(&quot;success&quot;))) {</span>
+<span class="fc" id="L87">            final Object returnValue = result.get(&quot;returnValue&quot;);</span>
+<span class="pc bpc" id="L88" title="1 of 2 branches missed.">            if (!(returnValue instanceof Category category)) {</span>
+<span class="nc" id="L89">                throw new IllegalStateException(</span>
+                    &quot;BudgetService returned an invalid category result&quot;
+                );
+            }
+<span class="fc" id="L93">            return ResponseEntity.status(HttpStatus.CREATED)</span>
+<span class="fc" id="L94">                .body(CategoryResponse.from(</span>
+<span class="fc" id="L95">                    category, (String) result.get(&quot;budgetName&quot;)));</span>
+        }
+
+<span class="fc" id="L98">        final Object error = result.get(&quot;error&quot;);</span>
+<span class="pc bpc" id="L99" title="1 of 2 branches missed.">        if (!(error instanceof Integer statusCode)) {</span>
+<span class="nc" id="L100">            throw new IllegalStateException(</span>
+                &quot;BudgetService returned an invalid error status&quot;
+            );
+        }
+<span class="fc" id="L104">        return ResponseEntity.status(statusCode).body(result);</span>
+    }
+
+/**
+ * Returns the spending report for one budget. The caller identifies itself
+ * with its API key in the X-API-Key header and can only see its own budgets.
+ *
+ * &lt;p&gt;200 with the report, 400 if the ID isn't a UUID, 401 if the API key is
+ * missing or unknown, 403 if the budget belongs to another client, 404 if no
+ * budget has that ID, and 500 if the data files can't be read.
+ *
+ * @param budgetId the budget ID
+ * @param apiKey the caller's API key
+ * @return the report or an error body
+ */
+@GetMapping(&quot;/budget/{budgetId}&quot;)
+public ResponseEntity&lt;?&gt; getBudgetReport(
+    @PathVariable(&quot;budgetId&quot;) final String budgetId,
+    @RequestHeader(value = API_KEY_HEADER, required = false)
+    final String apiKey
+) {
+<span class="fc bfc" id="L125" title="All 2 branches covered.">    if (!InputValidator.isValidUuid(budgetId)) {</span>
+<span class="fc" id="L126">        return error(HttpStatus.BAD_REQUEST,</span>
+            &quot;budgetId must be a valid UUID&quot;);
+    }
+<span class="fc bfc" id="L129" title="All 4 branches covered.">    if (apiKey == null || apiKey.isBlank()) {</span>
+<span class="fc" id="L130">        return error(HttpStatus.UNAUTHORIZED,</span>
+            &quot;Missing &quot; + API_KEY_HEADER + &quot; header&quot;);
+    }
+    try {
+<span class="fc" id="L134">        final BudgetReportResult result =</span>
+<span class="fc" id="L135">            budgetService.getBudgetReport(budgetId, apiKey.trim());</span>
+<span class="fc bfc" id="L136" title="All 2 branches covered.">        if (result.isOk()) {</span>
+<span class="fc" id="L137">            return ResponseEntity.ok(result.report());</span>
+        }
+<span class="fc" id="L139">        return error(HttpStatus.valueOf(result.status()), result.reason());</span>
+<span class="fc" id="L140">    } catch (IOException e) {</span>
+<span class="fc" id="L141">        return error(HttpStatus.INTERNAL_SERVER_ERROR,</span>
+            &quot;Budget data is unavailable&quot;);
+    }
+}
+
+/**
+ * Builds an error response in the agreed shape:
+ * status number plus a reason string.
+ *
+ * @param status the HTTP status
+ * @param reason why the request failed
+ * @return the error response
+ */
+static ResponseEntity&lt;Map&lt;String, Object&gt;&gt; error(
+    final HttpStatus status, final String reason) {
+<span class="fc" id="L156">    return ResponseEntity.status(status)</span>
+<span class="fc" id="L157">    .body(Map.of(&quot;status&quot;, status.value(), &quot;reason&quot;, reason));</span>
+}
+
+/**
+ * Updates an existing budget category.
+ *
+ * @param request the category update request
+ * @return the updated category or error response
+ * @throws IOException if a datastore operation fails
+ */
+@PatchMapping(&quot;/budget/category&quot;)
+public ResponseEntity&lt;?&gt; updateCategory(
+        @RequestBody final CategoryUpdateRequest request)
+        throws IOException {
+
+<span class="pc bpc" id="L172" title="1 of 2 branches missed.">    if (request == null) {</span>
+<span class="nc" id="L173">        Map&lt;String, Object&gt; error = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L174">        error.put(&quot;success&quot;, false);</span>
+<span class="nc" id="L175">        error.put(&quot;error&quot;, 400);</span>
+<span class="nc" id="L176">        error.put(&quot;reason&quot;, &quot;missing required value&quot;);</span>
+<span class="nc" id="L177">        return ResponseEntity.badRequest().body(error);</span>
+    }
+
+    Map&lt;String, Object&gt; result;
+    try {
+<span class="fc" id="L182">        result = budgetService.updateCategory(</span>
+<span class="fc" id="L183">            request.getClientId(), request.getBudgetId(),</span>
+<span class="fc" id="L184">            request.getCategoryId(), request.getName(), request.getLimit());</span>
+<span class="fc" id="L185">    } catch (IOException e) {</span>
+<span class="fc" id="L186">            return error(HttpStatus.INTERNAL_SERVER_ERROR,</span>
+                &quot;Budget data is unavailable&quot;);
+
+<span class="fc" id="L189">    }</span>
+
+<span class="fc bfc" id="L191" title="All 2 branches covered.">    if (Boolean.TRUE.equals(result.get(&quot;success&quot;))) {</span>
+<span class="fc" id="L192">        Category category = (Category) result.get(&quot;returnValue&quot;);</span>
+
+<span class="fc" id="L194">        Map&lt;String, Object&gt; response = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L195">        response.put(&quot;id&quot;, category.getId());</span>
+<span class="fc" id="L196">        response.put(&quot;name&quot;, category.getName());</span>
+<span class="fc" id="L197">        response.put(&quot;limit&quot;, category.getLimit());</span>
+<span class="fc" id="L198">        response.put(&quot;amountSpent&quot;, result.get(&quot;amountSpent&quot;));</span>
+<span class="fc" id="L199">        response.put(&quot;remainingAmount&quot;, result.get(&quot;remainingAmount&quot;));</span>
+
+<span class="fc" id="L201">        return ResponseEntity.ok(response);</span>
+    }
+
+<span class="fc" id="L204">    int statusCode = (Integer) result.get(&quot;error&quot;);</span>
+<span class="fc" id="L205">    return ResponseEntity.status(statusCode).body(result);</span>
+}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>
