@@ -25,6 +25,10 @@ add some postman tests for the post /budget/category endpoint to @post-category.
 ```
 okay. i did some online research and the internet says @local.postman_environment.json should store and run environment-specific variables like local server URLs, API keys, and test credentials. HOWEVER as its not good to commit secrets, I would like you to edit the file to make it a template file. So it holds variables and such that @post-category.postman_collection.json and @get-budget.postman_collection.json need to run. Please edit it for me accordingly!
 ```
+-Changed all endpoints as needed after changing POST /budget/category to store a budget with a client's name instead of a client's X-API-KEY (25k tokens)
+```
+edit @BudgetService.java, @BudgetController.java with the following knowledge: when a new budget is created it stores the client's name instead of the client's api token. Then when we want to check that the given api token (for request) matches the one owning the budget, we must use the client's name to go into the clients.json datastore to get that client's x api token for comparison. Use @clients.json as a reference to how client information is stored. You may also need to edit test cases so they still run as expected
+```
 
 ### Tool List
 - VSCode Copilot
