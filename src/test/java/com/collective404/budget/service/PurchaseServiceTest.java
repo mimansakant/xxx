@@ -9,12 +9,12 @@ import static org.mockito.Mockito.when;
 import com.collective404.budget.dto.PurchaseRequest;
 import com.collective404.budget.model.Budget;
 import com.collective404.budget.model.Category;
+import com.collective404.budget.model.Client;
 import com.collective404.budget.model.Purchase;
 import com.collective404.budget.store.BudgetDataStore;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -27,6 +27,8 @@ final class PurchaseServiceTest {
     private static final String CATEGORY_ID = "cat-1";
     /** Client identifier shared by purchase tests. */
     private static final String CLIENT_ID = "client-1";
+    /** Client name stored as the budget owner. */
+    private static final String CLIENT_NAME = "Client One";
     /** Budget identifier shared by purchase tests. */
     private static final String BUDGET_ID = "budget-1";
     /** Purchase amount shared by purchase tests. */
@@ -65,7 +67,7 @@ final class PurchaseServiceTest {
      */
     @Test
     void ownerPurchaseHasExpectedCategory() throws IOException {
-        final PurchaseService service = serviceWithBudgetOwner(CLIENT_ID);
+        final PurchaseService service = serviceWithBudgetOwner(CLIENT_NAME);
         final Purchase purchase = service.createPurchase(
                 request(), CATEGORY_ID);
         assertEquals(CATEGORY_ID, purchase.getCategoryId(),
@@ -79,7 +81,7 @@ final class PurchaseServiceTest {
      */
     @Test
     void ownerPurchaseHasExpectedAmount() throws IOException {
-        final PurchaseService service = serviceWithBudgetOwner(CLIENT_ID);
+        final PurchaseService service = serviceWithBudgetOwner(CLIENT_NAME);
         final Purchase purchase = service.createPurchase(
                 request(), CATEGORY_ID);
         assertEquals(PURCHASE_AMOUNT, purchase.getAmount(),
@@ -101,7 +103,7 @@ final class PurchaseServiceTest {
         final BudgetDataStore store = org.mockito.Mockito.mock(
                 BudgetDataStore.class);
         when(store.readList(eq("clients.json"), any())).thenReturn(
-                List.of(Map.of("id", CLIENT_ID)));
+                List.of(new Client(CLIENT_ID, CLIENT_NAME, "client-key")));
         when(store.readList(eq("budgets.json"), any())).thenReturn(
                 List.of(new Budget(BUDGET_ID, "Budget", owner)));
         when(store.readList(eq("categories.json"), any())).thenReturn(

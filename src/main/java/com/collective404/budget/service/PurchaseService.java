@@ -3,13 +3,13 @@ package com.collective404.budget.service;
 import com.collective404.budget.dto.PurchaseRequest;
 import com.collective404.budget.model.Budget;
 import com.collective404.budget.model.Category;
+import com.collective404.budget.model.Client;
 import com.collective404.budget.model.Purchase;
 import com.collective404.budget.store.BudgetDataStore;
 import com.fasterxml.jackson.core.type.TypeReference;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -43,11 +43,13 @@ public final class PurchaseService {
     public Purchase createPurchase(
             final PurchaseRequest request,
             final String categoryId) throws IOException {
-        final List<Map<String, Object>> clients = dataStore.readList(
+        final List<Client> clients = dataStore.readList(
                 "clients.json", new TypeReference<>() { });
-        final boolean clientExists = clients.stream().anyMatch(client ->
-                request.getClientId().trim().equals(client.get("id")));
-        if (!clientExists) {
+        final Client client = clients.stream()
+                .filter(item -> request.getClientId().trim()
+                        .equals(item.getId()))
+                .findFirst().orElse(null);
+        if (client == null) {
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND, "Client not found");
         }
@@ -62,7 +64,7 @@ public final class PurchaseService {
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND, "Budget not found");
         }
-        if (!request.getClientId().trim().equals(budget.getClientId())) {
+        if (!budgetBelongsToClient(budget, client)) {
             throw new ResponseStatusException(
                     HttpStatus.FORBIDDEN, "Client cannot access this budget");
         }
@@ -90,6 +92,16 @@ public final class PurchaseService {
                 request.getName().trim(),
                 request.getAmount(),
                 LocalDate.now().toString());
+    }
+
+    private boolean budgetBelongsToClient(
+            final Budget budget,
+            final Client client
+    ) {
+        final String budgetOwner = budget.getClientName();
+        return budgetOwner != null
+                && (budgetOwner.equalsIgnoreCase(client.getName())
+                    || budgetOwner.equalsIgnoreCase(client.getId()));
     }
 
     /**

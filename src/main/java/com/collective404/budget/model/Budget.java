@@ -81,10 +81,10 @@ public final class Budget {
     /**
      * Sets the budget's client name.
      *
-     * @param clientName the budget client name
+     * @param clientId the budget's stored client owner value
      */
-    public void setClientId(final String clientName) {
-        this.clientName = clientName;
+    public void setClientId(final String clientId) {
+        this.clientName = clientId;
     }
 
 }

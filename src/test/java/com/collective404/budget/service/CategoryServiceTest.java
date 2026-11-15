@@ -29,8 +29,8 @@ class CategoryServiceTest {
 
     /** API key used to authenticate category creation. */
     private static final String API_KEY = "api-key-1";
-    /** Client ID stored on budgets. */
-    private static final String CLIENT_ID = "client-1";
+    /** Name of the budget-owning client. */
+    private static final String CLIENT_NAME = "Client One";
 
     /** JSON mapper used to verify persisted data. */
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -51,9 +51,9 @@ class CategoryServiceTest {
         Files.writeString(
                 tempDir.resolve("budgets.json"),
                 "[{\"id\":\"budget-1\",\"name\":\"Budget One\","
-                        + "\"clientId\":\"client-1\"},"
+                        + "\"clientName\":\"Client One\"},"
                         + "{\"id\":\"budget-2\",\"name\":\"Budget Two\","
-                        + "\"clientId\":\"client-1\"}]"
+                        + "\"clientName\":\"Client One\"}]"
         );
         Files.writeString(tempDir.resolve("categories.json"), "[]");
         service = new BudgetService(new BudgetDataStore(objectMapper, tempDir));
@@ -106,7 +106,7 @@ class CategoryServiceTest {
         assertTrue(savedBudgets.stream().anyMatch(budget ->
                 budget.getId().equals(category.getBudgetId())
                         && budget.getName().equals("Home")
-                        && budget.getClientId().equals(CLIENT_ID)));
+                        && budget.getClientName().equals(CLIENT_NAME)));
         assertEquals("Home", result.get("budgetName"));
         assertEquals(category.getId(), readCategories().get(0).getId());
     }

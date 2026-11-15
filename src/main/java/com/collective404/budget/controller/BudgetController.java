@@ -57,7 +57,8 @@ public class BudgetController {
      * owned by the client.
      *
      * @param categoryRequest the category and budget details
-     * @param apiKey the caller's API key
+     * @param apiKey the caller's API key, resolved by the service against the
+     *               budget owner's client record
      * @return the created category or an error response
      * @throws IOException if the data files can't be accessed
      */
