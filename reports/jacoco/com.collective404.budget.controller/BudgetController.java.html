@@ -57,7 +57,8 @@ public class BudgetController {
      * owned by the client.
      *
      * @param categoryRequest the category and budget details
-     * @param apiKey the caller's API key
+     * @param apiKey the caller's API key, resolved by the service against the
+     *               budget owner's client record
      * @return the created category or an error response
      * @throws IOException if the data files can't be accessed
      */
@@ -67,41 +68,41 @@ public class BudgetController {
         @RequestHeader(value = API_KEY_HEADER, required = false)
         final String apiKey
     ) throws IOException {
-<span class="pc bpc" id="L70" title="1 of 2 branches missed.">        if (categoryRequest == null) {</span>
-<span class="nc" id="L71">            final Map&lt;String, Object&gt; error = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L72">            error.put(&quot;success&quot;, false);</span>
-<span class="nc" id="L73">            error.put(&quot;error&quot;, HttpStatus.BAD_REQUEST.value());</span>
-<span class="nc" id="L74">            error.put(&quot;reason&quot;, &quot;missing required value&quot;);</span>
-<span class="nc" id="L75">            return ResponseEntity.badRequest().body(error);</span>
+<span class="pc bpc" id="L71" title="1 of 2 branches missed.">        if (categoryRequest == null) {</span>
+<span class="nc" id="L72">            final Map&lt;String, Object&gt; error = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L73">            error.put(&quot;success&quot;, false);</span>
+<span class="nc" id="L74">            error.put(&quot;error&quot;, HttpStatus.BAD_REQUEST.value());</span>
+<span class="nc" id="L75">            error.put(&quot;reason&quot;, &quot;missing required value&quot;);</span>
+<span class="nc" id="L76">            return ResponseEntity.badRequest().body(error);</span>
         }
 
-<span class="fc" id="L78">        final Map&lt;String, Object&gt; result = budgetService.createCategory(</span>
-<span class="fc bfc" id="L79" title="All 2 branches covered.">            apiKey == null ? null : apiKey.trim(),</span>
-<span class="fc" id="L80">            categoryRequest.getBudgetId(),</span>
-<span class="fc" id="L81">            categoryRequest.getBudgetName(),</span>
-<span class="fc" id="L82">            categoryRequest.getName(),</span>
-<span class="fc" id="L83">            categoryRequest.getLimit()</span>
+<span class="fc" id="L79">        final Map&lt;String, Object&gt; result = budgetService.createCategory(</span>
+<span class="fc bfc" id="L80" title="All 2 branches covered.">            apiKey == null ? null : apiKey.trim(),</span>
+<span class="fc" id="L81">            categoryRequest.getBudgetId(),</span>
+<span class="fc" id="L82">            categoryRequest.getBudgetName(),</span>
+<span class="fc" id="L83">            categoryRequest.getName(),</span>
+<span class="fc" id="L84">            categoryRequest.getLimit()</span>
         );
 
-<span class="fc bfc" id="L86" title="All 2 branches covered.">        if (Boolean.TRUE.equals(result.get(&quot;success&quot;))) {</span>
-<span class="fc" id="L87">            final Object returnValue = result.get(&quot;returnValue&quot;);</span>
-<span class="pc bpc" id="L88" title="1 of 2 branches missed.">            if (!(returnValue instanceof Category category)) {</span>
-<span class="nc" id="L89">                throw new IllegalStateException(</span>
+<span class="fc bfc" id="L87" title="All 2 branches covered.">        if (Boolean.TRUE.equals(result.get(&quot;success&quot;))) {</span>
+<span class="fc" id="L88">            final Object returnValue = result.get(&quot;returnValue&quot;);</span>
+<span class="pc bpc" id="L89" title="1 of 2 branches missed.">            if (!(returnValue instanceof Category category)) {</span>
+<span class="nc" id="L90">                throw new IllegalStateException(</span>
                     &quot;BudgetService returned an invalid category result&quot;
                 );
             }
-<span class="fc" id="L93">            return ResponseEntity.status(HttpStatus.CREATED)</span>
-<span class="fc" id="L94">                .body(CategoryResponse.from(</span>
-<span class="fc" id="L95">                    category, (String) result.get(&quot;budgetName&quot;)));</span>
+<span class="fc" id="L94">            return ResponseEntity.status(HttpStatus.CREATED)</span>
+<span class="fc" id="L95">                .body(CategoryResponse.from(</span>
+<span class="fc" id="L96">                    category, (String) result.get(&quot;budgetName&quot;)));</span>
         }
 
-<span class="fc" id="L98">        final Object error = result.get(&quot;error&quot;);</span>
-<span class="pc bpc" id="L99" title="1 of 2 branches missed.">        if (!(error instanceof Integer statusCode)) {</span>
-<span class="nc" id="L100">            throw new IllegalStateException(</span>
+<span class="fc" id="L99">        final Object error = result.get(&quot;error&quot;);</span>
+<span class="pc bpc" id="L100" title="1 of 2 branches missed.">        if (!(error instanceof Integer statusCode)) {</span>
+<span class="nc" id="L101">            throw new IllegalStateException(</span>
                 &quot;BudgetService returned an invalid error status&quot;
             );
         }
-<span class="fc" id="L104">        return ResponseEntity.status(statusCode).body(result);</span>
+<span class="fc" id="L105">        return ResponseEntity.status(statusCode).body(result);</span>
     }
 
 /**
@@ -122,23 +123,23 @@ public ResponseEntity&lt;?&gt; getBudgetReport(
     @RequestHeader(value = API_KEY_HEADER, required = false)
     final String apiKey
 ) {
-<span class="fc bfc" id="L125" title="All 2 branches covered.">    if (!InputValidator.isValidUuid(budgetId)) {</span>
-<span class="fc" id="L126">        return error(HttpStatus.BAD_REQUEST,</span>
+<span class="fc bfc" id="L126" title="All 2 branches covered.">    if (!InputValidator.isValidUuid(budgetId)) {</span>
+<span class="fc" id="L127">        return error(HttpStatus.BAD_REQUEST,</span>
             &quot;budgetId must be a valid UUID&quot;);
     }
-<span class="fc bfc" id="L129" title="All 4 branches covered.">    if (apiKey == null || apiKey.isBlank()) {</span>
-<span class="fc" id="L130">        return error(HttpStatus.UNAUTHORIZED,</span>
+<span class="fc bfc" id="L130" title="All 4 branches covered.">    if (apiKey == null || apiKey.isBlank()) {</span>
+<span class="fc" id="L131">        return error(HttpStatus.UNAUTHORIZED,</span>
             &quot;Missing &quot; + API_KEY_HEADER + &quot; header&quot;);
     }
     try {
-<span class="fc" id="L134">        final BudgetReportResult result =</span>
-<span class="fc" id="L135">            budgetService.getBudgetReport(budgetId, apiKey.trim());</span>
-<span class="fc bfc" id="L136" title="All 2 branches covered.">        if (result.isOk()) {</span>
-<span class="fc" id="L137">            return ResponseEntity.ok(result.report());</span>
+<span class="fc" id="L135">        final BudgetReportResult result =</span>
+<span class="fc" id="L136">            budgetService.getBudgetReport(budgetId, apiKey.trim());</span>
+<span class="fc bfc" id="L137" title="All 2 branches covered.">        if (result.isOk()) {</span>
+<span class="fc" id="L138">            return ResponseEntity.ok(result.report());</span>
         }
-<span class="fc" id="L139">        return error(HttpStatus.valueOf(result.status()), result.reason());</span>
-<span class="fc" id="L140">    } catch (IOException e) {</span>
-<span class="fc" id="L141">        return error(HttpStatus.INTERNAL_SERVER_ERROR,</span>
+<span class="fc" id="L140">        return error(HttpStatus.valueOf(result.status()), result.reason());</span>
+<span class="fc" id="L141">    } catch (IOException e) {</span>
+<span class="fc" id="L142">        return error(HttpStatus.INTERNAL_SERVER_ERROR,</span>
             &quot;Budget data is unavailable&quot;);
     }
 }
@@ -153,8 +154,8 @@ public ResponseEntity&lt;?&gt; getBudgetReport(
  */
 static ResponseEntity&lt;Map&lt;String, Object&gt;&gt; error(
     final HttpStatus status, final String reason) {
-<span class="fc" id="L156">    return ResponseEntity.status(status)</span>
-<span class="fc" id="L157">    .body(Map.of(&quot;status&quot;, status.value(), &quot;reason&quot;, reason));</span>
+<span class="fc" id="L157">    return ResponseEntity.status(status)</span>
+<span class="fc" id="L158">    .body(Map.of(&quot;status&quot;, status.value(), &quot;reason&quot;, reason));</span>
 }
 
 /**
@@ -169,40 +170,40 @@ public ResponseEntity&lt;?&gt; updateCategory(
         @RequestBody final CategoryUpdateRequest request)
         throws IOException {
 
-<span class="pc bpc" id="L172" title="1 of 2 branches missed.">    if (request == null) {</span>
-<span class="nc" id="L173">        Map&lt;String, Object&gt; error = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L174">        error.put(&quot;success&quot;, false);</span>
-<span class="nc" id="L175">        error.put(&quot;error&quot;, 400);</span>
-<span class="nc" id="L176">        error.put(&quot;reason&quot;, &quot;missing required value&quot;);</span>
-<span class="nc" id="L177">        return ResponseEntity.badRequest().body(error);</span>
+<span class="pc bpc" id="L173" title="1 of 2 branches missed.">    if (request == null) {</span>
+<span class="nc" id="L174">        Map&lt;String, Object&gt; error = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L175">        error.put(&quot;success&quot;, false);</span>
+<span class="nc" id="L176">        error.put(&quot;error&quot;, 400);</span>
+<span class="nc" id="L177">        error.put(&quot;reason&quot;, &quot;missing required value&quot;);</span>
+<span class="nc" id="L178">        return ResponseEntity.badRequest().body(error);</span>
     }
 
     Map&lt;String, Object&gt; result;
     try {
-<span class="fc" id="L182">        result = budgetService.updateCategory(</span>
-<span class="fc" id="L183">            request.getClientId(), request.getBudgetId(),</span>
-<span class="fc" id="L184">            request.getCategoryId(), request.getName(), request.getLimit());</span>
-<span class="fc" id="L185">    } catch (IOException e) {</span>
-<span class="fc" id="L186">            return error(HttpStatus.INTERNAL_SERVER_ERROR,</span>
+<span class="fc" id="L183">        result = budgetService.updateCategory(</span>
+<span class="fc" id="L184">            request.getClientId(), request.getBudgetId(),</span>
+<span class="fc" id="L185">            request.getCategoryId(), request.getName(), request.getLimit());</span>
+<span class="fc" id="L186">    } catch (IOException e) {</span>
+<span class="fc" id="L187">            return error(HttpStatus.INTERNAL_SERVER_ERROR,</span>
                 &quot;Budget data is unavailable&quot;);
 
-<span class="fc" id="L189">    }</span>
+<span class="fc" id="L190">    }</span>
 
-<span class="fc bfc" id="L191" title="All 2 branches covered.">    if (Boolean.TRUE.equals(result.get(&quot;success&quot;))) {</span>
-<span class="fc" id="L192">        Category category = (Category) result.get(&quot;returnValue&quot;);</span>
+<span class="fc bfc" id="L192" title="All 2 branches covered.">    if (Boolean.TRUE.equals(result.get(&quot;success&quot;))) {</span>
+<span class="fc" id="L193">        Category category = (Category) result.get(&quot;returnValue&quot;);</span>
 
-<span class="fc" id="L194">        Map&lt;String, Object&gt; response = new HashMap&lt;&gt;();</span>
-<span class="fc" id="L195">        response.put(&quot;id&quot;, category.getId());</span>
-<span class="fc" id="L196">        response.put(&quot;name&quot;, category.getName());</span>
-<span class="fc" id="L197">        response.put(&quot;limit&quot;, category.getLimit());</span>
-<span class="fc" id="L198">        response.put(&quot;amountSpent&quot;, result.get(&quot;amountSpent&quot;));</span>
-<span class="fc" id="L199">        response.put(&quot;remainingAmount&quot;, result.get(&quot;remainingAmount&quot;));</span>
+<span class="fc" id="L195">        Map&lt;String, Object&gt; response = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L196">        response.put(&quot;id&quot;, category.getId());</span>
+<span class="fc" id="L197">        response.put(&quot;name&quot;, category.getName());</span>
+<span class="fc" id="L198">        response.put(&quot;limit&quot;, category.getLimit());</span>
+<span class="fc" id="L199">        response.put(&quot;amountSpent&quot;, result.get(&quot;amountSpent&quot;));</span>
+<span class="fc" id="L200">        response.put(&quot;remainingAmount&quot;, result.get(&quot;remainingAmount&quot;));</span>
 
-<span class="fc" id="L201">        return ResponseEntity.ok(response);</span>
+<span class="fc" id="L202">        return ResponseEntity.ok(response);</span>
     }
 
-<span class="fc" id="L204">    int statusCode = (Integer) result.get(&quot;error&quot;);</span>
-<span class="fc" id="L205">    return ResponseEntity.status(statusCode).body(result);</span>
+<span class="fc" id="L205">    int statusCode = (Integer) result.get(&quot;error&quot;);</span>
+<span class="fc" id="L206">    return ResponseEntity.status(statusCode).body(result);</span>
 }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

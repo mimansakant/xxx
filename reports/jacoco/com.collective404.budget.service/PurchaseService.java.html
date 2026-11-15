@@ -3,13 +3,13 @@
 import com.collective404.budget.dto.PurchaseRequest;
 import com.collective404.budget.model.Budget;
 import com.collective404.budget.model.Category;
+import com.collective404.budget.model.Client;
 import com.collective404.budget.model.Purchase;
 import com.collective404.budget.store.BudgetDataStore;
 import com.fasterxml.jackson.core.type.TypeReference;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -43,53 +43,65 @@ public final class PurchaseService {
     public Purchase createPurchase(
             final PurchaseRequest request,
             final String categoryId) throws IOException {
-<span class="fc" id="L46">        final List&lt;Map&lt;String, Object&gt;&gt; clients = dataStore.readList(</span>
+<span class="fc" id="L46">        final List&lt;Client&gt; clients = dataStore.readList(</span>
 <span class="fc" id="L47">                &quot;clients.json&quot;, new TypeReference&lt;&gt;() { });</span>
-<span class="fc" id="L48">        final boolean clientExists = clients.stream().anyMatch(client -&gt;</span>
-<span class="fc" id="L49">                request.getClientId().trim().equals(client.get(&quot;id&quot;)));</span>
-<span class="pc bpc" id="L50" title="1 of 2 branches missed.">        if (!clientExists) {</span>
-<span class="nc" id="L51">            throw new ResponseStatusException(</span>
+<span class="fc" id="L48">        final Client client = clients.stream()</span>
+<span class="fc" id="L49">                .filter(item -&gt; request.getClientId().trim()</span>
+<span class="fc" id="L50">                        .equals(item.getId()))</span>
+<span class="fc" id="L51">                .findFirst().orElse(null);</span>
+<span class="pc bpc" id="L52" title="1 of 2 branches missed.">        if (client == null) {</span>
+<span class="nc" id="L53">            throw new ResponseStatusException(</span>
                     HttpStatus.NOT_FOUND, &quot;Client not found&quot;);
         }
 
-<span class="fc" id="L55">        final List&lt;Budget&gt; budgets = dataStore.readList(</span>
-<span class="fc" id="L56">                &quot;budgets.json&quot;, new TypeReference&lt;&gt;() { });</span>
-<span class="fc" id="L57">        final Budget budget = budgets.stream()</span>
-<span class="fc" id="L58">                .filter(item -&gt; request.getBudgetId().trim()</span>
-<span class="fc" id="L59">                        .equals(item.getId()))</span>
-<span class="fc" id="L60">                .findFirst().orElse(null);</span>
-<span class="pc bpc" id="L61" title="1 of 2 branches missed.">        if (budget == null) {</span>
-<span class="nc" id="L62">            throw new ResponseStatusException(</span>
+<span class="fc" id="L57">        final List&lt;Budget&gt; budgets = dataStore.readList(</span>
+<span class="fc" id="L58">                &quot;budgets.json&quot;, new TypeReference&lt;&gt;() { });</span>
+<span class="fc" id="L59">        final Budget budget = budgets.stream()</span>
+<span class="fc" id="L60">                .filter(item -&gt; request.getBudgetId().trim()</span>
+<span class="fc" id="L61">                        .equals(item.getId()))</span>
+<span class="fc" id="L62">                .findFirst().orElse(null);</span>
+<span class="pc bpc" id="L63" title="1 of 2 branches missed.">        if (budget == null) {</span>
+<span class="nc" id="L64">            throw new ResponseStatusException(</span>
                     HttpStatus.NOT_FOUND, &quot;Budget not found&quot;);
         }
-<span class="fc bfc" id="L65" title="All 2 branches covered.">        if (!request.getClientId().trim().equals(budget.getClientId())) {</span>
-<span class="fc" id="L66">            throw new ResponseStatusException(</span>
+<span class="fc bfc" id="L67" title="All 2 branches covered.">        if (!budgetBelongsToClient(budget, client)) {</span>
+<span class="fc" id="L68">            throw new ResponseStatusException(</span>
                     HttpStatus.FORBIDDEN, &quot;Client cannot access this budget&quot;);
         }
 
         final String resolvedCategoryId =
-<span class="pc bpc" id="L71" title="2 of 4 branches missed.">                categoryId == null || categoryId.isBlank()</span>
-<span class="pc" id="L72">                        ? &quot;Misc&quot; : categoryId.trim();</span>
-<span class="fc" id="L73">        final List&lt;Category&gt; categories = dataStore.readList(</span>
-<span class="fc" id="L74">                &quot;categories.json&quot;, new TypeReference&lt;&gt;() { });</span>
-<span class="fc" id="L75">        final Category matchingCategory = categories.stream()</span>
-<span class="fc" id="L76">                .filter(category -&gt;</span>
-<span class="fc" id="L77">                        request.getBudgetId().trim()</span>
-<span class="pc bpc" id="L78" title="1 of 2 branches missed.">                                .equals(category.getBudgetId())</span>
-<span class="pc bpc" id="L79" title="1 of 2 branches missed.">                        &amp;&amp; (resolvedCategoryId.equals(category.getId())</span>
-<span class="pc bnc" id="L80" title="All 2 branches missed.">                            || resolvedCategoryId.equalsIgnoreCase(</span>
-<span class="nc" id="L81">                                    category.getName())))</span>
-<span class="fc" id="L82">                .findFirst().orElse(null);</span>
-<span class="pc bpc" id="L83" title="1 of 2 branches missed.">        if (matchingCategory == null) {</span>
-<span class="nc" id="L84">            throw new ResponseStatusException(</span>
+<span class="pc bpc" id="L73" title="2 of 4 branches missed.">                categoryId == null || categoryId.isBlank()</span>
+<span class="pc" id="L74">                        ? &quot;Misc&quot; : categoryId.trim();</span>
+<span class="fc" id="L75">        final List&lt;Category&gt; categories = dataStore.readList(</span>
+<span class="fc" id="L76">                &quot;categories.json&quot;, new TypeReference&lt;&gt;() { });</span>
+<span class="fc" id="L77">        final Category matchingCategory = categories.stream()</span>
+<span class="fc" id="L78">                .filter(category -&gt;</span>
+<span class="fc" id="L79">                        request.getBudgetId().trim()</span>
+<span class="pc bpc" id="L80" title="1 of 2 branches missed.">                                .equals(category.getBudgetId())</span>
+<span class="pc bpc" id="L81" title="1 of 2 branches missed.">                        &amp;&amp; (resolvedCategoryId.equals(category.getId())</span>
+<span class="pc bnc" id="L82" title="All 2 branches missed.">                            || resolvedCategoryId.equalsIgnoreCase(</span>
+<span class="nc" id="L83">                                    category.getName())))</span>
+<span class="fc" id="L84">                .findFirst().orElse(null);</span>
+<span class="pc bpc" id="L85" title="1 of 2 branches missed.">        if (matchingCategory == null) {</span>
+<span class="nc" id="L86">            throw new ResponseStatusException(</span>
                     HttpStatus.NOT_FOUND, &quot;Category not found&quot;);
         }
-<span class="fc" id="L87">        return new Purchase(</span>
-<span class="fc" id="L88">                matchingCategory.getId(),</span>
-<span class="fc" id="L89">                UUID.randomUUID().toString(),</span>
-<span class="fc" id="L90">                request.getName().trim(),</span>
-<span class="fc" id="L91">                request.getAmount(),</span>
-<span class="fc" id="L92">                LocalDate.now().toString());</span>
+<span class="fc" id="L89">        return new Purchase(</span>
+<span class="fc" id="L90">                matchingCategory.getId(),</span>
+<span class="fc" id="L91">                UUID.randomUUID().toString(),</span>
+<span class="fc" id="L92">                request.getName().trim(),</span>
+<span class="fc" id="L93">                request.getAmount(),</span>
+<span class="fc" id="L94">                LocalDate.now().toString());</span>
+    }
+
+    private boolean budgetBelongsToClient(
+            final Budget budget,
+            final Client client
+    ) {
+<span class="fc" id="L101">        final String budgetOwner = budget.getClientName();</span>
+<span class="pc bpc" id="L102" title="1 of 2 branches missed.">        return budgetOwner != null</span>
+<span class="fc bfc" id="L103" title="All 2 branches covered.">                &amp;&amp; (budgetOwner.equalsIgnoreCase(client.getName())</span>
+<span class="pc bpc" id="L104" title="1 of 2 branches missed.">                    || budgetOwner.equalsIgnoreCase(client.getId()));</span>
     }
 
     /**
@@ -99,13 +111,13 @@ public final class PurchaseService {
      * @throws IOException if accessing the datastore fails
      */
     public void savePurchase(final Purchase purchase) throws IOException {
-<span class="nc" id="L102">        dataStore.withExclusiveLock(() -&gt; {</span>
-<span class="nc" id="L103">            final List&lt;Purchase&gt; purchases = dataStore.readList(</span>
-<span class="nc" id="L104">                    &quot;purchases.json&quot;, new TypeReference&lt;&gt;() { });</span>
-<span class="nc" id="L105">            purchases.add(purchase);</span>
-<span class="nc" id="L106">            dataStore.writeList(&quot;purchases.json&quot;, purchases);</span>
-<span class="nc" id="L107">            return null;</span>
+<span class="nc" id="L114">        dataStore.withExclusiveLock(() -&gt; {</span>
+<span class="nc" id="L115">            final List&lt;Purchase&gt; purchases = dataStore.readList(</span>
+<span class="nc" id="L116">                    &quot;purchases.json&quot;, new TypeReference&lt;&gt;() { });</span>
+<span class="nc" id="L117">            purchases.add(purchase);</span>
+<span class="nc" id="L118">            dataStore.writeList(&quot;purchases.json&quot;, purchases);</span>
+<span class="nc" id="L119">            return null;</span>
         });
-<span class="nc" id="L109">    }</span>
+<span class="nc" id="L121">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

@@ -10,8 +10,8 @@ public final class Budget {
     /** The budget name. */
     private String name;
 
-    /** The ID of the client that owns this budget. */
-    private String clientId;
+    /** The Name of the client that owns this budget. */
+    private String clientName;
 
     /**
      * Empty constructor.
@@ -25,12 +25,12 @@ public final class Budget {
      *
      * @param id The budget ID
      * @param name the budget name
-     * @param clientId the ID of the owning client
+     * @param clientName the name of the owning client
      */
-<span class="fc" id="L30">    public Budget(final String id, final String name, final String clientId) {</span>
+<span class="fc" id="L30">    public Budget(final String id, final String name, final String clientName) {</span>
 <span class="fc" id="L31">        this.id = id;</span>
 <span class="fc" id="L32">        this.name = name;</span>
-<span class="fc" id="L33">        this.clientId = clientId;</span>
+<span class="fc" id="L33">        this.clientName = clientName;</span>
 <span class="fc" id="L34">    }</span>
 
     /**
@@ -52,12 +52,12 @@ public final class Budget {
     }
 
     /**
-     * Gets the budget's client ID.
+     * Gets the budget's client Name.
      *
-     * @return the client ID
+     * @return the client name
      */
-    public String getClientId() {
-<span class="fc" id="L60">        return this.clientId;</span>
+    public String getClientName() {
+<span class="fc" id="L60">        return this.clientName;</span>
     }
 
     /**
@@ -79,12 +79,12 @@ public final class Budget {
 <span class="fc" id="L79">    }</span>
 
     /**
-     * Sets the budget's client ID.
+     * Sets the budget's client name.
      *
-     * @param clientId the budget client ID
+     * @param clientId the budget's stored client owner value
      */
     public void setClientId(final String clientId) {
-<span class="fc" id="L87">        this.clientId = clientId;</span>
+<span class="fc" id="L87">        this.clientName = clientId;</span>
 <span class="fc" id="L88">    }</span>
 
 }
