@@ -192,7 +192,7 @@ class BudgetControllerTest {
 
         final ResponseEntity<?> response = controller.createCategory(
                 new CategoryRequest(
-                        BUDGET_ID, null, "Food", new BigDecimal("100.00")),
+                        BUDGET_ID, "Budget1", "Food", new BigDecimal("100.00")),
                 API_KEY);
 
         assertAll(
