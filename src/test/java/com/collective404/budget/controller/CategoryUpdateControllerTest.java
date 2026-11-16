@@ -24,12 +24,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 class CategoryUpdateControllerTest {
 
+    /** Category update endpoint. */
     private static final String ENDPOINT = "/budget/category";
 
+    /** Mock HTTP client for controller requests. */
     private MockMvc mockMvc;
 
+    /** Temporary directory used by the file-backed datastore. */
     @TempDir
-    Path tempDir;
+    private Path tempDir;
 
     @BeforeEach
     void setUp() throws Exception {
@@ -63,7 +66,7 @@ class CategoryUpdateControllerTest {
 
         Files.writeString(tempDir.resolve("purchases.json"), "[]");
 
-        BudgetDataStore dataStore = new BudgetDataStore(
+        final BudgetDataStore dataStore = new BudgetDataStore(
             new ObjectMapper(), tempDir);
 
         mockMvc = MockMvcBuilders.standaloneSetup(

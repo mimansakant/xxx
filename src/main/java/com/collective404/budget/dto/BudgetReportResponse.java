@@ -6,9 +6,9 @@ import java.util.List;
 /**
  * Response body for GET /budget/{budgetId}.
  *
- * <p>Money values have 2 decimal places. Purchase amounts are rounded up, remaining
- * amounts are rounded down, and percent used is rounded half up. Percent used is null
- * when there is no positive limit to divide by.
+ * <p>Money values have 2 decimal places. Purchase amounts are rounded up,
+ * remaining amounts are rounded down, and percent used is rounded half up.
+ * Percent used is null when there is no positive limit to divide by.
  *
  * @param budgetId the budget ID
  * @param budgetName the budget name

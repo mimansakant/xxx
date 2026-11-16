@@ -77,28 +77,29 @@ The budget and category must already exist, normally through
 reports; changing the limit also changes the remaining amount, percentage
 used, and total planned spending.
 
-### `GET /budget` — Retrieve a budget report
+### `GET /budget/{budgetId}` — Retrieve a budget report
 
-The caller provides their client ID. The request has no body and does not
-modify stored data.
+The caller sends the budget ID in the path and its API key in the
+`X-API-Key` header. A client can only read its own budgets. The request has
+no body and does not modify stored data.
 
-The report includes every category (including the budget's automatically
-available **Miscellaneous** category), the client's current purchases, and
-category and overall totals. For each category, the service calculates the
-limit, amount spent, amount remaining, and percentage used from the client's
-purchases. Purchases without a matching category are counted under
-Miscellaneous.
+The report includes every category in the budget, the budget's purchases,
+and category and overall totals. For each category, the service calculates
+the limit, amount spent, amount remaining, and percentage used. Purchase
+amounts round up and remaining amounts round down. Remaining can go negative
+when a category is overspent.
 
 - Success returns **200 OK** with the report.
-- A missing client ID returns **400 Bad Request**.
-- A client with no budget returns **404 Not Found** with an error message.
-- An unavailable datastore returns **500 Internal Server Error** with an
-  error message.
-- Repeating the request without intervening data changes returns the same
-  report. The operation has no side effects.
+- A budget ID that isn't a UUID returns **400 Bad Request**.
+- A missing or unknown API key returns **401 Unauthorized**.
+- A budget that belongs to another client returns **403 Forbidden**.
+- A budget ID that doesn't exist returns **404 Not Found**.
+- An unavailable datastore returns **500 Internal Server Error**.
 
-The budget is created when its first category is created. Updates, purchase
-creation, and purchase deletion are reflected in subsequent reports.
+Errors return a JSON body with `status` (the HTTP code) and `reason`.
+Repeating the request without intervening data changes returns the same
+report. Updates, purchase creation, and purchase deletion are reflected in
+subsequent reports.
 
 ### `POST /purchases` — Add a purchase
 
@@ -182,3 +183,17 @@ tests once the API is running.
 ## Project management
 https://docs.google.com/document/d/1dPkSL4XaQVGZ5zcGpYZGQl_Knnaq3DSBpCox5-VsUOk/edit?usp=sharing
 https://docs.google.com/document/d/1uZDjhIlISiKRD8sdttvT3Qu4LVy5J90z3o2sYpQBNwg/edit?usp=sharing
+
+## AI Disclosure
+AI was used in our project for the following:
+- Creating automated test suites: prompts were to create code for specified test case branches
+- Create the baseline folder structure with file stubs
+- Create the original checkstyle.xml, which was then edited to follow that of the Miniproject
+- Create BudgetDataStore. Prompted to create a class for file reads and writes, resulting code edited for errors
+- Fixing Checkstyle errors using following prompt:
+```
+i have a checkstyle report in @checkstyle.html. Please edit @BudgetControllerTest.java, @CategoryControllerTest.java, @CategoryUpdateControllerTest.java, @BudgetReportResponse.java, @CategoryRequest.java, @CategoryResponse.java, @CategoryUpdateRequest.java, @Budget.java, @Category.java, @Purchase.java, @BudgetService.java, @BudgetServiceTest.java, @CategoryServiceTest.java @CategoryUpdateServiceTest.java @BudgetDataStore.java @InputValidator.java, @InputValidatorUnitTests.java SUCH THAT they fix these errors (ONLY fix these errors, do not try to otherwise optomize or edit code)
+```
+
+### Tool List
+- VSCode Copilot

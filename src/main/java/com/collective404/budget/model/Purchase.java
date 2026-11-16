@@ -22,18 +22,18 @@ public final class Purchase {
     /**
      * Constructs a purchase.
      *
-     * @param categoryId The ID of the category that the purchase belongs to.
-     * @param id The purchase ID
+     * @param categoryId the ID of the category that the purchase belongs to
+     * @param id the purchase ID
      * @param name The purchase name
      * @param amount The purchase amount
      * @param date The purchase date
      */
     public Purchase(
-            String categoryId,
-            String id,
-            String name,
-            BigDecimal amount,
-            String date
+            final String categoryId,
+            final String id,
+            final String name,
+            final BigDecimal amount,
+            final String date
     ) {
         this.categoryId = categoryId;
         this.id = id;
@@ -90,16 +90,16 @@ public final class Purchase {
     /**
      * Sets the purchase's category ID.
      *
-     * @param id The category ID
+     * @param categoryId the category ID
      */
-    public void setCategoryId(String id) {
-        this.categoryId = id;
+    public void setCategoryId(final String categoryId) {
+        this.categoryId = categoryId;
     }
 
     /**
      * Sets the purchase's ID.
      *
-     * @param id The ID
+     * @param id the purchase ID
      */
     public void setId(final String id) {
         this.id = id;
@@ -110,7 +110,7 @@ public final class Purchase {
      *
      * @param name The name
      */
-    public void setName(String name) {
+    public void setName(final String name) {
         this.name = name;
     }
 
@@ -119,7 +119,7 @@ public final class Purchase {
      *
      * @param amount The amount
      */
-    public void setAmount(BigDecimal amount) {
+    public void setAmount(final BigDecimal amount) {
         this.amount = amount;
     }
 
@@ -128,7 +128,7 @@ public final class Purchase {
      *
      * @param date The date
      */
-    public void setDate(String date) {
+    public void setDate(final String date) {
         this.date = date;
     }
 

@@ -1,0 +1,21 @@
+[ {
+  "id" : "b649544e-c51d-4e89-8f3b-cc83f37e8c49",
+  "name" : "Walmart",
+  "apiKey" : "540ba996-2ae9-4f72-8b4f-014b463bc4d7"
+}, {
+  "id" : "741b3930-0ee8-443a-9eec-2423a9d8eddf",
+  "name" : "Amazon",
+  "apiKey" : "390b059d-1cbf-42b3-b739-fc7be11c1a88"
+}, {
+  "id" : "d7eac2ed-4447-4c99-b84b-9b3c65d60a94",
+  "name" : "TiresInc",
+  "apiKey" : "8b37db32-07f2-4983-8905-b275bca41ca7"
+}, {
+  "id" : "9d013e51-9a78-4a80-9dc3-cc5bcf93315b",
+  "name" : "Testing",
+  "apiKey" : "44a6cb2b-1b70-4365-a26a-76070f6988c3"
+}, {
+  "id" : "d7edfbba-b3c8-47d9-a97f-6aeddb65a40b",
+  "name" : "Testing2",
+  "apiKey" : "5f6b0bc5-03d8-471b-bb94-1827eea4eac9"
+} ]
