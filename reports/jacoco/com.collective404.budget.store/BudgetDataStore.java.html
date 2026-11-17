@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BudgetDataStore.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Budget Service</a> &gt; <a href="index.source.html" class="el_package">com.collective404.budget.store</a> &gt; <span class="el_source">BudgetDataStore.java</span></div><h1>BudgetDataStore.java</h1><pre class="source lang-java linenums">package com.collective404.budget.store;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Provides synchronized access to the budget service's JSON data files.
+ */
+@Component
+public final class BudgetDataStore {
+
+    /** JSON mapper used for datastore files. */
+    private final ObjectMapper objectMapper;
+    /** Directory containing the JSON datastore files. */
+    private final Path dataDirectory;
+    /** Lock shared by all operations on this store. */
+<span class="fc" id="L26">    private final Object lock = new Object();</span>
+
+    /**
+     * Creates a store using the default data directory.
+     *
+     * @param objectMapper the JSON mapper
+     */
+    @Autowired
+    public BudgetDataStore(final ObjectMapper objectMapper) {
+<span class="nc" id="L35">        this(objectMapper, Paths.get(&quot;src&quot;, &quot;main&quot;, &quot;resources&quot;, &quot;data&quot;));</span>
+<span class="nc" id="L36">    }</span>
+
+    /**
+     * Creates a store using the specified data directory.
+     *
+     * @param objectMapper the JSON mapper
+     * @param dataDirectory the directory containing the data files
+     */
+    public BudgetDataStore(
+            final ObjectMapper objectMapper,
+            final Path dataDirectory
+<span class="fc" id="L47">    ) {</span>
+<span class="fc" id="L48">        this.objectMapper = objectMapper;</span>
+<span class="fc" id="L49">        this.dataDirectory = dataDirectory.toAbsolutePath().normalize();</span>
+<span class="fc" id="L50">    }</span>
+
+    /**
+     * Runs a multi-step data operation while preventing other store operations
+     * from reading or writing the files.
+     *
+     * @param &lt;T&gt; the operation result type
+     * @param operation the operation to run
+     * @return the operation result
+     * @throws IOException if a file operation fails
+     */
+    public &lt;T&gt; T withExclusiveLock(
+            final DataStoreOperation&lt;T&gt; operation
+    ) throws IOException {
+<span class="fc" id="L64">        synchronized (lock) {</span>
+<span class="fc" id="L65">            return operation.execute();</span>
+        }
+    }
+
+    /**
+     * Reads a list from a JSON file.
+     *
+     * @param &lt;T&gt; the element type
+     * @param fileName the file name
+     * @param typeRef the type reference
+     * @return the list
+     * @throws IOException if an I/O error occurs
+     */
+    public &lt;T&gt; List&lt;T&gt; readList(
+            final String fileName,
+            final TypeReference&lt;List&lt;T&gt;&gt; typeRef
+    ) throws IOException {
+<span class="fc" id="L82">        synchronized (lock) {</span>
+<span class="fc" id="L83">            final Path filePath = getDataFilePath(fileName);</span>
+<span class="pc bpc" id="L84" title="1 of 2 branches missed.">            if (Files.size(filePath) == 0) {</span>
+<span class="nc" id="L85">                return new ArrayList&lt;&gt;();</span>
+            }
+<span class="fc" id="L87">            return objectMapper.readValue(filePath.toFile(), typeRef);</span>
+        }
+    }
+
+    /**
+     * Writes a list to a JSON file.
+     *
+     * @param &lt;T&gt; the element type
+     * @param fileName the file name
+     * @param list the list to write
+     * @throws IOException if an I/O error occurs
+     */
+    public &lt;T&gt; void writeList(
+            final String fileName,
+            final List&lt;T&gt; list
+    ) throws IOException {
+<span class="fc" id="L103">        synchronized (lock) {</span>
+<span class="fc" id="L104">            final Path filePath = getDataFilePath(fileName);</span>
+<span class="fc" id="L105">            Files.createDirectories(filePath.getParent());</span>
+<span class="fc" id="L106">            objectMapper.writerWithDefaultPrettyPrinter()</span>
+<span class="fc" id="L107">                    .writeValue(filePath.toFile(), list);</span>
+<span class="fc" id="L108">        }</span>
+<span class="fc" id="L109">    }</span>
+
+    private Path getDataFilePath(final String fileName) {
+<span class="fc" id="L112">        final Path filePath = dataDirectory.resolve(fileName).normalize();</span>
+<span class="pc bpc" id="L113" title="1 of 2 branches missed.">        if (!filePath.startsWith(dataDirectory)) {</span>
+<span class="nc" id="L114">            throw new IllegalArgumentException(</span>
+                    &quot;Data file must be inside the data directory&quot;);
+        }
+<span class="fc" id="L117">        return filePath;</span>
+    }
+
+    @FunctionalInterface
+    public interface DataStoreOperation&lt;T&gt; {
+        /**
+         * Executes the data operation.
+         *
+         * @return the operation result
+         * @throws IOException if a file operation fails
+         */
+        T execute() throws IOException;
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

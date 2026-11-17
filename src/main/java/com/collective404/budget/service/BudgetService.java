@@ -8,6 +8,7 @@ import com.collective404.budget.model.Category;
 import com.collective404.budget.model.Client;
 import com.collective404.budget.model.Purchase;
 import com.collective404.budget.store.BudgetDataStore;
+import com.collective404.budget.validation.InputValidator;
 import com.fasterxml.jackson.core.type.TypeReference;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -58,39 +59,59 @@ public class BudgetService {
     /**
      * Creates a category in the caller's budget, creating a budget if needed.
      *
-     * @param clientId the caller's client identifier
+     * @param apiKey the API key from the X-API-Key header
      * @param budgetId the budget identifier, or {@code null} to create a budget
+     * @param budgetName the name for a newly created budget
      * @param name the category name
      * @param limit the category spending limit
      * @return the created category or error message
      */
     public Map<String, Object> createCategory(
-        final String clientId,
+        final String apiKey,
         final String budgetId,
+        final String budgetName,
         final String name,
         final BigDecimal limit
     ) throws IOException {
         return dataStore.withExclusiveLock(() -> createCategoryWithLock(
-            clientId,
+            apiKey,
             budgetId,
+            budgetName,
             name,
             limit
         ));
     }
 
     private Map<String, Object> createCategoryWithLock(
-        final String clientId,
+        final String apiKey,
         final String budgetId,
+        final String budgetName,
         final String name,
         final BigDecimal limit
     ) throws IOException {
         Map<String, Object> result = new HashMap<>();
-        List<Budget> allBudgets = dataStore.readList(
-            BUDGETS_FILE,
+        List<Client> allClients = dataStore.readList(
+            CLIENTS_FILE,
             new TypeReference<>() { }
         );
-        List<String> allClients = dataStore.readList(
-            "clients.json",
+
+        /* check 1: validate that the category values given are acc allowed */
+        /* validate no nulls/empty strings */
+        Client client = findClientByApiKey(allClients, apiKey);
+        if (client == null) {
+            result.put("success", false);
+            result.put("error", 401);
+            result.put("reason", "Invalid API key");
+            return result;
+        }
+        if (name == null || limit == null) {
+            result.put("success", false);
+            result.put("error", 400);
+            result.put("reason", "missing required value");
+            return result;
+        }
+        List<Budget> allBudgets = dataStore.readList(
+            BUDGETS_FILE,
             new TypeReference<>() { }
         );
         List<Category> allCategories = dataStore.readList(
@@ -98,17 +119,17 @@ public class BudgetService {
             new TypeReference<>() { }
         );
         String newBudgetId = null;
-
-        /* check 1: validate that the category values given are acc allowed */
-        /* validate no nulls/empty strings */
-        if (clientId == null || name == null || limit == null) {
+        String resolvedBudgetName = null;
+        if ((budgetId == null || budgetId.isBlank())
+            && (budgetName == null || budgetName.isBlank())) {
             result.put("success", false);
             result.put("error", 400);
-            result.put("reason", "missing required value");
+            result.put("reason",
+                "budgetName is required when budgetId is omitted");
             return result;
         }
         /* validate limit outside of null*/
-        if (!(limit.compareTo(BigDecimal.ZERO) > 0)) {
+        if (!InputValidator.isValidLimit(limit.toString())) {
             result.put("success", false);
             result.put("error", 400);
             result.put("reason", "invalid limit");
@@ -126,24 +147,10 @@ public class BudgetService {
             return result;
         }
 
-        /* validate clientID exists */
-        /* note: i ASSUME clients.json just stores a list of clientIds */
-        boolean clientExists = allClients.stream()
-            .anyMatch(c ->
-            c.equalsIgnoreCase(clientId.trim())
-        );
-
-        if (!clientExists) {
-            result.put("success", false);
-            result.put("error", 404);
-            result.put("reason", "clientId not found");
-            return result;
-        }
-
         /*
          * Check that a provided budget ID exists and belongs to the client.
          */
-        if (budgetId != null && !budgetId.isEmpty()) {
+        if (budgetId != null && !budgetId.isBlank()) {
             Budget budget = allBudgets.stream()
                 .filter(b -> b.getId().equals(budgetId.trim()))
                 .findFirst()
@@ -154,11 +161,11 @@ public class BudgetService {
                 result.put("reason", "budgetId not found");
                 return result;
             }
-            if (budget.getClientId() == null
-                || !budget.getClientId().equalsIgnoreCase(clientId.trim())) {
+            if (!budgetBelongsToApiKey(budget, apiKey, allClients)) {
                 result.put("success", false);
                 result.put("error", 403);
-                result.put("reason", "budgetId does not belong to clientId");
+                result.put("reason",
+                    "budgetId does not belong to this client");
                 return result;
             }
 
@@ -182,18 +189,20 @@ public class BudgetService {
             /* Budget exists, the client exists, and the category is new. */
             /* so set new budgetId */
             newBudgetId = budgetId.trim();
+            resolvedBudgetName = budget.getName();
         }
 
         /* if budgetId not given then create new budget */
-        if (budgetId == null || budgetId.isEmpty()) {
+        if (budgetId == null || budgetId.isBlank()) {
             Budget newBudget = new Budget(
                 UUID.randomUUID().toString(),
-                "dont_matter_yet",
-                    clientId
+                budgetName.trim(),
+                client.getName()
             );
             allBudgets.add(newBudget);
             dataStore.writeList(BUDGETS_FILE, allBudgets);
             newBudgetId = newBudget.getId();
+            resolvedBudgetName = newBudget.getName();
         }
 
         /* atp budget exists so create new category */
@@ -207,6 +216,7 @@ public class BudgetService {
         dataStore.writeList(CATEGORIES_FILE, allCategories);
         result.put("success", true);
         result.put("returnValue", finalCategory);
+        result.put("budgetName", resolvedBudgetName);
         return result;
     }
 
@@ -233,8 +243,8 @@ public class BudgetService {
 
     private BudgetReportResult buildReportForClient(
             final String budgetId, final String apiKey) throws IOException {
-        final Client client = findClientByApiKey(apiKey);
-        if (client == null) {
+        final List<Client> clients = readClients();
+        if (findClientByApiKey(clients, apiKey) == null) {
             return BudgetReportResult.error(
                     BudgetReportResult.UNAUTHORIZED, "Invalid API key");
         }
@@ -244,8 +254,7 @@ public class BudgetService {
                     BudgetReportResult.NOT_FOUND,
                     "No budget found with id " + budgetId);
         }
-        if (budget.getClientId() == null
-                || !budget.getClientId().equalsIgnoreCase(client.getId())) {
+        if (!budgetBelongsToApiKey(budget, apiKey, clients)) {
             return BudgetReportResult.error(
                     BudgetReportResult.FORBIDDEN,
                     "budgetId does not belong to this client");
@@ -314,11 +323,16 @@ public class BudgetService {
                 purchaseSummaries);
     }
 
-    private Client findClientByApiKey(final String apiKey)
-            throws IOException {
-        final List<Client> clients = dataStore.readList(
+    private List<Client> readClients() throws IOException {
+        return dataStore.readList(
                 CLIENTS_FILE, new TypeReference<List<Client>>() { });
-        if (clients != null) {
+    }
+
+    private Client findClientByApiKey(
+            final List<Client> clients,
+            final String apiKey
+    ) {
+        if (apiKey != null && clients != null) {
             for (final Client client : clients) {
                 if (apiKey.equals(client.getApiKey())) {
                     return client;
@@ -326,6 +340,40 @@ public class BudgetService {
             }
         }
         return null;
+    }
+
+    private boolean budgetBelongsToClient(
+            final Budget budget,
+            final Client client
+    ) {
+        final String budgetOwner = budget.getClientName();
+        return budgetOwner != null
+                && (budgetOwner.equalsIgnoreCase(client.getName())
+                    || budgetOwner.equalsIgnoreCase(client.getId()));
+    }
+
+    private boolean budgetBelongsToApiKey(
+            final Budget budget,
+            final String apiKey,
+            final List<Client> clients
+    ) {
+        final String budgetOwner = budget.getClientName();
+        if (budgetOwner == null || clients == null) {
+            return false;
+        }
+        for (final Client client : clients) {
+            if (client.getName() != null
+                    && budgetOwner.equalsIgnoreCase(client.getName())) {
+                return apiKey.equals(client.getApiKey());
+            }
+        }
+        for (final Client client : clients) {
+            if (client.getId() != null
+                    && budgetOwner.equalsIgnoreCase(client.getId())) {
+                return apiKey.equals(client.getApiKey());
+            }
+        }
+        return false;
     }
 
     private Budget findBudget(final String budgetId) throws IOException {
@@ -466,8 +514,8 @@ public class BudgetService {
             return result;
         }
 
-        List<String> allClients = dataStore.readList(
-                "clients.json", new TypeReference<>() { });
+        List<Client> allClients = dataStore.readList(
+                CLIENTS_FILE, new TypeReference<>() { });
 
         List<Budget> allBudgets = dataStore.readList(
                 BUDGETS_FILE, new TypeReference<>() { });
@@ -476,10 +524,13 @@ public class BudgetService {
                 CATEGORIES_FILE, new TypeReference<>() { });
 
 
-        boolean clientExists = allClients.stream()
-                .anyMatch(c -> c.equalsIgnoreCase(clientId.trim()));
+        Client client = allClients.stream()
+                .filter(c -> c.getId() != null
+                        && c.getId().equalsIgnoreCase(clientId.trim()))
+                .findFirst()
+                .orElse(null);
 
-        if (!clientExists) {
+        if (client == null) {
             result.put("success", false);
             result.put("error", 404);
             result.put("reason", "clientId not found");
@@ -491,8 +542,7 @@ public class BudgetService {
                 .findFirst()
                 .orElse(null);
 
-        if (budget == null || budget.getClientId() == null
-                || !budget.getClientId().equalsIgnoreCase(clientId.trim())) {
+        if (budget == null || !budgetBelongsToClient(budget, client)) {
             result.put("success", false);
             result.put("error", 404);
             result.put("reason", "budgetId not found");

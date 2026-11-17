@@ -9,6 +9,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -27,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -57,17 +59,19 @@ class BudgetServiceTest {
     /** Identifier of the client that owns the budget. */
     private static final String CLIENT_ID =
             "55555555-5555-5555-5555-555555555555";
+    /** Name of the client that owns the budget. */
+    private static final String CLIENT_NAME = "Walmart";
     /** API key of the client that owns the budget. */
     private static final String API_KEY =
             "66666666-6666-6666-6666-666666666666";
     /** Identifier of a client that doesn't own the budget. */
     private static final String OTHER_CLIENT_ID =
             "77777777-7777-7777-7777-777777777777";
+    /** Name of a client that doesn't own the budget. */
+    private static final String OTHER_CLIENT_NAME = "Amazon";
     /** API key of the client that doesn't own the budget. */
     private static final String OTHER_API_KEY =
             "88888888-8888-8888-8888-888888888888";
-    /** Client ID used by the createCategory tests. */
-    private static final String PLAIN_CLIENT_ID = "clientId";
     /** Name of the budget under test. */
     private static final String BUDGET_NAME = "Fall semester";
     /** Name of the food category. */
@@ -121,15 +125,17 @@ class BudgetServiceTest {
         lenient().when(dataStore.<Client>readList(
                 eq(BudgetService.CLIENTS_FILE), any()))
                 .thenReturn(List.of(
-                        new Client(CLIENT_ID, "Walmart", API_KEY),
-                        new Client(OTHER_CLIENT_ID, "Amazon", OTHER_API_KEY)));
+                        new Client(CLIENT_ID, CLIENT_NAME, API_KEY),
+                        new Client(
+                                OTHER_CLIENT_ID, OTHER_CLIENT_NAME,
+                                OTHER_API_KEY)));
     }
 
     private void givenBudget() throws IOException {
         lenient().when(dataStore.<Budget>readList(
                 eq(BudgetService.BUDGETS_FILE), any()))
                 .thenReturn(List.of(
-                        new Budget(BUDGET_ID, BUDGET_NAME, CLIENT_ID)));
+                        new Budget(BUDGET_ID, BUDGET_NAME, CLIENT_NAME)));
     }
 
     private void givenData(
@@ -243,7 +249,7 @@ class BudgetServiceTest {
         when(dataStore.<Budget>readList(
                 eq(BudgetService.BUDGETS_FILE), any()))
                 .thenReturn(List.of(new Budget(BUDGET_ID, BUDGET_NAME,
-                        CLIENT_ID.toUpperCase(Locale.ROOT))));
+                        CLIENT_NAME.toUpperCase(Locale.ROOT))));
         when(dataStore.<Category>readList(
                 eq(BudgetService.CATEGORIES_FILE), any()))
                 .thenReturn(List.of());
@@ -444,9 +450,10 @@ class BudgetServiceTest {
                 eq(BudgetService.BUDGETS_FILE), any()))
                 .thenReturn(List.of(
                         new Budget(BUDGET_ID, BUDGET_NAME, budgetOwner)));
-        when(dataStore.<String>readList(
+        when(dataStore.<Client>readList(
                 eq(BudgetService.CLIENTS_FILE), any()))
-                .thenReturn(List.of(PLAIN_CLIENT_ID));
+                .thenReturn(List.of(new Client(
+                        CLIENT_ID, CLIENT_NAME, API_KEY)));
         when(dataStore.<Category>readList(
                 eq(BudgetService.CATEGORIES_FILE), any()))
                 .thenReturn(categories);
@@ -457,14 +464,14 @@ class BudgetServiceTest {
         givenCategoryData("other-client", List.of());
 
         final Map<String, Object> result = service.createCategory(
-                PLAIN_CLIENT_ID, BUDGET_ID, FOOD, money(HUNDRED));
+                API_KEY, BUDGET_ID, null, FOOD, money(HUNDRED));
 
         assertAll(
                 () -> assertEquals(false, result.get("success"),
                         "request fails"),
                 () -> assertEquals(403, result.get("error"),
                         "status is 403"),
-                () -> assertEquals("budgetId does not belong to clientId",
+                () -> assertEquals("budgetId does not belong to this client",
                         result.get("reason"), "reason explains why"));
     }
 
@@ -473,7 +480,7 @@ class BudgetServiceTest {
         givenCategoryData("other-client", List.of());
 
         service.createCategory(
-                PLAIN_CLIENT_ID, BUDGET_ID, FOOD, money(HUNDRED));
+                API_KEY, BUDGET_ID, null, FOOD, money(HUNDRED));
 
         verify(dataStore, never()).writeList(
                 eq(BudgetService.CATEGORIES_FILE), any());
@@ -481,10 +488,10 @@ class BudgetServiceTest {
 
     @Test
     void createsCategoryWhenBudgetBelongsToClient() throws IOException {
-        givenCategoryData("CLIENTID", new ArrayList<>());
+        givenCategoryData(CLIENT_NAME, new ArrayList<>());
 
         final Map<String, Object> result = service.createCategory(
-                PLAIN_CLIENT_ID, BUDGET_ID, FOOD, money(HUNDRED));
+                API_KEY, BUDGET_ID, null, FOOD, money(HUNDRED));
 
         assertAll(
                 () -> assertEquals(true, result.get("success"),
@@ -496,11 +503,36 @@ class BudgetServiceTest {
 
     @Test
     void createdCategoryIsSaved() throws IOException {
-        givenCategoryData("CLIENTID", new ArrayList<>());
+        givenCategoryData(CLIENT_ID, new ArrayList<>());
 
         service.createCategory(
-                PLAIN_CLIENT_ID, BUDGET_ID, FOOD, money(HUNDRED));
+                API_KEY, BUDGET_ID, null, FOOD, money(HUNDRED));
 
         verify(dataStore).writeList(eq(BudgetService.CATEGORIES_FILE), any());
+    }
+
+    @Test
+    void newlyCreatedBudgetStoresClientName() throws IOException {
+        givenClients();
+        when(dataStore.<Budget>readList(
+                eq(BudgetService.BUDGETS_FILE), any()))
+                .thenReturn(new ArrayList<>());
+        when(dataStore.<Category>readList(
+                eq(BudgetService.CATEGORIES_FILE), any()))
+                .thenReturn(new ArrayList<>());
+        final AtomicReference<List<Budget>> savedBudgets =
+                new AtomicReference<>();
+        doAnswer(invocation -> {
+            savedBudgets.set(invocation.getArgument(1));
+            return null;
+        }).when(dataStore).writeList(
+                eq(BudgetService.BUDGETS_FILE), any());
+
+        service.createCategory(
+                API_KEY, null, BUDGET_NAME, FOOD, money(HUNDRED));
+
+        verify(dataStore).writeList(eq(BudgetService.BUDGETS_FILE), any());
+        assertEquals(CLIENT_NAME, savedBudgets.get().get(0).getClientName(),
+                "new budgets store the owning client's name");
     }
 }

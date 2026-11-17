@@ -35,15 +35,16 @@ as the API is implemented.
 
 ### `POST /budget/category` — Create a category
 
-The caller provides a client identifier, a category name, and a non-zero
-spending limit in dollars. A budget identifier may also be provided. If there
-is no budget identifier, the service creates a budget for the client along
-with the category.
+The caller provides their API key in the `X-API-Key` header, a category name,
+and a non-zero spending limit in dollars. A budget identifier may also be
+provided. If there is no budget identifier, the service creates a budget for
+the authenticated client along with the category.
 
 - The name must be a non-empty, meaningful string (not only numbers or
   symbols), and must be unique within the budget, ignoring letter case.
 - The limit must be numeric and have no more than two decimal places.
 - A provided budget identifier must be valid and belong to the caller.
+- A missing or unknown API key returns **401 Unauthorized**.
 - On success, the service returns **201 Created** with the category ID, name,
   limit, amount spent (`$0.00` initially), and remaining amount (initially the
   limit).
@@ -171,29 +172,20 @@ tests once the API is running.
 ├── postman/
 │   ├── budget-api.postman_collection.json
 │   └── local.postman_environment.json
+├── reports/
+│   ├── checkstyle/
+│   ├── jacoco/
+│   └── pmd/
 ├── src/
 │   ├── main/
 │   │   ├── data/
 │   │   └── java/com/collective404/budget/
 │   └── test/java/com/collective404/budget/
 ├── pom.xml
+├── AI Disclosure.md
 └── README.md
 ```
 
 ## Project management
 https://docs.google.com/document/d/1dPkSL4XaQVGZ5zcGpYZGQl_Knnaq3DSBpCox5-VsUOk/edit?usp=sharing
 https://docs.google.com/document/d/1uZDjhIlISiKRD8sdttvT3Qu4LVy5J90z3o2sYpQBNwg/edit?usp=sharing
-
-## AI Disclosure
-AI was used in our project for the following:
-- Creating automated test suites: prompts were to create code for specified test case branches
-- Create the baseline folder structure with file stubs
-- Create the original checkstyle.xml, which was then edited to follow that of the Miniproject
-- Create BudgetDataStore. Prompted to create a class for file reads and writes, resulting code edited for errors
-- Fixing Checkstyle errors using following prompt:
-```
-i have a checkstyle report in @checkstyle.html. Please edit @BudgetControllerTest.java, @CategoryControllerTest.java, @CategoryUpdateControllerTest.java, @BudgetReportResponse.java, @CategoryRequest.java, @CategoryResponse.java, @CategoryUpdateRequest.java, @Budget.java, @Category.java, @Purchase.java, @BudgetService.java, @BudgetServiceTest.java, @CategoryServiceTest.java @CategoryUpdateServiceTest.java @BudgetDataStore.java @InputValidator.java, @InputValidatorUnitTests.java SUCH THAT they fix these errors (ONLY fix these errors, do not try to otherwise optomize or edit code)
-```
-
-### Tool List
-- VSCode Copilot

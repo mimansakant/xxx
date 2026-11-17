@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>InputValidator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Budget Service</a> &gt; <a href="index.source.html" class="el_package">com.collective404.budget.validation</a> &gt; <span class="el_source">InputValidator.java</span></div><h1>InputValidator.java</h1><pre class="source lang-java linenums">package com.collective404.budget.validation;
+
+import java.math.BigDecimal;
+import java.util.UUID;
+import com.collective404.budget.dto.PurchaseRequest;
+
+/**
+ * Validator for API inputs.
+ */
+
+public final class InputValidator {
+
+    /**
+     * Checks required purchase fields and amount before calling the service.
+     *
+     * @param request purchase payload
+     * @return true when the payload is valid
+     */
+    public static boolean isValidPurchaseRequest(
+            final PurchaseRequest request) {
+<span class="pc bpc" id="L21" title="1 of 2 branches missed.">        return request != null</span>
+<span class="pc bpc" id="L22" title="1 of 2 branches missed.">                &amp;&amp; request.getClientId() != null</span>
+<span class="pc bpc" id="L23" title="1 of 2 branches missed.">                &amp;&amp; !request.getClientId().isBlank()</span>
+<span class="pc bpc" id="L24" title="1 of 2 branches missed.">                &amp;&amp; request.getBudgetId() != null</span>
+<span class="fc bfc" id="L25" title="All 2 branches covered.">                &amp;&amp; !request.getBudgetId().isBlank()</span>
+<span class="pc bpc" id="L26" title="1 of 2 branches missed.">                &amp;&amp; request.getName() != null</span>
+<span class="pc bpc" id="L27" title="1 of 2 branches missed.">                &amp;&amp; !request.getName().isBlank()</span>
+<span class="fc bfc" id="L28" title="All 2 branches covered.">                &amp;&amp; isValidAmount(request.getAmount());</span>
+    }
+
+    private InputValidator() {
+    }
+
+    /**
+     * Checks that an ID String is a UUID in standard form.
+     *
+     * @param id the ID to check
+     * @return true if the ID is a valid UUID
+     */
+    public static boolean isValidUuid(final String id) {
+<span class="pc bpc" id="L41" title="2 of 4 branches missed.">        if (id == null || id.isBlank()) {</span>
+<span class="nc" id="L42">            return false;</span>
+        }
+        try {
+<span class="fc" id="L45">            return UUID.fromString(id).toString().equalsIgnoreCase(id);</span>
+<span class="fc" id="L46">        } catch (IllegalArgumentException e) {</span>
+<span class="fc" id="L47">            return false;</span>
+        }
+    }
+
+    /**
+     * Checks that a budget limit is greater than zero with no more than 2
+     * decimal places.
+     *
+     * @param limit the limit to check
+     * @return true if the limit is valid
+     */
+    public static boolean isValidLimit(final String limit) {
+        BigDecimal limitNum;
+        try {
+<span class="fc" id="L61">            limitNum = new BigDecimal(limit);</span>
+<span class="nc" id="L62">        } catch (NumberFormatException e) {</span>
+<span class="nc" id="L63">            return false;</span>
+<span class="fc" id="L64">        }</span>
+<span class="pc bpc" id="L65" title="1 of 4 branches missed.">        if (limitNum.scale() &gt; 2 || limitNum.compareTo(BigDecimal.ZERO) &lt;= 0) {</span>
+<span class="fc" id="L66">            return false;</span>
+        }
+<span class="fc" id="L68">        return true;</span>
+    }
+
+    /**
+     * Checks that a purchase amount is greater than zero with no more than 2
+     * decimal places.
+     *
+     * @param amount the amount to check
+     * @return true if the amount is valid
+     */
+    public static boolean isValidAmount(final BigDecimal amount) {
+<span class="pc bpc" id="L79" title="1 of 2 branches missed.">        if (amount == null</span>
+<span class="fc bfc" id="L80" title="All 2 branches covered.">                || amount.compareTo(BigDecimal.ZERO) &lt;= 0</span>
+<span class="fc bfc" id="L81" title="All 2 branches covered.">                || amount.scale() &gt; 2) {</span>
+<span class="fc" id="L82">            return false;</span>
+        }
+<span class="fc" id="L84">        return true;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

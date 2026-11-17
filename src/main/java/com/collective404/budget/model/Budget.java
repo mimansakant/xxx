@@ -10,8 +10,8 @@ public final class Budget {
     /** The budget name. */
     private String name;
 
-    /** The ID of the client that owns this budget. */
-    private String clientId;
+    /** The Name of the client that owns this budget. */
+    private String clientName;
 
     /**
      * Empty constructor.
@@ -25,12 +25,12 @@ public final class Budget {
      *
      * @param id The budget ID
      * @param name the budget name
-     * @param clientId the ID of the owning client
+     * @param clientName the name of the owning client
      */
-    public Budget(final String id, final String name, final String clientId) {
+    public Budget(final String id, final String name, final String clientName) {
         this.id = id;
         this.name = name;
-        this.clientId = clientId;
+        this.clientName = clientName;
     }
 
     /**
@@ -52,12 +52,12 @@ public final class Budget {
     }
 
     /**
-     * Gets the budget's client ID.
+     * Gets the budget's client Name.
      *
-     * @return the client ID
+     * @return the client name
      */
-    public String getClientId() {
-        return this.clientId;
+    public String getClientName() {
+        return this.clientName;
     }
 
     /**
@@ -79,12 +79,12 @@ public final class Budget {
     }
 
     /**
-     * Sets the budget's client ID.
+     * Sets the budget's client name.
      *
-     * @param clientId the budget client ID
+     * @param clientId the budget's stored client owner value
      */
     public void setClientId(final String clientId) {
-        this.clientId = clientId;
+        this.clientName = clientId;
     }
 
 }
