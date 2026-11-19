@@ -28,7 +28,6 @@ Budget Service,com.collective404.budget.service,BudgetService.new TypeReference(
 Budget Service,com.collective404.budget.service,BudgetService.new TypeReference() {...},0,3,0,0,0,1,0,1,0,1
 Budget Service,com.collective404.budget.service,BudgetService.new TypeReference() {...},0,3,0,0,0,1,0,1,0,1
 Budget Service,com.collective404.budget.service,BudgetService.new TypeReference() {...},0,3,0,0,0,1,0,1,0,1
-Budget Service,com.collective404.budget.service,PurchaseService.new TypeReference() {...},6,0,0,0,1,0,1,0,1,0
 Budget Service,com.collective404.budget.service,PurchaseService.new TypeReference() {...},3,0,0,0,1,0,1,0,1,0
 Budget Service,com.collective404.budget.service,PurchaseService.new TypeReference() {...},0,3,0,0,0,1,0,1,0,1
 Budget Service,com.collective404.budget.service,PurchaseService.new TypeReference() {...},0,3,0,0,0,1,0,1,0,1
