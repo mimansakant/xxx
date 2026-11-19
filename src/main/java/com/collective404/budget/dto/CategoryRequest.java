@@ -19,6 +19,7 @@ public final class CategoryRequest {
 
     /** Creates an empty request for JSON deserialization. */
     public CategoryRequest() {
+        // This constructor is intentionally left empty.
     }
 
     /**

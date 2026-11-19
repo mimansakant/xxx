@@ -26,6 +26,7 @@ public final class CategoryResponse {
 
     /** Creates an empty response for JSON deserialization. */
     public CategoryResponse() {
+        // This constructor is intentionally left empty.
     }
 
     /**
