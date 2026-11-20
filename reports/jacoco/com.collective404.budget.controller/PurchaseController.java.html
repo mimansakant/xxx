@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PurchaseController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Budget Service</a> &gt; <a href="index.source.html" class="el_package">com.collective404.budget.controller</a> &gt; <span class="el_source">PurchaseController.java</span></div><h1>PurchaseController.java</h1><pre class="source lang-java linenums">package com.collective404.budget.controller;
 
 import com.collective404.budget.dto.PurchaseRequest;
+import com.collective404.budget.dto.PurchaseDeleteResponse;
 import com.collective404.budget.model.Purchase;
 import com.collective404.budget.service.PurchaseService;
 import com.collective404.budget.validation.InputValidator;
@@ -8,6 +9,9 @@ import java.io.IOException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,9 +30,9 @@ public final class PurchaseController {
      *
      * @param purchaseService service used for purchases
      */
-<span class="nc" id="L29">    public PurchaseController(final PurchaseService purchaseService) {</span>
-<span class="nc" id="L30">        this.purchaseService = purchaseService;</span>
-<span class="nc" id="L31">    }</span>
+<span class="fc" id="L33">    public PurchaseController(final PurchaseService purchaseService) {</span>
+<span class="fc" id="L34">        this.purchaseService = purchaseService;</span>
+<span class="fc" id="L35">    }</span>
 
     /**
      * Records a purchase after validating its input.
@@ -40,15 +44,60 @@ public final class PurchaseController {
     @PostMapping
     public ResponseEntity&lt;Purchase&gt; addPurchase(
             @RequestBody final PurchaseRequest request) throws IOException {
-<span class="nc bnc" id="L43" title="All 2 branches missed.">        if (!InputValidator.isValidPurchaseRequest(request)) {</span>
-<span class="nc" id="L44">            throw new ResponseStatusException(</span>
+<span class="nc bnc" id="L47" title="All 2 branches missed.">        if (!InputValidator.isValidPurchaseRequest(request)) {</span>
+<span class="nc" id="L48">            throw new ResponseStatusException(</span>
                     HttpStatus.BAD_REQUEST, &quot;Invalid purchase request&quot;);
         }
 
-<span class="nc" id="L48">        final Purchase purchase = purchaseService.createPurchase(</span>
-<span class="nc" id="L49">                request, request.getCategory());</span>
-<span class="nc" id="L50">        purchaseService.savePurchase(purchase);</span>
-<span class="nc" id="L51">        return ResponseEntity.status(HttpStatus.CREATED).body(purchase);</span>
+<span class="nc" id="L52">        final Purchase purchase = purchaseService.createPurchase(</span>
+<span class="nc" id="L53">                request, request.getCategory());</span>
+<span class="nc" id="L54">        purchaseService.savePurchase(purchase);</span>
+<span class="nc" id="L55">        return ResponseEntity.status(HttpStatus.CREATED).body(purchase);</span>
+    }
+
+    /**
+     * Deletes a purchase that belongs to the given client and budget.
+     *
+     * &lt;p&gt;Returns 200 with the recalculated category totals on success, 400 if
+     * any id is not a valid UUID, 404 if the client, budget, or purchase is
+     * not found (or the client does not own the budget, or the purchase is not
+     * in it), and 500 if the datastore cannot be read.&lt;/p&gt;
+     *
+     * @param id the id of the purchase to delete
+     * @param clientId the caller's client id
+     * @param budgetId the budget the purchase belongs to
+     * @return the recalculated totals or an error body
+     */
+    @DeleteMapping(&quot;/{id}&quot;)
+    public ResponseEntity&lt;?&gt; deletePurchase(
+            @PathVariable(&quot;id&quot;) final String id,
+            @RequestParam(&quot;clientId&quot;) final String clientId,
+            @RequestParam(&quot;budgetId&quot;) final String budgetId) {
+<span class="fc bfc" id="L76" title="All 2 branches covered.">        if (!InputValidator.isValidUuid(clientId)) {</span>
+<span class="fc" id="L77">            return BudgetController.error(</span>
+                    HttpStatus.BAD_REQUEST, &quot;clientId must be a valid UUID&quot;);
+        }
+<span class="pc bpc" id="L80" title="1 of 2 branches missed.">        if (!InputValidator.isValidUuid(budgetId)) {</span>
+<span class="nc" id="L81">            return BudgetController.error(</span>
+                    HttpStatus.BAD_REQUEST, &quot;budgetId must be a valid UUID&quot;);
+        }
+<span class="fc bfc" id="L84" title="All 2 branches covered.">        if (!InputValidator.isValidUuid(id)) {</span>
+<span class="fc" id="L85">            return BudgetController.error(</span>
+                    HttpStatus.BAD_REQUEST, &quot;purchase id must be a valid UUID&quot;);
+        }
+        try {
+<span class="fc" id="L89">            final PurchaseDeleteResponse result =</span>
+<span class="fc" id="L90">                    purchaseService.deletePurchase(clientId, budgetId, id);</span>
+<span class="fc bfc" id="L91" title="All 2 branches covered.">            if (result == null) {</span>
+<span class="fc" id="L92">                return BudgetController.error(HttpStatus.NOT_FOUND,</span>
+                        &quot;No purchase &quot; + id + &quot; found for this client/budget&quot;);
+            }
+<span class="fc" id="L95">            return ResponseEntity.ok(result);</span>
+<span class="nc" id="L96">        } catch (IOException e) {</span>
+<span class="nc" id="L97">            return BudgetController.error(</span>
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    &quot;Purchase data is unavailable&quot;);
+        }
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

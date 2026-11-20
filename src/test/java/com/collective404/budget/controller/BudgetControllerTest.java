@@ -186,7 +186,7 @@ class BudgetControllerTest {
                 "error", 403,
                 "reason", "budgetId does not belong to this client");
         when(budgetService.createCategory(
-                API_KEY, BUDGET_ID, null, "Food",
+                API_KEY, BUDGET_ID, "Budget1", "Food",
                 new BigDecimal("100.00")))
                 .thenReturn(error);
 

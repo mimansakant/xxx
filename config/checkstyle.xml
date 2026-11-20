@@ -12,6 +12,13 @@
 <module name="Checker">
     <property name="severity" value="error"/>
     <property name="fileExtensions" value="java"/>
+    <!-- A @SpringBootApplication class may not be final and needs a visible
+         constructor, so the utility-class/extension checks do not apply. -->
+    <module name="SuppressionSingleFilter">
+        <property name="files" value="BudgetApplication\.java"/>
+        <property name="checks"
+            value="HideUtilityClassConstructor|DesignForExtension|FinalClass"/>
+    </module>
     <module name="FileTabCharacter"/>
     <module name="FileLength"/>
     <module name="LineLength">
