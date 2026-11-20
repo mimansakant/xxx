@@ -37,6 +37,7 @@ public final class PurchaseService {
     /** Scale used for all monetary amounts. */
     private static final int MONEY_SCALE = 2;
 
+    /** Store used to read and write budget data. */
     private final BudgetDataStore dataStore;
 
     /**
@@ -44,9 +45,9 @@ public final class PurchaseService {
      *
      * @param dataStore datastore dependency
      */
-<span class="fc" id="L47">    public PurchaseService(final BudgetDataStore dataStore) {</span>
-<span class="fc" id="L48">        this.dataStore = dataStore;</span>
-<span class="fc" id="L49">    }</span>
+<span class="fc" id="L48">    public PurchaseService(final BudgetDataStore dataStore) {</span>
+<span class="fc" id="L49">        this.dataStore = dataStore;</span>
+<span class="fc" id="L50">    }</span>
 
     /**
      * Creates a purchase after checking client, budget and category existence.
@@ -60,65 +61,65 @@ public final class PurchaseService {
     public Purchase createPurchase(
             final PurchaseRequest request,
             final String categoryId) throws IOException {
-<span class="fc" id="L63">        final List&lt;Client&gt; clients = dataStore.readList(</span>
-<span class="fc" id="L64">                CLIENTS_FILE, new TypeReference&lt;&gt;() { });</span>
-<span class="fc" id="L65">        final Client client = clients.stream()</span>
-<span class="fc" id="L66">                .filter(item -&gt; request.getClientId().trim()</span>
-<span class="fc" id="L67">                        .equals(item.getId()))</span>
-<span class="fc" id="L68">                .findFirst().orElse(null);</span>
-<span class="pc bpc" id="L69" title="1 of 2 branches missed.">        if (client == null) {</span>
-<span class="nc" id="L70">            throw new ResponseStatusException(</span>
+<span class="fc" id="L64">        final List&lt;Client&gt; clients = dataStore.readList(</span>
+<span class="fc" id="L65">                CLIENTS_FILE, new TypeReference&lt;&gt;() { });</span>
+<span class="fc" id="L66">        final Client client = clients.stream()</span>
+<span class="fc" id="L67">                .filter(item -&gt; request.getClientId().trim()</span>
+<span class="fc" id="L68">                        .equals(item.getId()))</span>
+<span class="fc" id="L69">                .findFirst().orElse(null);</span>
+<span class="pc bpc" id="L70" title="1 of 2 branches missed.">        if (client == null) {</span>
+<span class="nc" id="L71">            throw new ResponseStatusException(</span>
                     HttpStatus.NOT_FOUND, &quot;Client not found&quot;);
         }
 
-<span class="fc" id="L74">        final List&lt;Budget&gt; budgets = dataStore.readList(</span>
-<span class="fc" id="L75">                BUDGETS_FILE, new TypeReference&lt;&gt;() { });</span>
-<span class="fc" id="L76">        final Budget budget = budgets.stream()</span>
-<span class="fc" id="L77">                .filter(item -&gt; request.getBudgetId().trim()</span>
-<span class="fc" id="L78">                        .equals(item.getId()))</span>
-<span class="fc" id="L79">                .findFirst().orElse(null);</span>
-<span class="pc bpc" id="L80" title="1 of 2 branches missed.">        if (budget == null) {</span>
-<span class="nc" id="L81">            throw new ResponseStatusException(</span>
+<span class="fc" id="L75">        final List&lt;Budget&gt; budgets = dataStore.readList(</span>
+<span class="fc" id="L76">                BUDGETS_FILE, new TypeReference&lt;&gt;() { });</span>
+<span class="fc" id="L77">        final Budget budget = budgets.stream()</span>
+<span class="fc" id="L78">                .filter(item -&gt; request.getBudgetId().trim()</span>
+<span class="fc" id="L79">                        .equals(item.getId()))</span>
+<span class="fc" id="L80">                .findFirst().orElse(null);</span>
+<span class="pc bpc" id="L81" title="1 of 2 branches missed.">        if (budget == null) {</span>
+<span class="nc" id="L82">            throw new ResponseStatusException(</span>
                     HttpStatus.NOT_FOUND, &quot;Budget not found&quot;);
         }
-<span class="fc bfc" id="L84" title="All 2 branches covered.">        if (!budgetBelongsToClient(budget, client)) {</span>
-<span class="fc" id="L85">            throw new ResponseStatusException(</span>
+<span class="fc bfc" id="L85" title="All 2 branches covered.">        if (!budgetBelongsToClient(budget, client)) {</span>
+<span class="fc" id="L86">            throw new ResponseStatusException(</span>
                     HttpStatus.FORBIDDEN, &quot;Client cannot access this budget&quot;);
         }
 
         final String resolvedCategoryId =
-<span class="pc bpc" id="L90" title="2 of 4 branches missed.">                categoryId == null || categoryId.isBlank()</span>
-<span class="pc" id="L91">                        ? &quot;Misc&quot; : categoryId.trim();</span>
-<span class="fc" id="L92">        final List&lt;Category&gt; categories = dataStore.readList(</span>
-<span class="fc" id="L93">                CATEGORIES_FILE, new TypeReference&lt;&gt;() { });</span>
-<span class="fc" id="L94">        final Category matchingCategory = categories.stream()</span>
-<span class="fc" id="L95">                .filter(category -&gt;</span>
-<span class="fc" id="L96">                        request.getBudgetId().trim()</span>
-<span class="pc bpc" id="L97" title="1 of 2 branches missed.">                                .equals(category.getBudgetId())</span>
-<span class="pc bpc" id="L98" title="1 of 2 branches missed.">                        &amp;&amp; (resolvedCategoryId.equals(category.getId())</span>
-<span class="pc bnc" id="L99" title="All 2 branches missed.">                            || resolvedCategoryId.equalsIgnoreCase(</span>
-<span class="nc" id="L100">                                    category.getName())))</span>
-<span class="fc" id="L101">                .findFirst().orElse(null);</span>
-<span class="pc bpc" id="L102" title="1 of 2 branches missed.">        if (matchingCategory == null) {</span>
-<span class="nc" id="L103">            throw new ResponseStatusException(</span>
+<span class="pc bpc" id="L91" title="2 of 4 branches missed.">                categoryId == null || categoryId.isBlank()</span>
+<span class="pc" id="L92">                        ? &quot;Misc&quot; : categoryId.trim();</span>
+<span class="fc" id="L93">        final List&lt;Category&gt; categories = dataStore.readList(</span>
+<span class="fc" id="L94">                CATEGORIES_FILE, new TypeReference&lt;&gt;() { });</span>
+<span class="fc" id="L95">        final Category matchingCategory = categories.stream()</span>
+<span class="fc" id="L96">                .filter(category -&gt;</span>
+<span class="fc" id="L97">                        request.getBudgetId().trim()</span>
+<span class="pc bpc" id="L98" title="1 of 2 branches missed.">                                .equals(category.getBudgetId())</span>
+<span class="pc bpc" id="L99" title="1 of 2 branches missed.">                        &amp;&amp; (resolvedCategoryId.equals(category.getId())</span>
+<span class="pc bnc" id="L100" title="All 2 branches missed.">                            || resolvedCategoryId.equalsIgnoreCase(</span>
+<span class="nc" id="L101">                                    category.getName())))</span>
+<span class="fc" id="L102">                .findFirst().orElse(null);</span>
+<span class="pc bpc" id="L103" title="1 of 2 branches missed.">        if (matchingCategory == null) {</span>
+<span class="nc" id="L104">            throw new ResponseStatusException(</span>
                     HttpStatus.NOT_FOUND, &quot;Category not found&quot;);
         }
-<span class="fc" id="L106">        return new Purchase(</span>
-<span class="fc" id="L107">                matchingCategory.getId(),</span>
-<span class="fc" id="L108">                UUID.randomUUID().toString(),</span>
-<span class="fc" id="L109">                request.getName().trim(),</span>
-<span class="fc" id="L110">                request.getAmount(),</span>
-<span class="fc" id="L111">                LocalDate.now().toString());</span>
+<span class="fc" id="L107">        return new Purchase(</span>
+<span class="fc" id="L108">                matchingCategory.getId(),</span>
+<span class="fc" id="L109">                UUID.randomUUID().toString(),</span>
+<span class="fc" id="L110">                request.getName().trim(),</span>
+<span class="fc" id="L111">                request.getAmount(),</span>
+<span class="fc" id="L112">                LocalDate.now().toString());</span>
     }
 
     private boolean budgetBelongsToClient(
             final Budget budget,
             final Client client
     ) {
-<span class="fc" id="L118">        final String budgetOwner = budget.getClientName();</span>
-<span class="pc bpc" id="L119" title="1 of 2 branches missed.">        return budgetOwner != null</span>
-<span class="fc bfc" id="L120" title="All 2 branches covered.">                &amp;&amp; (budgetOwner.equalsIgnoreCase(client.getName())</span>
-<span class="fc bfc" id="L121" title="All 2 branches covered.">                    || budgetOwner.equalsIgnoreCase(client.getId()));</span>
+<span class="fc" id="L119">        final String budgetOwner = budget.getClientName();</span>
+<span class="pc bpc" id="L120" title="1 of 2 branches missed.">        return budgetOwner != null</span>
+<span class="fc bfc" id="L121" title="All 2 branches covered.">                &amp;&amp; (budgetOwner.equalsIgnoreCase(client.getName())</span>
+<span class="fc bfc" id="L122" title="All 2 branches covered.">                    || budgetOwner.equalsIgnoreCase(client.getId()));</span>
     }
 
     /**
@@ -141,61 +142,61 @@ public final class PurchaseService {
             final String clientId,
             final String budgetId,
             final String purchaseId) throws IOException {
-<span class="fc" id="L144">        return dataStore.withExclusiveLock(() -&gt; {</span>
-<span class="fc" id="L145">            final List&lt;Client&gt; clients = dataStore.readList(</span>
-<span class="fc" id="L146">                    CLIENTS_FILE, new TypeReference&lt;&gt;() { });</span>
-<span class="fc" id="L147">            final Client client = clients.stream()</span>
-<span class="fc" id="L148">                    .filter(item -&gt; clientId.equals(item.getId()))</span>
-<span class="fc" id="L149">                    .findFirst().orElse(null);</span>
-<span class="fc bfc" id="L150" title="All 2 branches covered.">            if (client == null) {</span>
-<span class="fc" id="L151">                return null;</span>
+<span class="fc" id="L145">        return dataStore.withExclusiveLock(() -&gt; {</span>
+<span class="fc" id="L146">            final List&lt;Client&gt; clients = dataStore.readList(</span>
+<span class="fc" id="L147">                    CLIENTS_FILE, new TypeReference&lt;&gt;() { });</span>
+<span class="fc" id="L148">            final Client client = clients.stream()</span>
+<span class="fc" id="L149">                    .filter(item -&gt; clientId.equals(item.getId()))</span>
+<span class="fc" id="L150">                    .findFirst().orElse(null);</span>
+<span class="fc bfc" id="L151" title="All 2 branches covered.">            if (client == null) {</span>
+<span class="fc" id="L152">                return null;</span>
             }
 
-<span class="fc" id="L154">            final List&lt;Budget&gt; budgets = dataStore.readList(</span>
-<span class="fc" id="L155">                    BUDGETS_FILE, new TypeReference&lt;&gt;() { });</span>
-<span class="fc" id="L156">            final Budget budget = budgets.stream()</span>
-<span class="fc" id="L157">                    .filter(item -&gt; budgetId.equals(item.getId()))</span>
-<span class="fc" id="L158">                    .findFirst().orElse(null);</span>
-<span class="fc bfc" id="L159" title="All 4 branches covered.">            if (budget == null || !budgetBelongsToClient(budget, client)) {</span>
-<span class="fc" id="L160">                return null;</span>
+<span class="fc" id="L155">            final List&lt;Budget&gt; budgets = dataStore.readList(</span>
+<span class="fc" id="L156">                    BUDGETS_FILE, new TypeReference&lt;&gt;() { });</span>
+<span class="fc" id="L157">            final Budget budget = budgets.stream()</span>
+<span class="fc" id="L158">                    .filter(item -&gt; budgetId.equals(item.getId()))</span>
+<span class="fc" id="L159">                    .findFirst().orElse(null);</span>
+<span class="fc bfc" id="L160" title="All 4 branches covered.">            if (budget == null || !budgetBelongsToClient(budget, client)) {</span>
+<span class="fc" id="L161">                return null;</span>
             }
 
-<span class="fc" id="L163">            final List&lt;Purchase&gt; purchases = dataStore.readList(</span>
-<span class="fc" id="L164">                    PURCHASES_FILE, new TypeReference&lt;&gt;() { });</span>
-<span class="fc" id="L165">            final Purchase target = purchases.stream()</span>
-<span class="fc" id="L166">                    .filter(p -&gt; purchaseId.equals(p.getId()))</span>
-<span class="fc" id="L167">                    .findFirst()</span>
-<span class="fc" id="L168">                    .orElse(null);</span>
-<span class="fc bfc" id="L169" title="All 2 branches covered.">            if (target == null) {</span>
-<span class="fc" id="L170">                return null;</span>
+<span class="fc" id="L164">            final List&lt;Purchase&gt; purchases = dataStore.readList(</span>
+<span class="fc" id="L165">                    PURCHASES_FILE, new TypeReference&lt;&gt;() { });</span>
+<span class="fc" id="L166">            final Purchase target = purchases.stream()</span>
+<span class="fc" id="L167">                    .filter(p -&gt; purchaseId.equals(p.getId()))</span>
+<span class="fc" id="L168">                    .findFirst()</span>
+<span class="fc" id="L169">                    .orElse(null);</span>
+<span class="fc bfc" id="L170" title="All 2 branches covered.">            if (target == null) {</span>
+<span class="fc" id="L171">                return null;</span>
             }
 
-<span class="fc" id="L173">            final List&lt;Category&gt; categories = dataStore.readList(</span>
-<span class="fc" id="L174">                    CATEGORIES_FILE, new TypeReference&lt;&gt;() { });</span>
-<span class="fc" id="L175">            final Category category = categories.stream()</span>
-<span class="pc bpc" id="L176" title="1 of 2 branches missed.">                    .filter(c -&gt; c.getId() != null</span>
-<span class="pc bpc" id="L177" title="1 of 2 branches missed.">                            &amp;&amp; c.getId().equals(target.getCategoryId())</span>
-<span class="fc bfc" id="L178" title="All 2 branches covered.">                            &amp;&amp; budgetId.equals(c.getBudgetId()))</span>
-<span class="fc" id="L179">                    .findFirst()</span>
-<span class="fc" id="L180">                    .orElse(null);</span>
-<span class="fc bfc" id="L181" title="All 2 branches covered.">            if (category == null) {</span>
-<span class="fc" id="L182">                return null;</span>
+<span class="fc" id="L174">            final List&lt;Category&gt; categories = dataStore.readList(</span>
+<span class="fc" id="L175">                    CATEGORIES_FILE, new TypeReference&lt;&gt;() { });</span>
+<span class="fc" id="L176">            final Category category = categories.stream()</span>
+<span class="pc bpc" id="L177" title="1 of 2 branches missed.">                    .filter(c -&gt; c.getId() != null</span>
+<span class="pc bpc" id="L178" title="1 of 2 branches missed.">                            &amp;&amp; c.getId().equals(target.getCategoryId())</span>
+<span class="fc bfc" id="L179" title="All 2 branches covered.">                            &amp;&amp; budgetId.equals(c.getBudgetId()))</span>
+<span class="fc" id="L180">                    .findFirst()</span>
+<span class="fc" id="L181">                    .orElse(null);</span>
+<span class="fc bfc" id="L182" title="All 2 branches covered.">            if (category == null) {</span>
+<span class="fc" id="L183">                return null;</span>
             }
 
-<span class="fc" id="L185">            purchases.removeIf(p -&gt; purchaseId.equals(p.getId()));</span>
-<span class="fc" id="L186">            dataStore.writeList(PURCHASES_FILE, purchases);</span>
+<span class="fc" id="L186">            purchases.removeIf(p -&gt; purchaseId.equals(p.getId()));</span>
+<span class="fc" id="L187">            dataStore.writeList(PURCHASES_FILE, purchases);</span>
 
-<span class="fc" id="L188">            final BigDecimal spent = purchases.stream()</span>
-<span class="fc" id="L189">                    .filter(p -&gt; category.getId().equals(p.getCategoryId()))</span>
-<span class="fc" id="L190">                    .map(Purchase::getAmount)</span>
-<span class="fc" id="L191">                    .reduce(BigDecimal.ZERO, BigDecimal::add)</span>
-<span class="fc" id="L192">                    .setScale(MONEY_SCALE, RoundingMode.UP);</span>
-<span class="fc" id="L193">            final BigDecimal remaining = category.getLimit()</span>
-<span class="fc" id="L194">                    .subtract(spent)</span>
-<span class="fc" id="L195">                    .setScale(MONEY_SCALE, RoundingMode.DOWN);</span>
+<span class="fc" id="L189">            final BigDecimal spent = purchases.stream()</span>
+<span class="fc" id="L190">                    .filter(p -&gt; category.getId().equals(p.getCategoryId()))</span>
+<span class="fc" id="L191">                    .map(Purchase::getAmount)</span>
+<span class="fc" id="L192">                    .reduce(BigDecimal.ZERO, BigDecimal::add)</span>
+<span class="fc" id="L193">                    .setScale(MONEY_SCALE, RoundingMode.UP);</span>
+<span class="fc" id="L194">            final BigDecimal remaining = category.getLimit()</span>
+<span class="fc" id="L195">                    .subtract(spent)</span>
+<span class="fc" id="L196">                    .setScale(MONEY_SCALE, RoundingMode.DOWN);</span>
 
-<span class="fc" id="L197">            return new PurchaseDeleteResponse(</span>
-<span class="fc" id="L198">                    target.getId(), target.getAmount(), category.getId(),</span>
+<span class="fc" id="L198">            return new PurchaseDeleteResponse(</span>
+<span class="fc" id="L199">                    target.getId(), target.getAmount(), category.getId(),</span>
                     spent, remaining);
         });
     }
@@ -207,13 +208,13 @@ public final class PurchaseService {
      * @throws IOException if accessing the datastore fails
      */
     public void savePurchase(final Purchase purchase) throws IOException {
-<span class="nc" id="L210">        dataStore.withExclusiveLock(() -&gt; {</span>
-<span class="nc" id="L211">            final List&lt;Purchase&gt; purchases = dataStore.readList(</span>
-<span class="nc" id="L212">                    PURCHASES_FILE, new TypeReference&lt;&gt;() { });</span>
-<span class="nc" id="L213">            purchases.add(purchase);</span>
-<span class="nc" id="L214">            dataStore.writeList(PURCHASES_FILE, purchases);</span>
-<span class="nc" id="L215">            return null;</span>
+<span class="nc" id="L211">        dataStore.withExclusiveLock(() -&gt; {</span>
+<span class="nc" id="L212">            final List&lt;Purchase&gt; purchases = dataStore.readList(</span>
+<span class="nc" id="L213">                    PURCHASES_FILE, new TypeReference&lt;&gt;() { });</span>
+<span class="nc" id="L214">            purchases.add(purchase);</span>
+<span class="nc" id="L215">            dataStore.writeList(PURCHASES_FILE, purchases);</span>
+<span class="nc" id="L216">            return null;</span>
         });
-<span class="nc" id="L217">    }</span>
+<span class="nc" id="L218">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

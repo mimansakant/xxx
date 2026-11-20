@@ -37,6 +37,7 @@ public final class PurchaseService {
     /** Scale used for all monetary amounts. */
     private static final int MONEY_SCALE = 2;
 
+    /** Store used to read and write budget data. */
     private final BudgetDataStore dataStore;
 
     /**
