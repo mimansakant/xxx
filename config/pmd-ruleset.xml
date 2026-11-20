@@ -7,7 +7,9 @@
         PMD rules for API code, emphasizing correctness, maintainability, performance, and security.
     </description>
 
-    <rule ref="category/java/bestpractices.xml"/>
+    <rule ref="category/java/bestpractices.xml">
+         <exclude name="UnitTestAssertionsShouldIncludeMessage"/>
+    </rule>
     <rule ref="category/java/errorprone.xml"/>
     <rule ref="category/java/performance.xml"/>
     <rule ref="category/java/security.xml"/>

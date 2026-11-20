@@ -1,25 +1,28 @@
 package com.collective404.budget.service;
-import com.collective404.budget.dto.PurchaseRequest;
+
 import com.collective404.budget.dto.PurchaseDeleteResponse;
+import com.collective404.budget.dto.PurchaseRequest;
+import com.collective404.budget.model.Budget;
+import com.collective404.budget.model.Category;
+import com.collective404.budget.model.Client;
 import com.collective404.budget.model.Purchase;
-import java.time.LocalDate;
-import java.util.UUID;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import com.collective404.budget.store.BudgetDataStore;
-import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.util.List;
-import com.collective404.budget.model.Budget;
+import java.util.UUID;
 import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-import com.collective404.budget.model.Category;
 
+/** Business operations for purchases. */
 @Service
-public class PurchaseService {
+public final class PurchaseService {
 
-    /** Data file holding the list of client ids. */
+    /** Data file holding client records. */
     private static final String CLIENTS_FILE = "clients.json";
 
     /** Data file holding the list of budgets. */
@@ -36,97 +39,87 @@ public class PurchaseService {
 
     private final BudgetDataStore dataStore;
 
-    public PurchaseService(BudgetDataStore dataStore) {
+    /**
+     * Creates the purchase service.
+     *
+     * @param dataStore datastore dependency
+     */
+    public PurchaseService(final BudgetDataStore dataStore) {
         this.dataStore = dataStore;
     }
-    private void validateAmount(BigDecimal amount) {
-    if (amount == null
-            || amount.compareTo(BigDecimal.ZERO) <= 0
-            || amount.scale() > 2) {
-        throw new IllegalArgumentException(
-                "Amount must be positive and have at most 2 decimal places"
-        );
-    }
-}
+
+    /**
+     * Creates a purchase after checking client, budget and category existence.
+     * Input validation is performed by the controller's InputValidator call.
+     *
+     * @param request validated purchase input
+     * @param categoryId category requested by the caller
+     * @return purchase to persist
+     * @throws IOException if reading the datastore fails
+     */
     public Purchase createPurchase(
-        PurchaseRequest request, String categoryId
-) throws IOException {
-    validateAmount(request.getAmount());
-    final String resolvedCategoryId =
-        (categoryId == null || categoryId.isBlank()) ? "Misc" : categoryId;
-    List<String> clients = dataStore.readList(
-    "clients.json",
-    new TypeReference<List<String>>() { }
-);
+            final PurchaseRequest request,
+            final String categoryId) throws IOException {
+        final List<Client> clients = dataStore.readList(
+                CLIENTS_FILE, new TypeReference<>() { });
+        final Client client = clients.stream()
+                .filter(item -> request.getClientId().trim()
+                        .equals(item.getId()))
+                .findFirst().orElse(null);
+        if (client == null) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, "Client not found");
+        }
 
-boolean clientExists = clients.stream()
-        .anyMatch(client ->
-                request.getClientId() != null
-                && client.equalsIgnoreCase(
-                        request.getClientId().trim()
-                )
-        );
+        final List<Budget> budgets = dataStore.readList(
+                BUDGETS_FILE, new TypeReference<>() { });
+        final Budget budget = budgets.stream()
+                .filter(item -> request.getBudgetId().trim()
+                        .equals(item.getId()))
+                .findFirst().orElse(null);
+        if (budget == null) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, "Budget not found");
+        }
+        if (!budgetBelongsToClient(budget, client)) {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN, "Client cannot access this budget");
+        }
 
-if (!clientExists) {
-    throw new ResponseStatusException(
-            HttpStatus.NOT_FOUND, "Client not found"
-    );
-}
-
-    List<Budget> budgets = dataStore.readList(
-            "budgets.json",
-            new TypeReference<List<Budget>>() { }
-    );
-
-    boolean budgetExists = budgets.stream()
-            .anyMatch(budget ->
-                    request.getBudgetId() != null
-                    && request.getBudgetId().equals(budget.getId())
-            );
-
-    if (!budgetExists) {
-        throw new ResponseStatusException(
-                HttpStatus.NOT_FOUND, "Budget not found"
-        );
+        final String resolvedCategoryId =
+                categoryId == null || categoryId.isBlank()
+                        ? "Misc" : categoryId.trim();
+        final List<Category> categories = dataStore.readList(
+                CATEGORIES_FILE, new TypeReference<>() { });
+        final Category matchingCategory = categories.stream()
+                .filter(category ->
+                        request.getBudgetId().trim()
+                                .equals(category.getBudgetId())
+                        && (resolvedCategoryId.equals(category.getId())
+                            || resolvedCategoryId.equalsIgnoreCase(
+                                    category.getName())))
+                .findFirst().orElse(null);
+        if (matchingCategory == null) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, "Category not found");
+        }
+        return new Purchase(
+                matchingCategory.getId(),
+                UUID.randomUUID().toString(),
+                request.getName().trim(),
+                request.getAmount(),
+                LocalDate.now().toString());
     }
-List<Category> categories = dataStore.readList(
-        "categories.json",
-        new TypeReference<List<Category>>() { }
-);
 
-boolean categoryExists = categories.stream()
-        .anyMatch(category ->
-                request.getBudgetId() != null
-                && request.getBudgetId().equals(category.getBudgetId())
-                && resolvedCategoryId.equals(category.getId())
-        );
-
-if (!categoryExists) {
-    throw new ResponseStatusException(
-            HttpStatus.NOT_FOUND, "Category not found"
-    );
-}
-    return new Purchase(
-            resolvedCategoryId,
-            UUID.randomUUID().toString(),
-            request.getName(),
-            request.getAmount(),
-            LocalDate.now().toString()
-    );
-}
-public void savePurchase(Purchase purchase) throws IOException {
-    dataStore.withExclusiveLock(() -> {
-        List<Purchase> purchases = dataStore.readList(
-                "purchases.json",
-                new TypeReference<List<Purchase>>() { }
-        );
-
-        purchases.add(purchase);
-        dataStore.writeList("purchases.json", purchases);
-
-        return null;
-    });
-}
+    private boolean budgetBelongsToClient(
+            final Budget budget,
+            final Client client
+    ) {
+        final String budgetOwner = budget.getClientName();
+        return budgetOwner != null
+                && (budgetOwner.equalsIgnoreCase(client.getName())
+                    || budgetOwner.equalsIgnoreCase(client.getId()));
+    }
 
     /**
      * Deletes a purchase and returns the category's recalculated totals.
@@ -149,26 +142,26 @@ public void savePurchase(Purchase purchase) throws IOException {
             final String budgetId,
             final String purchaseId) throws IOException {
         return dataStore.withExclusiveLock(() -> {
-            final List<String> clients = dataStore.readList(
-                    CLIENTS_FILE, new TypeReference<List<String>>() { });
-            final boolean clientExists = clients.stream()
-                    .anyMatch(id -> id != null && id.equals(clientId));
-            if (!clientExists) {
+            final List<Client> clients = dataStore.readList(
+                    CLIENTS_FILE, new TypeReference<>() { });
+            final Client client = clients.stream()
+                    .filter(item -> clientId.equals(item.getId()))
+                    .findFirst().orElse(null);
+            if (client == null) {
                 return null;
             }
 
             final List<Budget> budgets = dataStore.readList(
-                    BUDGETS_FILE, new TypeReference<List<Budget>>() { });
-            // Client must own the budget they are deleting from.
-            final boolean budgetOwned = budgets.stream()
-                    .anyMatch(budget -> budgetId.equals(budget.getId())
-                            && clientId.equals(budget.getClientId()));
-            if (!budgetOwned) {
+                    BUDGETS_FILE, new TypeReference<>() { });
+            final Budget budget = budgets.stream()
+                    .filter(item -> budgetId.equals(item.getId()))
+                    .findFirst().orElse(null);
+            if (budget == null || !budgetBelongsToClient(budget, client)) {
                 return null;
             }
 
             final List<Purchase> purchases = dataStore.readList(
-                    PURCHASES_FILE, new TypeReference<List<Purchase>>() { });
+                    PURCHASES_FILE, new TypeReference<>() { });
             final Purchase target = purchases.stream()
                     .filter(p -> purchaseId.equals(p.getId()))
                     .findFirst()
@@ -178,7 +171,7 @@ public void savePurchase(Purchase purchase) throws IOException {
             }
 
             final List<Category> categories = dataStore.readList(
-                    CATEGORIES_FILE, new TypeReference<List<Category>>() { });
+                    CATEGORIES_FILE, new TypeReference<>() { });
             final Category category = categories.stream()
                     .filter(c -> c.getId() != null
                             && c.getId().equals(target.getCategoryId())
@@ -204,6 +197,22 @@ public void savePurchase(Purchase purchase) throws IOException {
             return new PurchaseDeleteResponse(
                     target.getId(), target.getAmount(), category.getId(),
                     spent, remaining);
+        });
+    }
+
+    /**
+     * Saves a purchase to the datastore.
+     *
+     * @param purchase purchase to save
+     * @throws IOException if accessing the datastore fails
+     */
+    public void savePurchase(final Purchase purchase) throws IOException {
+        dataStore.withExclusiveLock(() -> {
+            final List<Purchase> purchases = dataStore.readList(
+                    PURCHASES_FILE, new TypeReference<>() { });
+            purchases.add(purchase);
+            dataStore.writeList(PURCHASES_FILE, purchases);
+            return null;
         });
     }
 }

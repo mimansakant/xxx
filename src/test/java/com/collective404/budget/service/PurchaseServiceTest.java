@@ -3,14 +3,18 @@ package com.collective404.budget.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.when;
 
 import com.collective404.budget.dto.PurchaseDeleteResponse;
+import com.collective404.budget.dto.PurchaseRequest;
 import com.collective404.budget.model.Budget;
 import com.collective404.budget.model.Category;
+import com.collective404.budget.model.Client;
 import com.collective404.budget.model.Purchase;
 import com.collective404.budget.store.BudgetDataStore;
 import com.collective404.budget.store.BudgetDataStore.DataStoreOperation;
@@ -23,9 +27,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.web.server.ResponseStatusException;
 
 /**
- * Mockito-backed tests for {@link PurchaseService#deletePurchase}.
+ * Tests for purchase creation, authorization, and deletion.
  */
 @ExtendWith(MockitoExtension.class)
 class PurchaseServiceTest {
@@ -42,6 +49,8 @@ class PurchaseServiceTest {
     /** Id of the client under test. */
     private static final String CLIENT_ID =
             "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+    /** Name of the client under test. */
+    private static final String CLIENT_NAME = "Client One";
     /** Id of a different client. */
     private static final String OTHER_CLIENT_ID =
             "12121212-1212-1212-1212-121212121212";
@@ -65,6 +74,9 @@ class PurchaseServiceTest {
             "00000000-0000-0000-0000-000000000000";
     /** Fixed purchase date used in fixtures. */
     private static final String DATE = "2026-10-01";
+    /** Amount used by purchase creation cases. */
+    private static final BigDecimal PURCHASE_AMOUNT =
+            new BigDecimal("12.50");
 
     /** Mock datastore used by the service. */
     @Mock
@@ -99,12 +111,12 @@ class PurchaseServiceTest {
     }
 
     private void stubClient() throws IOException {
-        doReturn(List.of(CLIENT_ID))
+        doReturn(List.of(new Client(CLIENT_ID, CLIENT_NAME, "client-key")))
                 .when(dataStore).readList(eq(CLIENTS_FILE), any());
     }
 
-    private void stubBudgetOwnedBy(final String ownerId) throws IOException {
-        doReturn(List.of(new Budget(BUDGET_ID, "Main", ownerId)))
+    private void stubBudgetOwnedBy(final String owner) throws IOException {
+        doReturn(List.of(new Budget(BUDGET_ID, "Main", owner)))
                 .when(dataStore).readList(eq(BUDGETS_FILE), any());
     }
 
@@ -227,5 +239,77 @@ class PurchaseServiceTest {
 
         assertNull(service.deletePurchase(CLIENT_ID, BUDGET_ID, PURCHASE_ID),
                 "a purchase whose category is in another budget returns null");
+    }
+
+    @Test
+    void rejectsOtherClientsBudget() throws IOException {
+        final PurchaseService purchaseService =
+                serviceWithBudgetOwner("other-client");
+        assertThrows(ResponseStatusException.class,
+                () -> purchaseService.createPurchase(
+                        request(), CATEGORY_ID),
+                "A client must not add purchases to another client's budget");
+    }
+
+    @Test
+    void rejectsOtherClientsBudgetWithForbiddenStatus() throws IOException {
+        final PurchaseService purchaseService =
+                serviceWithBudgetOwner("other-client");
+        assertEquals(HttpStatus.FORBIDDEN,
+                statusWhenCreatingPurchase(purchaseService),
+                "Unauthorized budget access must be forbidden");
+    }
+
+    @Test
+    void ownerPurchaseHasExpectedCategory() throws IOException {
+        final PurchaseService purchaseService =
+                serviceWithBudgetOwner(CLIENT_NAME);
+        final Purchase created = purchaseService.createPurchase(
+                request(), CATEGORY_ID);
+        assertEquals(CATEGORY_ID, created.getCategoryId(),
+                "The purchase must use the requested category");
+    }
+
+    @Test
+    void ownerPurchaseHasExpectedAmount() throws IOException {
+        final PurchaseService purchaseService =
+                serviceWithBudgetOwner(CLIENT_NAME);
+        final Purchase created = purchaseService.createPurchase(
+                request(), CATEGORY_ID);
+        assertEquals(PURCHASE_AMOUNT, created.getAmount(),
+                "The purchase must keep the requested amount");
+    }
+
+    private HttpStatusCode statusWhenCreatingPurchase(
+            final PurchaseService purchaseService) throws IOException {
+        try {
+            purchaseService.createPurchase(request(), CATEGORY_ID);
+            return HttpStatus.CREATED;
+        } catch (ResponseStatusException exception) {
+            return exception.getStatusCode();
+        }
+    }
+
+    private PurchaseService serviceWithBudgetOwner(
+            final String owner) throws IOException {
+        final BudgetDataStore store = org.mockito.Mockito.mock(
+                BudgetDataStore.class);
+        when(store.readList(eq(CLIENTS_FILE), any())).thenReturn(
+                List.of(new Client(CLIENT_ID, CLIENT_NAME, "client-key")));
+        when(store.readList(eq(BUDGETS_FILE), any())).thenReturn(
+                List.of(new Budget(BUDGET_ID, "Budget", owner)));
+        when(store.readList(eq(CATEGORIES_FILE), any())).thenReturn(
+                List.of(foodCategory()));
+        return new PurchaseService(store);
+    }
+
+    private PurchaseRequest request() {
+        final PurchaseRequest request = new PurchaseRequest();
+        request.setClientId(CLIENT_ID);
+        request.setBudgetId(BUDGET_ID);
+        request.setName("Lunch");
+        request.setAmount(PURCHASE_AMOUNT);
+        request.setCategory(CATEGORY_ID);
+        return request;
     }
 }

@@ -33,10 +33,14 @@ class CategoryUpdateServiceTest {
     @BeforeEach
     void setUp() throws Exception {
 
-        Files.writeString(tempDir.resolve("clients.json"), "[\"client-1\"]");
+        Files.writeString(tempDir.resolve("clients.json"), """
+            [{"id": "client-1", "name": "Client One",
+              "apiKey": "client-key"}]
+            """);
 
         Files.writeString(tempDir.resolve("budgets.json"), """
-            [{"id": "budget-1", "name": "Budget One", "clientId": "client-1"}]
+            [{"id": "budget-1", "name": "Budget One",
+              "clientName": "Client One"}]
             """);
 
         Files.writeString(tempDir.resolve("categories.json"),
@@ -201,7 +205,14 @@ class CategoryUpdateServiceTest {
     @Test
     void rejectsUpdateForWrongClient() throws Exception {
         Files.writeString(tempDir.resolve("clients.json"),
-            "[\"client-1\", \"client-2\"]");
+            """
+            [
+                {"id": "client-1", "name": "Client One",
+                 "apiKey": "client-key"},
+                {"id": "client-2", "name": "Client Two",
+                 "apiKey": "other-key"}
+            ]
+            """);
 
         Map<String, Object> result = service.updateCategory(
             "client-2", "budget-1", "category-1", "Food", null);

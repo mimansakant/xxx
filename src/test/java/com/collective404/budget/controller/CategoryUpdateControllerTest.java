@@ -37,13 +37,14 @@ class CategoryUpdateControllerTest {
     @BeforeEach
     void setUp() throws Exception {
         Files.writeString(tempDir.resolve("clients.json"), """
-            ["client-1"]
+            [{"id": "client-1", "name": "Client One",
+              "apiKey": "client-key"}]
             """);
 
         Files.writeString(tempDir.resolve("budgets.json"), """
             [
                 {"id": "budget-1", "name": "Budget One",
-                "clientId": "client-1"}
+                "clientName": "Client One"}
             ]
             """);
 
@@ -206,7 +207,14 @@ class CategoryUpdateControllerTest {
     @Test
     void updateCategoryRejectsWrongClient() throws Exception {
         Files.writeString(tempDir.resolve("clients.json"),
-            "[\"client-1\", \"client-2\"]");
+            """
+            [
+                {"id": "client-1", "name": "Client One",
+                 "apiKey": "client-key"},
+                {"id": "client-2", "name": "Client Two",
+                 "apiKey": "other-key"}
+            ]
+            """);
 
         mockMvc.perform(patch(ENDPOINT)
                 .contentType(MediaType.APPLICATION_JSON)
