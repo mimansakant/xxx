@@ -4,22 +4,24 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
+ * Entry point for the Budget Service Spring Boot application.
  *
- * BudgetApplication.
+ * &lt;p&gt;This class is intentionally neither final nor given a private
+ * constructor: Spring must be able to subclass and instantiate a
+ * {@code @SpringBootApplication} configuration class. The checkstyle
+ * HideUtilityClassConstructor/DesignForExtension/FinalClass checks are
+ * suppressed for this file for that reason.&lt;/p&gt;
  */
 @SpringBootApplication
-public final class BudgetApplication {
-
-    /** private constructor to prevent instantiation. */
-    private BudgetApplication() {
-    }
+<span class="nc" id="L16">public class BudgetApplication {</span>
 
     /**
-     * Application Entry Point.
+     * Starts the Budget Service application.
+     *
      * @param args command line arguments
      */
     public static void main(final String[] args) {
-<span class="nc" id="L22">        SpringApplication.run(BudgetApplication.class, args);</span>
-<span class="nc" id="L23">    }</span>
+<span class="nc" id="L24">        SpringApplication.run(BudgetApplication.class, args);</span>
+<span class="nc" id="L25">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

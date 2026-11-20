@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PurchaseDeleteResponse.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Budget Service</a> &gt; <a href="index.source.html" class="el_package">com.collective404.budget.dto</a> &gt; <span class="el_source">PurchaseDeleteResponse.java</span></div><h1>PurchaseDeleteResponse.java</h1><pre class="source lang-java linenums">package com.collective404.budget.dto;
+
+import java.math.BigDecimal;
+
+/**
+ * Response body returned when a purchase is deleted.
+ *
+ * &lt;p&gt;Reports the deleted purchase's id, amount, and category, along with the
+ * recalculated amount spent and amount remaining for that category after the
+ * purchase has been removed.&lt;/p&gt;
+ */
+public final class PurchaseDeleteResponse {
+
+    /** The id of the purchase that was deleted. */
+    private final String purchaseId;
+
+    /** The amount of the purchase that was deleted. */
+    private final BigDecimal amount;
+
+    /** The id of the category the deleted purchase belonged to. */
+    private final String categoryId;
+
+    /** The category's amount spent after the deletion. */
+    private final BigDecimal amountSpent;
+
+    /** The category's amount remaining after the deletion. */
+    private final BigDecimal amountRemaining;
+
+    /**
+     * Constructs a delete response.
+     *
+     * @param newPurchaseId the id of the deleted purchase
+     * @param newAmount the amount of the deleted purchase
+     * @param newCategoryId the category the deleted purchase belonged to
+     * @param newAmountSpent the recalculated amount spent for the category
+     * @param newAmountRemaining the recalculated amount remaining
+     */
+    public PurchaseDeleteResponse(
+            final String newPurchaseId,
+            final BigDecimal newAmount,
+            final String newCategoryId,
+            final BigDecimal newAmountSpent,
+<span class="fc" id="L43">            final BigDecimal newAmountRemaining) {</span>
+<span class="fc" id="L44">        this.purchaseId = newPurchaseId;</span>
+<span class="fc" id="L45">        this.amount = newAmount;</span>
+<span class="fc" id="L46">        this.categoryId = newCategoryId;</span>
+<span class="fc" id="L47">        this.amountSpent = newAmountSpent;</span>
+<span class="fc" id="L48">        this.amountRemaining = newAmountRemaining;</span>
+<span class="fc" id="L49">    }</span>
+
+    /**
+     * Gets the deleted purchase's id.
+     *
+     * @return the purchase id
+     */
+    public String getPurchaseId() {
+<span class="fc" id="L57">        return purchaseId;</span>
+    }
+
+    /**
+     * Gets the deleted purchase's amount.
+     *
+     * @return the amount
+     */
+    public BigDecimal getAmount() {
+<span class="fc" id="L66">        return amount;</span>
+    }
+
+    /**
+     * Gets the category id the deleted purchase belonged to.
+     *
+     * @return the category id
+     */
+    public String getCategoryId() {
+<span class="fc" id="L75">        return categoryId;</span>
+    }
+
+    /**
+     * Gets the category's recalculated amount spent.
+     *
+     * @return the amount spent
+     */
+    public BigDecimal getAmountSpent() {
+<span class="fc" id="L84">        return amountSpent;</span>
+    }
+
+    /**
+     * Gets the category's recalculated amount remaining.
+     *
+     * @return the amount remaining
+     */
+    public BigDecimal getAmountRemaining() {
+<span class="fc" id="L93">        return amountRemaining;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

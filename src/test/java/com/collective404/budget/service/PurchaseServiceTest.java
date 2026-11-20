@@ -244,7 +244,7 @@ class PurchaseServiceTest {
     @Test
     void rejectsOtherClientsBudget() throws IOException {
         final PurchaseService purchaseService =
-               serviceWithBudgetOwner("other-client");
+                serviceWithBudgetOwner("other-client", false);
         assertThrows(ResponseStatusException.class,
                 () -> purchaseService.createPurchase(
                         request(), CATEGORY_ID),
@@ -254,7 +254,7 @@ class PurchaseServiceTest {
     @Test
     void rejectsOtherClientsBudgetWithForbiddenStatus() throws IOException {
         final PurchaseService purchaseService =
-                serviceWithBudgetOwner("other-client");
+                serviceWithBudgetOwner("other-client", false);
         assertEquals(HttpStatus.FORBIDDEN,
                 statusWhenCreatingPurchase(purchaseService),
                 "Unauthorized budget access must be forbidden");
@@ -263,7 +263,7 @@ class PurchaseServiceTest {
     @Test
     void ownerPurchaseHasExpectedCategory() throws IOException {
         final PurchaseService purchaseService =
-                serviceWithBudgetOwner(CLIENT_NAME);
+                serviceWithBudgetOwner(CLIENT_NAME, true);
         final Purchase created = purchaseService.createPurchase(
                 request(), CATEGORY_ID);
         assertEquals(CATEGORY_ID, created.getCategoryId(),
@@ -273,7 +273,7 @@ class PurchaseServiceTest {
     @Test
     void ownerPurchaseHasExpectedAmount() throws IOException {
         final PurchaseService purchaseService =
-                serviceWithBudgetOwner(CLIENT_NAME);
+                serviceWithBudgetOwner(CLIENT_NAME, true);
         final Purchase created = purchaseService.createPurchase(
                 request(), CATEGORY_ID);
         assertEquals(PURCHASE_AMOUNT, created.getAmount(),
@@ -291,15 +291,18 @@ class PurchaseServiceTest {
     }
 
     private PurchaseService serviceWithBudgetOwner(
-            final String owner) throws IOException {
+            final String owner,
+            final boolean includeCategory) throws IOException {
         final BudgetDataStore store = org.mockito.Mockito.mock(
                 BudgetDataStore.class);
         when(store.readList(eq(CLIENTS_FILE), any())).thenReturn(
                 List.of(new Client(CLIENT_ID, CLIENT_NAME, "client-key")));
         when(store.readList(eq(BUDGETS_FILE), any())).thenReturn(
                 List.of(new Budget(BUDGET_ID, "Budget", owner)));
-        when(store.readList(eq(CATEGORIES_FILE), any())).thenReturn(
-                List.of(foodCategory()));
+        if (includeCategory) {
+            when(store.readList(eq(CATEGORIES_FILE), any())).thenReturn(
+                    List.of(foodCategory()));
+        }
         return new PurchaseService(store);
     }
 
