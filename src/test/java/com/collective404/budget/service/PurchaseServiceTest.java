@@ -244,7 +244,7 @@ class PurchaseServiceTest {
     @Test
     void rejectsOtherClientsBudget() throws IOException {
         final PurchaseService purchaseService =
-                serviceWithBudgetOwner("other-client");
+               serviceWithBudgetOwner("other-client");
         assertThrows(ResponseStatusException.class,
                 () -> purchaseService.createPurchase(
                         request(), CATEGORY_ID),
