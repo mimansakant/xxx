@@ -10,7 +10,7 @@ public final class Budget {
     /** The budget name. */
     private String name;
 
-    /** The Name of the client that owns this budget. */
+    /** The owning client's ID, or a legacy client name. */
     private String clientName;
 
     /**
@@ -85,6 +85,15 @@ public final class Budget {
      */
     public void setClientId(final String clientId) {
         this.clientName = clientId;
+    }
+
+    /**
+     * Sets the owning client's ID or legacy name.
+     *
+     * @param clientName the stored owner identifier
+     */
+    public void setClientName(final String clientName) {
+        this.clientName = clientName;
     }
 
 }

@@ -106,7 +106,7 @@ class CategoryServiceTest {
         assertTrue(savedBudgets.stream().anyMatch(budget ->
                 budget.getId().equals(category.getBudgetId())
                         && budget.getName().equals("Home")
-                        && budget.getClientName().equals(CLIENT_NAME)));
+                        && budget.getClientName().equals("client-1")));
         assertEquals("Home", result.get("budgetName"));
         assertEquals(category.getId(), readCategories().get(0).getId());
     }

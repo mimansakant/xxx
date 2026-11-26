@@ -197,7 +197,7 @@ public class BudgetService {
             Budget newBudget = new Budget(
                 UUID.randomUUID().toString(),
                 budgetName.trim(),
-                client.getName()
+                client.getId()
             );
             allBudgets.add(newBudget);
             dataStore.writeList(BUDGETS_FILE, allBudgets);

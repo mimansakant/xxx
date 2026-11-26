@@ -1,21 +1,17 @@
-[ {
-  "id" : "b649544e-c51d-4e89-8f3b-cc83f37e8c49",
-  "name" : "Walmart",
-  "apiKey" : "540ba996-2ae9-4f72-8b4f-014b463bc4d7"
-}, {
-  "id" : "741b3930-0ee8-443a-9eec-2423a9d8eddf",
-  "name" : "Amazon",
-  "apiKey" : "390b059d-1cbf-42b3-b739-fc7be11c1a88"
-}, {
-  "id" : "d7eac2ed-4447-4c99-b84b-9b3c65d60a94",
-  "name" : "TiresInc",
-  "apiKey" : "8b37db32-07f2-4983-8905-b275bca41ca7"
-}, {
-  "id" : "9d013e51-9a78-4a80-9dc3-cc5bcf93315b",
-  "name" : "Testing",
-  "apiKey" : "44a6cb2b-1b70-4365-a26a-76070f6988c3"
-}, {
-  "id" : "d7edfbba-b3c8-47d9-a97f-6aeddb65a40b",
-  "name" : "Testing2",
-  "apiKey" : "5f6b0bc5-03d8-471b-bb94-1827eea4eac9"
-} ]
+[
+  {
+    "id": "19ecb8c4-776c-4af0-ac41-b490b9408cf6",
+    "name": "Harbor Bank",
+    "apiKey": "714fe10a-f709-4a2d-be3a-2ad940447851"
+  },
+  {
+    "id": "82afbd05-b9ba-433f-a50f-d46c9a7bcc98",
+    "name": "Harbor Bank",
+    "apiKey": "11644c9c-860e-447e-89a1-b2e236ecc6a2"
+  },
+  {
+    "id": "c12c5a21-504b-4786-ae86-47cd8cc7400c",
+    "name": "Northstar Bank",
+    "apiKey": "31392bee-ad5c-4fb9-91cc-1628d5e8e9ef"
+  }
+]

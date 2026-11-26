@@ -1,0 +1,1225 @@
+[ {
+  "categoryId" : "633e5498-d76f-4071-94e6-2b6d88c02a1e",
+  "id" : "c572bd86-0e30-466f-8a4b-940bb235072a",
+  "name" : "Bookstore purchase",
+  "amount" : 4.25,
+  "date" : "2026-03-22"
+}, {
+  "categoryId" : "633e5498-d76f-4071-94e6-2b6d88c02a1e",
+  "id" : "993123f8-911d-405e-a255-5900d877601c",
+  "name" : "Bookstore purchase",
+  "amount" : 4.25,
+  "date" : "2026-05-20"
+}, {
+  "categoryId" : "633e5498-d76f-4071-94e6-2b6d88c02a1e",
+  "id" : "61ffed56-7401-441d-aab4-a56ade694a88",
+  "name" : "Class fee",
+  "amount" : 12.00,
+  "date" : "2026-10-28"
+}, {
+  "categoryId" : "f816b92e-134a-4ecb-b53d-8fefc241dd04",
+  "id" : "efd4446f-8458-4bf4-8144-ca4d652b1bd1",
+  "name" : "Clothing purchase",
+  "amount" : 12.00,
+  "date" : "2026-06-25"
+}, {
+  "categoryId" : "f816b92e-134a-4ecb-b53d-8fefc241dd04",
+  "id" : "f1119546-6788-47df-a48d-75bcc514e132",
+  "name" : "Online order",
+  "amount" : 35.00,
+  "date" : "2026-06-23"
+}, {
+  "categoryId" : "f816b92e-134a-4ecb-b53d-8fefc241dd04",
+  "id" : "5e4a0958-411c-4bcd-8591-58ae1b77fdd8",
+  "name" : "Online order",
+  "amount" : 75.00,
+  "date" : "2026-06-01"
+}, {
+  "categoryId" : "f816b92e-134a-4ecb-b53d-8fefc241dd04",
+  "id" : "421b49b5-e0da-4c20-849a-fbe7e9bcd1d7",
+  "name" : "Online order",
+  "amount" : 19.99,
+  "date" : "2026-10-24"
+}, {
+  "categoryId" : "f816b92e-134a-4ecb-b53d-8fefc241dd04",
+  "id" : "85ec8504-3280-472d-a1bb-83445dd30d3d",
+  "name" : "Department store",
+  "amount" : 19.99,
+  "date" : "2026-08-04"
+}, {
+  "categoryId" : "d3736c52-542f-4cc7-adef-190ff5470651",
+  "id" : "7110cc41-4dcb-489d-988b-169a96514d04",
+  "name" : "Transit pass",
+  "amount" : 35.00,
+  "date" : "2026-07-15"
+}, {
+  "categoryId" : "cf147087-eea1-4c8a-8a8d-46e944759281",
+  "id" : "f278af4b-b842-4e01-8458-fd67f1bddb80",
+  "name" : "Hotel booking",
+  "amount" : 19.99,
+  "date" : "2026-11-07"
+}, {
+  "categoryId" : "cf147087-eea1-4c8a-8a8d-46e944759281",
+  "id" : "0f7e6d29-530d-434b-9672-f636558fe3cc",
+  "name" : "Train ticket",
+  "amount" : 35.00,
+  "date" : "2026-02-04"
+}, {
+  "categoryId" : "cf147087-eea1-4c8a-8a8d-46e944759281",
+  "id" : "e28557f8-b247-4981-8f65-ae790a8e9861",
+  "name" : "Travel supplies",
+  "amount" : 35.00,
+  "date" : "2026-11-13"
+}, {
+  "categoryId" : "cf147087-eea1-4c8a-8a8d-46e944759281",
+  "id" : "3b7f3c97-5c3d-4dea-96de-1daae0d12f31",
+  "name" : "Hotel booking",
+  "amount" : 35.00,
+  "date" : "2026-03-19"
+}, {
+  "categoryId" : "cf147087-eea1-4c8a-8a8d-46e944759281",
+  "id" : "f53d9fdd-1cc5-4233-92c7-bc3365e00c0f",
+  "name" : "Train ticket",
+  "amount" : 19.99,
+  "date" : "2026-11-15"
+}, {
+  "categoryId" : "274ce299-b63b-4567-a3ae-958dfdb8af95",
+  "id" : "2bc5b64a-f20e-4b67-92b4-9eccad093b15",
+  "name" : "Course materials",
+  "amount" : 8.50,
+  "date" : "2026-01-23"
+}, {
+  "categoryId" : "274ce299-b63b-4567-a3ae-958dfdb8af95",
+  "id" : "1675b64d-c847-4de1-b2f8-b890e0ae83f1",
+  "name" : "Course materials",
+  "amount" : 12.00,
+  "date" : "2026-02-11"
+}, {
+  "categoryId" : "5eded946-affb-44b9-b24d-60a8ced908ed",
+  "id" : "7e3e14f8-1bb7-449a-98c3-bbbe782cc1d4",
+  "name" : "Concert entry",
+  "amount" : 19.99,
+  "date" : "2026-04-12"
+}, {
+  "categoryId" : "f42f7e2a-80ea-4bc8-9eea-46eddf22047f",
+  "id" : "368f319e-ee03-4e11-b070-ff4416be25fc",
+  "name" : "Clothing purchase",
+  "amount" : 35.00,
+  "date" : "2026-10-02"
+}, {
+  "categoryId" : "f42f7e2a-80ea-4bc8-9eea-46eddf22047f",
+  "id" : "92a1a5d6-5a67-441c-9b05-7400cb9c8d63",
+  "name" : "Department store",
+  "amount" : 8.50,
+  "date" : "2026-02-19"
+}, {
+  "categoryId" : "f42f7e2a-80ea-4bc8-9eea-46eddf22047f",
+  "id" : "ee52a5cc-4040-4303-a705-f8fca78b5994",
+  "name" : "Online order",
+  "amount" : 35.00,
+  "date" : "2026-04-16"
+}, {
+  "categoryId" : "f42f7e2a-80ea-4bc8-9eea-46eddf22047f",
+  "id" : "7c2a18ad-e6d9-43bd-84ec-8d24bff7b33d",
+  "name" : "Clothing purchase",
+  "amount" : 19.99,
+  "date" : "2026-06-04"
+}, {
+  "categoryId" : "f42f7e2a-80ea-4bc8-9eea-46eddf22047f",
+  "id" : "b1e77c43-2c10-45aa-bc1a-887f9bd649e8",
+  "name" : "Clothing purchase",
+  "amount" : 8.50,
+  "date" : "2026-11-20"
+}, {
+  "categoryId" : "848f9c38-9955-48a9-ba95-e0dc7fee0a58",
+  "id" : "104bbb01-c4fd-40bf-a654-fb96bb79e24d",
+  "name" : "Market groceries",
+  "amount" : 4.25,
+  "date" : "2026-08-18"
+}, {
+  "categoryId" : "848f9c38-9955-48a9-ba95-e0dc7fee0a58",
+  "id" : "df4b7ead-f40c-4ebb-b320-ae21e3880262",
+  "name" : "Market groceries",
+  "amount" : 75.00,
+  "date" : "2026-11-25"
+}, {
+  "categoryId" : "848f9c38-9955-48a9-ba95-e0dc7fee0a58",
+  "id" : "a7962d71-0949-43be-a0e2-3cd75f0cbbd9",
+  "name" : "Produce shop",
+  "amount" : 35.00,
+  "date" : "2026-05-07"
+}, {
+  "categoryId" : "44f1a988-5d73-4634-95a4-df5b31eec8d0",
+  "id" : "ae68e8e0-2845-43ee-8ac5-ad95346e85a9",
+  "name" : "Clothing purchase",
+  "amount" : 4.25,
+  "date" : "2026-06-11"
+}, {
+  "categoryId" : "44f1a988-5d73-4634-95a4-df5b31eec8d0",
+  "id" : "0e2ac7dd-e2c2-470c-aee8-0c3d41e1ab3f",
+  "name" : "Online order",
+  "amount" : 75.00,
+  "date" : "2026-04-15"
+}, {
+  "categoryId" : "44f1a988-5d73-4634-95a4-df5b31eec8d0",
+  "id" : "e19dce64-1980-42a0-816b-d94de1b7d101",
+  "name" : "Clothing purchase",
+  "amount" : 35.00,
+  "date" : "2026-03-28"
+}, {
+  "categoryId" : "44f1a988-5d73-4634-95a4-df5b31eec8d0",
+  "id" : "cbb37326-b599-4b35-98f3-5589f5a08041",
+  "name" : "Department store",
+  "amount" : 19.99,
+  "date" : "2026-10-11"
+}, {
+  "categoryId" : "4d5b47ce-4229-49ce-a0cb-e378d3e4c0cb",
+  "id" : "87a64dc7-412d-4373-b0dc-cd18ebfa62e3",
+  "name" : "Bookstore purchase",
+  "amount" : 19.99,
+  "date" : "2026-07-21"
+}, {
+  "categoryId" : "4d5b47ce-4229-49ce-a0cb-e378d3e4c0cb",
+  "id" : "3a5d87ba-c54a-4724-af31-788c95f17972",
+  "name" : "Class fee",
+  "amount" : 19.99,
+  "date" : "2026-08-14"
+}, {
+  "categoryId" : "4d5b47ce-4229-49ce-a0cb-e378d3e4c0cb",
+  "id" : "2c2eb61c-0b91-4be0-afed-b327501fd939",
+  "name" : "Class fee",
+  "amount" : 4.25,
+  "date" : "2026-06-19"
+}, {
+  "categoryId" : "4d5b47ce-4229-49ce-a0cb-e378d3e4c0cb",
+  "id" : "03a30166-38cf-4b95-b46a-29015bd2965b",
+  "name" : "Course materials",
+  "amount" : 75.00,
+  "date" : "2026-11-20"
+}, {
+  "categoryId" : "4d5b47ce-4229-49ce-a0cb-e378d3e4c0cb",
+  "id" : "e387f3b5-1bbc-4678-a8d4-853b08c8c280",
+  "name" : "Class fee",
+  "amount" : 75.00,
+  "date" : "2026-06-26"
+}, {
+  "categoryId" : "2bbe31b0-bf3b-45b8-96aa-58ab985cb75e",
+  "id" : "698c6104-13db-415b-9ec0-bd2a6e15040e",
+  "name" : "Produce shop",
+  "amount" : 35.00,
+  "date" : "2026-03-18"
+}, {
+  "categoryId" : "2bbe31b0-bf3b-45b8-96aa-58ab985cb75e",
+  "id" : "e29991c5-a88e-4683-b17c-85ab9c102172",
+  "name" : "Weekly food shop",
+  "amount" : 35.00,
+  "date" : "2026-05-12"
+}, {
+  "categoryId" : "2bbe31b0-bf3b-45b8-96aa-58ab985cb75e",
+  "id" : "c74878c9-68ad-4360-8774-a21d5914769c",
+  "name" : "Weekly food shop",
+  "amount" : 35.00,
+  "date" : "2026-03-08"
+}, {
+  "categoryId" : "580b2944-a179-4ca3-9e60-2d8bbb9107c4",
+  "id" : "519c504b-fb3d-4e6f-be4e-ac3f6914ba4b",
+  "name" : "Movie tickets",
+  "amount" : 75.00,
+  "date" : "2026-05-11"
+}, {
+  "categoryId" : "580b2944-a179-4ca3-9e60-2d8bbb9107c4",
+  "id" : "e52ad707-a66e-4bd3-a6d5-7c4288117cf5",
+  "name" : "Concert entry",
+  "amount" : 35.00,
+  "date" : "2026-11-21"
+}, {
+  "categoryId" : "580b2944-a179-4ca3-9e60-2d8bbb9107c4",
+  "id" : "9385d365-fca0-4b6d-9d9f-b3c5683fd193",
+  "name" : "Concert entry",
+  "amount" : 75.00,
+  "date" : "2026-04-16"
+}, {
+  "categoryId" : "9a8b797e-14a7-40d9-9c85-3e37c70da02a",
+  "id" : "627aa22d-b76b-44fc-852a-9a4cef8287e7",
+  "name" : "Travel supplies",
+  "amount" : 75.00,
+  "date" : "2026-08-21"
+}, {
+  "categoryId" : "9a8b797e-14a7-40d9-9c85-3e37c70da02a",
+  "id" : "1328c42a-4bb6-4d0e-8839-20ca96aca8f4",
+  "name" : "Train ticket",
+  "amount" : 12.00,
+  "date" : "2026-04-11"
+}, {
+  "categoryId" : "3af46977-c09f-4cad-939b-1b027a79ecee",
+  "id" : "53d2fdb8-9c23-4979-b95f-04717e5e096a",
+  "name" : "Ride fare",
+  "amount" : 4.25,
+  "date" : "2026-02-13"
+}, {
+  "categoryId" : "3af46977-c09f-4cad-939b-1b027a79ecee",
+  "id" : "8ecbe090-d791-45a2-ba0f-0e405a273ebe",
+  "name" : "Ride fare",
+  "amount" : 12.00,
+  "date" : "2026-03-01"
+}, {
+  "categoryId" : "b4191dd6-1c37-487e-90d6-6a3d8102a871",
+  "id" : "485b10bd-cc88-4118-adaf-20b1dd62b1ed",
+  "name" : "Electric bill",
+  "amount" : 4.25,
+  "date" : "2026-06-11"
+}, {
+  "categoryId" : "b4191dd6-1c37-487e-90d6-6a3d8102a871",
+  "id" : "8e3a6672-14f5-455c-b211-5b91ef23efae",
+  "name" : "Internet bill",
+  "amount" : 12.00,
+  "date" : "2026-10-20"
+}, {
+  "categoryId" : "b4191dd6-1c37-487e-90d6-6a3d8102a871",
+  "id" : "96a798a3-90cd-484f-968d-a98da0cb6816",
+  "name" : "Mobile service",
+  "amount" : 75.00,
+  "date" : "2026-10-27"
+}, {
+  "categoryId" : "b4191dd6-1c37-487e-90d6-6a3d8102a871",
+  "id" : "eecba289-88ed-4487-9930-455431178aa2",
+  "name" : "Mobile service",
+  "amount" : 19.99,
+  "date" : "2026-11-07"
+}, {
+  "categoryId" : "b4191dd6-1c37-487e-90d6-6a3d8102a871",
+  "id" : "2db9ce69-ec90-4d0f-bf87-6790588a7be3",
+  "name" : "Internet bill",
+  "amount" : 19.99,
+  "date" : "2026-03-22"
+}, {
+  "categoryId" : "0ccf7e1b-c9fe-4c42-a846-0a3a5593e359",
+  "id" : "94b6f222-1110-43b8-8a29-43b7c0054489",
+  "name" : "Train ticket",
+  "amount" : 4.25,
+  "date" : "2026-07-22"
+}, {
+  "categoryId" : "0ccf7e1b-c9fe-4c42-a846-0a3a5593e359",
+  "id" : "ffd3483a-f5a5-4c80-b127-b9723ed788c8",
+  "name" : "Travel supplies",
+  "amount" : 19.99,
+  "date" : "2026-08-23"
+}, {
+  "categoryId" : "0ccf7e1b-c9fe-4c42-a846-0a3a5593e359",
+  "id" : "8643fe26-65c3-404b-8a66-30745501d2a0",
+  "name" : "Train ticket",
+  "amount" : 75.00,
+  "date" : "2026-04-13"
+}, {
+  "categoryId" : "0ccf7e1b-c9fe-4c42-a846-0a3a5593e359",
+  "id" : "c2fe6cce-20d8-490d-9aae-2871b06076a3",
+  "name" : "Train ticket",
+  "amount" : 12.00,
+  "date" : "2026-03-08"
+}, {
+  "categoryId" : "fb58bc17-c924-474b-b354-9931559d93ea",
+  "id" : "8384b125-eb96-4d67-98d8-30ae01922a94",
+  "name" : "Wellness supplies",
+  "amount" : 35.00,
+  "date" : "2026-09-22"
+}, {
+  "categoryId" : "fb58bc17-c924-474b-b354-9931559d93ea",
+  "id" : "9abcec25-8107-4384-81a9-683de7ba629d",
+  "name" : "Wellness supplies",
+  "amount" : 19.99,
+  "date" : "2026-02-10"
+}, {
+  "categoryId" : "7f14fa95-0ead-4c3f-a462-fa0a12e8009f",
+  "id" : "814e7240-8bd9-4981-b87c-1f2fe83325c0",
+  "name" : "Clinic copay",
+  "amount" : 8.50,
+  "date" : "2026-09-12"
+}, {
+  "categoryId" : "7f14fa95-0ead-4c3f-a462-fa0a12e8009f",
+  "id" : "45c64979-9404-408a-9fdd-e333821860d9",
+  "name" : "Pharmacy purchase",
+  "amount" : 35.00,
+  "date" : "2026-11-18"
+}, {
+  "categoryId" : "0a0b86ef-38b2-4631-983a-9267615c58b0",
+  "id" : "329352e0-8d78-4915-a904-5ae5697e7b0a",
+  "name" : "Hardware supplies",
+  "amount" : 8.50,
+  "date" : "2026-09-07"
+}, {
+  "categoryId" : "0a0b86ef-38b2-4631-983a-9267615c58b0",
+  "id" : "414375a1-eed6-4975-b328-d8127419acd2",
+  "name" : "Household repair",
+  "amount" : 12.00,
+  "date" : "2026-06-02"
+}, {
+  "categoryId" : "0a0b86ef-38b2-4631-983a-9267615c58b0",
+  "id" : "18f8e7af-a7c0-42b5-bbe3-6b69de3b4121",
+  "name" : "Home store",
+  "amount" : 8.50,
+  "date" : "2026-01-20"
+}, {
+  "categoryId" : "0a0b86ef-38b2-4631-983a-9267615c58b0",
+  "id" : "77b3f529-0bb7-4789-b940-d306c14ea5ce",
+  "name" : "Home store",
+  "amount" : 12.00,
+  "date" : "2026-08-28"
+}, {
+  "categoryId" : "f53d5c5d-3846-4a92-90a2-fa725427618e",
+  "id" : "65d5bced-4efa-44e1-bfa5-c92f3207f02c",
+  "name" : "Market groceries",
+  "amount" : 12.00,
+  "date" : "2026-03-26"
+}, {
+  "categoryId" : "f53d5c5d-3846-4a92-90a2-fa725427618e",
+  "id" : "659ce784-def0-424a-950a-38f2cd858e73",
+  "name" : "Weekly food shop",
+  "amount" : 12.00,
+  "date" : "2026-02-19"
+}, {
+  "categoryId" : "f53d5c5d-3846-4a92-90a2-fa725427618e",
+  "id" : "823c2fae-14b8-406d-bbe8-83d8e9e1f1c9",
+  "name" : "Weekly food shop",
+  "amount" : 4.25,
+  "date" : "2026-11-03"
+}, {
+  "categoryId" : "f53d5c5d-3846-4a92-90a2-fa725427618e",
+  "id" : "0b427363-1476-41f7-b670-52758a32454b",
+  "name" : "Market groceries",
+  "amount" : 35.00,
+  "date" : "2026-09-12"
+}, {
+  "categoryId" : "a4ce7369-e78c-4c15-8e65-7368e310edd9",
+  "id" : "872a4158-185b-4b96-97c1-2bb2eb357714",
+  "name" : "Fuel purchase",
+  "amount" : 8.50,
+  "date" : "2026-11-11"
+}, {
+  "categoryId" : "5d9ed439-3134-4de1-89aa-2a91f7c389fa",
+  "id" : "beabd06e-f452-4779-817d-170129898d02",
+  "name" : "Ride fare",
+  "amount" : 75.00,
+  "date" : "2026-07-22"
+}, {
+  "categoryId" : "5d9ed439-3134-4de1-89aa-2a91f7c389fa",
+  "id" : "c66bfd5a-6e2d-4fe4-9032-8541402b4343",
+  "name" : "Transit pass",
+  "amount" : 4.25,
+  "date" : "2026-06-12"
+}, {
+  "categoryId" : "5d9ed439-3134-4de1-89aa-2a91f7c389fa",
+  "id" : "5643f5ed-9b77-4bff-86a2-d3fca4119cf4",
+  "name" : "Ride fare",
+  "amount" : 8.50,
+  "date" : "2026-07-28"
+}, {
+  "categoryId" : "5d9ed439-3134-4de1-89aa-2a91f7c389fa",
+  "id" : "18f5a326-e306-4741-8baf-cf74c7aa1733",
+  "name" : "Transit pass",
+  "amount" : 12.00,
+  "date" : "2026-08-09"
+}, {
+  "categoryId" : "8bae7eb1-a532-492a-afe7-f6a81335ff24",
+  "id" : "015ca3e3-b15b-48bc-b0e2-bfb12ce87df4",
+  "name" : "Travel supplies",
+  "amount" : 19.99,
+  "date" : "2026-03-20"
+}, {
+  "categoryId" : "8bae7eb1-a532-492a-afe7-f6a81335ff24",
+  "id" : "e58d74d8-83ae-4b56-bde0-4093e1e89eed",
+  "name" : "Travel supplies",
+  "amount" : 8.50,
+  "date" : "2026-04-21"
+}, {
+  "categoryId" : "dc6c5d02-0c21-476f-9101-dc5c27892429",
+  "id" : "b3caab1d-c446-47da-a672-530d8c1f2ca0",
+  "name" : "Household repair",
+  "amount" : 19.99,
+  "date" : "2026-07-26"
+}, {
+  "categoryId" : "dc6c5d02-0c21-476f-9101-dc5c27892429",
+  "id" : "dd7d3a4f-1c8a-4faa-8511-ae7ad5aecb1c",
+  "name" : "Home store",
+  "amount" : 12.00,
+  "date" : "2026-05-08"
+}, {
+  "categoryId" : "dc6c5d02-0c21-476f-9101-dc5c27892429",
+  "id" : "ae838ab2-13b3-49d6-94e1-7df6e64d8082",
+  "name" : "Home store",
+  "amount" : 4.25,
+  "date" : "2026-11-19"
+}, {
+  "categoryId" : "313ff0e4-d472-4a49-aefc-aff0bfa239e6",
+  "id" : "bb80e0fa-127e-461c-945c-5241ebff98f3",
+  "name" : "Wellness supplies",
+  "amount" : 75.00,
+  "date" : "2026-09-18"
+}, {
+  "categoryId" : "313ff0e4-d472-4a49-aefc-aff0bfa239e6",
+  "id" : "2e070456-86d4-4500-b27a-c66cdde10d05",
+  "name" : "Wellness supplies",
+  "amount" : 75.00,
+  "date" : "2026-05-26"
+}, {
+  "categoryId" : "313ff0e4-d472-4a49-aefc-aff0bfa239e6",
+  "id" : "1d4eac7e-befb-4c6b-9ed8-1005c0f30650",
+  "name" : "Clinic copay",
+  "amount" : 4.25,
+  "date" : "2026-08-10"
+}, {
+  "categoryId" : "b028d709-a0e0-4f78-9f65-af933674c3fc",
+  "id" : "b2ee7eec-19b2-4188-afaa-a76a4c40afa2",
+  "name" : "Restaurant dinner",
+  "amount" : 75.00,
+  "date" : "2026-05-20"
+}, {
+  "categoryId" : "b028d709-a0e0-4f78-9f65-af933674c3fc",
+  "id" : "a8f27b80-969b-4421-a3d8-900c4afb87d9",
+  "name" : "Restaurant dinner",
+  "amount" : 8.50,
+  "date" : "2026-03-21"
+}, {
+  "categoryId" : "b028d709-a0e0-4f78-9f65-af933674c3fc",
+  "id" : "a9694e03-4ceb-4dd1-851e-da1bf05b1bd3",
+  "name" : "Takeout",
+  "amount" : 4.25,
+  "date" : "2026-06-24"
+}, {
+  "categoryId" : "784014f1-6b31-4aee-bfaf-10a404689ae6",
+  "id" : "5ba88cf7-b68d-4582-90c7-dd66d5e27364",
+  "name" : "Ride fare",
+  "amount" : 19.99,
+  "date" : "2026-02-24"
+}, {
+  "categoryId" : "d45fee74-5895-4c19-af58-5e0ea11b3507",
+  "id" : "33c61d8c-7737-4539-8a28-066be48a6263",
+  "name" : "Clinic copay",
+  "amount" : 12.00,
+  "date" : "2026-11-13"
+}, {
+  "categoryId" : "d45fee74-5895-4c19-af58-5e0ea11b3507",
+  "id" : "fd0f8df3-1015-4e89-a720-fa1d11149e1e",
+  "name" : "Clinic copay",
+  "amount" : 35.00,
+  "date" : "2026-10-16"
+}, {
+  "categoryId" : "d45fee74-5895-4c19-af58-5e0ea11b3507",
+  "id" : "5d5758b3-58b3-474d-be65-8a605b09074d",
+  "name" : "Clinic copay",
+  "amount" : 35.00,
+  "date" : "2026-04-28"
+}, {
+  "categoryId" : "408b843c-fc4b-47a3-8197-3aae5d9d5fd2",
+  "id" : "e9a9a0e7-e3f6-4ce6-8412-d2f5dc40b05b",
+  "name" : "Internet bill",
+  "amount" : 12.00,
+  "date" : "2026-09-08"
+}, {
+  "categoryId" : "408b843c-fc4b-47a3-8197-3aae5d9d5fd2",
+  "id" : "fc759b52-1a68-436b-bf3a-b26d62efbaf4",
+  "name" : "Mobile service",
+  "amount" : 8.50,
+  "date" : "2026-08-02"
+}, {
+  "categoryId" : "408b843c-fc4b-47a3-8197-3aae5d9d5fd2",
+  "id" : "0da783e3-b27d-443f-8a57-0e9f89b078fe",
+  "name" : "Electric bill",
+  "amount" : 75.00,
+  "date" : "2026-02-22"
+}, {
+  "categoryId" : "408b843c-fc4b-47a3-8197-3aae5d9d5fd2",
+  "id" : "7af8a402-477d-44b7-8eaa-20e2af56a640",
+  "name" : "Mobile service",
+  "amount" : 8.50,
+  "date" : "2026-09-26"
+}, {
+  "categoryId" : "408b843c-fc4b-47a3-8197-3aae5d9d5fd2",
+  "id" : "253c8ee0-12b9-4c18-a388-4b1b757e9cb8",
+  "name" : "Electric bill",
+  "amount" : 19.99,
+  "date" : "2026-04-24"
+}, {
+  "categoryId" : "04b3b1a3-3c62-48ae-9d2d-d81b1ce8b178",
+  "id" : "527031b6-e228-403d-8963-f35610dc68c8",
+  "name" : "Weekly food shop",
+  "amount" : 4.25,
+  "date" : "2026-01-02"
+}, {
+  "categoryId" : "04b3b1a3-3c62-48ae-9d2d-d81b1ce8b178",
+  "id" : "049a3109-4059-4ec4-bb48-622bd306bcf0",
+  "name" : "Market groceries",
+  "amount" : 12.00,
+  "date" : "2026-11-17"
+}, {
+  "categoryId" : "0a10fa7d-fa9e-4e07-a314-53b09595f92d",
+  "id" : "6ec49d15-ce25-438a-b0eb-8e132d4be472",
+  "name" : "Course materials",
+  "amount" : 35.00,
+  "date" : "2026-03-09"
+}, {
+  "categoryId" : "0a10fa7d-fa9e-4e07-a314-53b09595f92d",
+  "id" : "bedf1d92-5ac8-4a51-9cc0-a06d5fa4270d",
+  "name" : "Bookstore purchase",
+  "amount" : 75.00,
+  "date" : "2026-04-10"
+}, {
+  "categoryId" : "0a10fa7d-fa9e-4e07-a314-53b09595f92d",
+  "id" : "bec1be92-4f74-44bd-85ea-910284a328e9",
+  "name" : "Class fee",
+  "amount" : 35.00,
+  "date" : "2026-07-12"
+}, {
+  "categoryId" : "0a10fa7d-fa9e-4e07-a314-53b09595f92d",
+  "id" : "b395b77d-7194-4f58-9a74-bcf411e0031a",
+  "name" : "Class fee",
+  "amount" : 19.99,
+  "date" : "2026-09-07"
+}, {
+  "categoryId" : "bcc3d8e5-8f42-4e75-a7bb-a33c57349f16",
+  "id" : "417f1cda-dc73-4ade-a32a-fdd619d31b43",
+  "name" : "Takeout",
+  "amount" : 8.50,
+  "date" : "2026-02-12"
+}, {
+  "categoryId" : "bcc3d8e5-8f42-4e75-a7bb-a33c57349f16",
+  "id" : "a02e1d85-2add-44bf-9142-40b782f68e31",
+  "name" : "Cafe lunch",
+  "amount" : 8.50,
+  "date" : "2026-07-05"
+}, {
+  "categoryId" : "bcc3d8e5-8f42-4e75-a7bb-a33c57349f16",
+  "id" : "914879d5-4011-400b-9ded-9d8526469d07",
+  "name" : "Cafe lunch",
+  "amount" : 4.25,
+  "date" : "2026-03-14"
+}, {
+  "categoryId" : "bcc3d8e5-8f42-4e75-a7bb-a33c57349f16",
+  "id" : "106d1b0f-aaa1-4190-a827-341273d2ecd8",
+  "name" : "Cafe lunch",
+  "amount" : 12.00,
+  "date" : "2026-01-07"
+}, {
+  "categoryId" : "bcc3d8e5-8f42-4e75-a7bb-a33c57349f16",
+  "id" : "ae5c7a67-30e9-46cf-ae36-013c16e02ab2",
+  "name" : "Restaurant dinner",
+  "amount" : 19.99,
+  "date" : "2026-07-10"
+}, {
+  "categoryId" : "64dac21d-b1cd-4949-b7de-f9b707446cec",
+  "id" : "cead6eeb-1bf6-4f8e-91fb-f3754486efd7",
+  "name" : "Market groceries",
+  "amount" : 4.25,
+  "date" : "2026-05-21"
+}, {
+  "categoryId" : "64dac21d-b1cd-4949-b7de-f9b707446cec",
+  "id" : "73294b6e-e08b-4c13-9d8f-d00bbbff5fe1",
+  "name" : "Weekly food shop",
+  "amount" : 12.00,
+  "date" : "2026-03-14"
+}, {
+  "categoryId" : "64dac21d-b1cd-4949-b7de-f9b707446cec",
+  "id" : "740f0b09-ca88-42a4-89cd-b11687f994c7",
+  "name" : "Produce shop",
+  "amount" : 4.25,
+  "date" : "2026-03-01"
+}, {
+  "categoryId" : "64dac21d-b1cd-4949-b7de-f9b707446cec",
+  "id" : "c9921708-f07d-45cb-bc5d-efb3520e7d57",
+  "name" : "Market groceries",
+  "amount" : 19.99,
+  "date" : "2026-08-14"
+}, {
+  "categoryId" : "0f3cb2ab-1425-49ac-8384-048d5c66da24",
+  "id" : "a71c35d4-c57f-470e-9a1d-6986880ab2e2",
+  "name" : "Transit pass",
+  "amount" : 12.00,
+  "date" : "2026-05-14"
+}, {
+  "categoryId" : "0f3cb2ab-1425-49ac-8384-048d5c66da24",
+  "id" : "435f25e1-c896-4e43-92e1-7ff76d3f79ed",
+  "name" : "Fuel purchase",
+  "amount" : 75.00,
+  "date" : "2026-11-27"
+}, {
+  "categoryId" : "0f3cb2ab-1425-49ac-8384-048d5c66da24",
+  "id" : "931f25a3-dc76-4300-8265-4a51cc069dc9",
+  "name" : "Fuel purchase",
+  "amount" : 8.50,
+  "date" : "2026-06-09"
+}, {
+  "categoryId" : "0f3cb2ab-1425-49ac-8384-048d5c66da24",
+  "id" : "4f2e42c3-99ad-4e9c-9650-2f101808ea05",
+  "name" : "Fuel purchase",
+  "amount" : 8.50,
+  "date" : "2026-04-01"
+}, {
+  "categoryId" : "2ae09e17-5f93-40db-8f16-f300865a5999",
+  "id" : "8b8acacf-81c3-4b20-85fb-1c0449eb26cc",
+  "name" : "Bookstore purchase",
+  "amount" : 12.00,
+  "date" : "2026-08-23"
+}, {
+  "categoryId" : "649ef90b-e232-48ff-ae88-86265d300f33",
+  "id" : "c564edcc-b8dc-4656-bce7-d851bcc769d8",
+  "name" : "Concert entry",
+  "amount" : 75.00,
+  "date" : "2026-06-06"
+}, {
+  "categoryId" : "649ef90b-e232-48ff-ae88-86265d300f33",
+  "id" : "8cf370e3-02db-49f0-815f-cf757b3802d6",
+  "name" : "Movie tickets",
+  "amount" : 8.50,
+  "date" : "2026-06-16"
+}, {
+  "categoryId" : "649ef90b-e232-48ff-ae88-86265d300f33",
+  "id" : "85cecacf-a276-478a-9a6f-3b3bed900f0b",
+  "name" : "Streaming service",
+  "amount" : 12.00,
+  "date" : "2026-05-25"
+}, {
+  "categoryId" : "649ef90b-e232-48ff-ae88-86265d300f33",
+  "id" : "61b6ce1e-fa67-4c3d-b986-3fb495650294",
+  "name" : "Movie tickets",
+  "amount" : 75.00,
+  "date" : "2026-06-09"
+}, {
+  "categoryId" : "efef2492-d445-46ae-8627-a01975a7b41a",
+  "id" : "1b499492-94c3-451a-a30c-dda8d6407eac",
+  "name" : "Clinic copay",
+  "amount" : 35.00,
+  "date" : "2026-11-14"
+}, {
+  "categoryId" : "635574ec-0854-459a-bcba-bf1ab7dbd340",
+  "id" : "122d90dc-3324-46d1-972c-6e426b76e9af",
+  "name" : "Hotel booking",
+  "amount" : 12.00,
+  "date" : "2026-02-12"
+}, {
+  "categoryId" : "635574ec-0854-459a-bcba-bf1ab7dbd340",
+  "id" : "afa87015-4c9f-488c-8ad7-2819c46f6f8c",
+  "name" : "Train ticket",
+  "amount" : 8.50,
+  "date" : "2026-01-26"
+}, {
+  "categoryId" : "635574ec-0854-459a-bcba-bf1ab7dbd340",
+  "id" : "221c853b-d3eb-47a4-b9b1-b12b954eea41",
+  "name" : "Train ticket",
+  "amount" : 19.99,
+  "date" : "2026-03-27"
+}, {
+  "categoryId" : "635574ec-0854-459a-bcba-bf1ab7dbd340",
+  "id" : "ab3043dc-2431-488f-999f-5ce295095c61",
+  "name" : "Travel supplies",
+  "amount" : 75.00,
+  "date" : "2026-07-02"
+}, {
+  "categoryId" : "635574ec-0854-459a-bcba-bf1ab7dbd340",
+  "id" : "15e1b1ce-0033-4a4b-8c68-a3549c4a4804",
+  "name" : "Train ticket",
+  "amount" : 75.00,
+  "date" : "2026-03-06"
+}, {
+  "categoryId" : "62f1730c-1478-4a53-a5b0-bf32a1ef0f78",
+  "id" : "229bf8e4-0498-415b-b76c-f08ea61f2eca",
+  "name" : "Train ticket",
+  "amount" : 4.25,
+  "date" : "2026-03-21"
+}, {
+  "categoryId" : "62f1730c-1478-4a53-a5b0-bf32a1ef0f78",
+  "id" : "36e5021c-82cd-494e-b821-651f3237c462",
+  "name" : "Travel supplies",
+  "amount" : 12.00,
+  "date" : "2026-02-13"
+}, {
+  "categoryId" : "62f1730c-1478-4a53-a5b0-bf32a1ef0f78",
+  "id" : "1dd4f578-daae-4f43-9558-474b44c673e7",
+  "name" : "Travel supplies",
+  "amount" : 35.00,
+  "date" : "2026-11-04"
+}, {
+  "categoryId" : "62f1730c-1478-4a53-a5b0-bf32a1ef0f78",
+  "id" : "21634bf4-5304-493e-bce8-f7bebd89374c",
+  "name" : "Travel supplies",
+  "amount" : 19.99,
+  "date" : "2026-01-01"
+}, {
+  "categoryId" : "e2f5fab3-742c-4a04-bc09-4922b1e4f2db",
+  "id" : "edda326d-2dee-4647-aead-f04150547cb3",
+  "name" : "Clinic copay",
+  "amount" : 8.50,
+  "date" : "2026-05-05"
+}, {
+  "categoryId" : "e2f5fab3-742c-4a04-bc09-4922b1e4f2db",
+  "id" : "a45d1b5d-4bcf-4566-ba13-998c9abb574d",
+  "name" : "Pharmacy purchase",
+  "amount" : 19.99,
+  "date" : "2026-06-22"
+}, {
+  "categoryId" : "e2f5fab3-742c-4a04-bc09-4922b1e4f2db",
+  "id" : "a22b0410-584c-49bc-86b7-b268d8197ef4",
+  "name" : "Wellness supplies",
+  "amount" : 4.25,
+  "date" : "2026-02-18"
+}, {
+  "categoryId" : "e2f5fab3-742c-4a04-bc09-4922b1e4f2db",
+  "id" : "8de0685d-9d65-4e98-a0e3-8f67c297f49b",
+  "name" : "Pharmacy purchase",
+  "amount" : 19.99,
+  "date" : "2026-07-23"
+}, {
+  "categoryId" : "e2f5fab3-742c-4a04-bc09-4922b1e4f2db",
+  "id" : "f7d5b6b3-a936-4beb-83e9-8a7d0f5bd80e",
+  "name" : "Clinic copay",
+  "amount" : 4.25,
+  "date" : "2026-05-07"
+}, {
+  "categoryId" : "37b0d036-976c-42fb-b872-f3b08e46293c",
+  "id" : "94112744-9fcb-4845-8b13-13455c894982",
+  "name" : "Course materials",
+  "amount" : 19.99,
+  "date" : "2026-10-24"
+}, {
+  "categoryId" : "099a5455-3999-48c6-8645-f8fbd49952bf",
+  "id" : "0a54527f-1aec-499e-a5c7-d6d63672534c",
+  "name" : "Travel supplies",
+  "amount" : 12.00,
+  "date" : "2026-11-24"
+}, {
+  "categoryId" : "8274608f-d18c-4f0e-9c68-01a35d5bca1c",
+  "id" : "57a96148-8c39-4be4-8583-2a2bb3045183",
+  "name" : "Movie tickets",
+  "amount" : 35.00,
+  "date" : "2026-11-05"
+}, {
+  "categoryId" : "8274608f-d18c-4f0e-9c68-01a35d5bca1c",
+  "id" : "10037d6d-0f0a-44e3-903f-ac918a7d183f",
+  "name" : "Movie tickets",
+  "amount" : 12.00,
+  "date" : "2026-03-14"
+}, {
+  "categoryId" : "8274608f-d18c-4f0e-9c68-01a35d5bca1c",
+  "id" : "a9cb2c0a-2ad2-4c63-a593-a501e46cdec2",
+  "name" : "Movie tickets",
+  "amount" : 8.50,
+  "date" : "2026-06-05"
+}, {
+  "categoryId" : "d8d613ad-ac86-4494-9347-96ca6f8fb6dd",
+  "id" : "7d9ac39f-032c-4316-8dc3-b46ac16921a0",
+  "name" : "Restaurant dinner",
+  "amount" : 19.99,
+  "date" : "2026-07-14"
+}, {
+  "categoryId" : "d8d613ad-ac86-4494-9347-96ca6f8fb6dd",
+  "id" : "29b92d90-5714-4ba0-b8dd-267efb88b5eb",
+  "name" : "Takeout",
+  "amount" : 8.50,
+  "date" : "2026-02-27"
+}, {
+  "categoryId" : "704ac035-6f7a-49dd-a515-60246fa5c9f3",
+  "id" : "4ad666a6-f736-4cf9-bf11-6aa74fa73abc",
+  "name" : "Fuel purchase",
+  "amount" : 12.00,
+  "date" : "2026-08-04"
+}, {
+  "categoryId" : "704ac035-6f7a-49dd-a515-60246fa5c9f3",
+  "id" : "a9d7b09b-6f9e-4d39-b1bc-c68debd2bdf3",
+  "name" : "Fuel purchase",
+  "amount" : 4.25,
+  "date" : "2026-09-20"
+}, {
+  "categoryId" : "704ac035-6f7a-49dd-a515-60246fa5c9f3",
+  "id" : "64518d6f-38e3-44dd-a87e-03d5dba39641",
+  "name" : "Ride fare",
+  "amount" : 12.00,
+  "date" : "2026-03-28"
+}, {
+  "categoryId" : "be77c721-9f4a-4ada-8f46-4a13139d46f7",
+  "id" : "6fdfa53e-1d00-4a7c-a4d3-7ddea11a44ed",
+  "name" : "Fuel purchase",
+  "amount" : 8.50,
+  "date" : "2026-11-26"
+}, {
+  "categoryId" : "be77c721-9f4a-4ada-8f46-4a13139d46f7",
+  "id" : "f1e428db-c54b-482a-bc1c-75607d00df95",
+  "name" : "Ride fare",
+  "amount" : 12.00,
+  "date" : "2026-10-05"
+}, {
+  "categoryId" : "a4969b46-e075-4f55-b2b5-623e25dda3e3",
+  "id" : "4b2ff874-95d3-4928-a6e9-4a63e21bddff",
+  "name" : "Weekly food shop",
+  "amount" : 4.25,
+  "date" : "2026-10-28"
+}, {
+  "categoryId" : "a4969b46-e075-4f55-b2b5-623e25dda3e3",
+  "id" : "aa20578f-058b-4cb5-a04e-c9ca770f8bf5",
+  "name" : "Produce shop",
+  "amount" : 4.25,
+  "date" : "2026-09-07"
+}, {
+  "categoryId" : "a4969b46-e075-4f55-b2b5-623e25dda3e3",
+  "id" : "10705cbb-c9c8-4137-b0b5-68ec95e473a3",
+  "name" : "Weekly food shop",
+  "amount" : 75.00,
+  "date" : "2026-04-20"
+}, {
+  "categoryId" : "d2c3a47d-a7e7-41a0-99ae-a4b317c7fe15",
+  "id" : "0e8a55ff-96a0-44df-a2b7-ab007825af88",
+  "name" : "Household repair",
+  "amount" : 12.00,
+  "date" : "2026-06-13"
+}, {
+  "categoryId" : "d2c3a47d-a7e7-41a0-99ae-a4b317c7fe15",
+  "id" : "96d19bb0-93e1-4baf-9eae-c8038dc61e8a",
+  "name" : "Hardware supplies",
+  "amount" : 35.00,
+  "date" : "2026-06-11"
+}, {
+  "categoryId" : "d2c3a47d-a7e7-41a0-99ae-a4b317c7fe15",
+  "id" : "f39f8320-34ef-43d3-9fe0-de1d09a89c5e",
+  "name" : "Household repair",
+  "amount" : 75.00,
+  "date" : "2026-02-01"
+}, {
+  "categoryId" : "d2c3a47d-a7e7-41a0-99ae-a4b317c7fe15",
+  "id" : "33432a8f-4cff-4e1e-9a46-9c2b124cae7d",
+  "name" : "Hardware supplies",
+  "amount" : 12.00,
+  "date" : "2026-07-06"
+}, {
+  "categoryId" : "d2c3a47d-a7e7-41a0-99ae-a4b317c7fe15",
+  "id" : "bed482e8-7b45-4a57-a88e-2fd27d52eb6f",
+  "name" : "Hardware supplies",
+  "amount" : 75.00,
+  "date" : "2026-04-24"
+}, {
+  "categoryId" : "ec9909fc-2db9-4e9e-a2b1-7fca22833786",
+  "id" : "518ecac7-a556-4a31-a866-b019f2167562",
+  "name" : "Bookstore purchase",
+  "amount" : 4.25,
+  "date" : "2026-05-02"
+}, {
+  "categoryId" : "ec9909fc-2db9-4e9e-a2b1-7fca22833786",
+  "id" : "4fb93b66-f51c-432e-b04e-ea8b03151d08",
+  "name" : "Class fee",
+  "amount" : 4.25,
+  "date" : "2026-05-27"
+}, {
+  "categoryId" : "ec9909fc-2db9-4e9e-a2b1-7fca22833786",
+  "id" : "2379c5e3-8e1c-4fa7-920a-90ddea94c9f1",
+  "name" : "Course materials",
+  "amount" : 4.25,
+  "date" : "2026-03-08"
+}, {
+  "categoryId" : "c757edf0-5e03-4095-877c-80bcda507b51",
+  "id" : "5e675329-e6f8-4747-9898-1210cc340843",
+  "name" : "Hotel booking",
+  "amount" : 19.99,
+  "date" : "2026-02-15"
+}, {
+  "categoryId" : "c757edf0-5e03-4095-877c-80bcda507b51",
+  "id" : "c45546e1-69d3-4209-a8bc-2f17bc5612ac",
+  "name" : "Hotel booking",
+  "amount" : 35.00,
+  "date" : "2026-01-23"
+}, {
+  "categoryId" : "623f5c60-e963-47f4-9d90-3b20cf737c53",
+  "id" : "12fd00d4-9d41-4b3a-bfa8-f0f485953080",
+  "name" : "Travel supplies",
+  "amount" : 8.50,
+  "date" : "2026-10-04"
+}, {
+  "categoryId" : "623f5c60-e963-47f4-9d90-3b20cf737c53",
+  "id" : "a24fe1f2-c3a9-4636-b375-fc4fbba3052f",
+  "name" : "Hotel booking",
+  "amount" : 19.99,
+  "date" : "2026-07-26"
+}, {
+  "categoryId" : "623f5c60-e963-47f4-9d90-3b20cf737c53",
+  "id" : "7cf61de3-ec5e-4e86-a7bc-aab4a9843556",
+  "name" : "Travel supplies",
+  "amount" : 8.50,
+  "date" : "2026-06-25"
+}, {
+  "categoryId" : "623f5c60-e963-47f4-9d90-3b20cf737c53",
+  "id" : "848d6219-0e77-44d1-814f-c1b5ac4488eb",
+  "name" : "Travel supplies",
+  "amount" : 4.25,
+  "date" : "2026-05-24"
+}, {
+  "categoryId" : "623f5c60-e963-47f4-9d90-3b20cf737c53",
+  "id" : "f691ae49-3f59-41a8-9e84-415e06fb18df",
+  "name" : "Travel supplies",
+  "amount" : 35.00,
+  "date" : "2026-09-26"
+}, {
+  "categoryId" : "d8954779-e3c9-43a3-a415-8c3482df5b6b",
+  "id" : "b994c24e-36fe-448a-8102-2c5be88727bf",
+  "name" : "Class fee",
+  "amount" : 12.00,
+  "date" : "2026-02-10"
+}, {
+  "categoryId" : "d8954779-e3c9-43a3-a415-8c3482df5b6b",
+  "id" : "f21ff28f-8a67-455e-b17e-2a7f87838c22",
+  "name" : "Bookstore purchase",
+  "amount" : 75.00,
+  "date" : "2026-08-21"
+}, {
+  "categoryId" : "d8954779-e3c9-43a3-a415-8c3482df5b6b",
+  "id" : "ec0be653-1448-40bd-b933-1aed861b5b5b",
+  "name" : "Class fee",
+  "amount" : 35.00,
+  "date" : "2026-01-27"
+}, {
+  "categoryId" : "d8954779-e3c9-43a3-a415-8c3482df5b6b",
+  "id" : "074e6a97-73a6-4137-a492-724cd7b1ed13",
+  "name" : "Bookstore purchase",
+  "amount" : 12.00,
+  "date" : "2026-09-19"
+}, {
+  "categoryId" : "d8954779-e3c9-43a3-a415-8c3482df5b6b",
+  "id" : "80cfc70b-9f22-4892-9c9a-2042c6b12f31",
+  "name" : "Class fee",
+  "amount" : 8.50,
+  "date" : "2026-01-24"
+}, {
+  "categoryId" : "03df6841-ba06-46e5-b300-7fa9d8fa400a",
+  "id" : "b1803016-f64b-44bf-b63d-49af84800b1b",
+  "name" : "Takeout",
+  "amount" : 8.50,
+  "date" : "2026-02-24"
+}, {
+  "categoryId" : "70ad5b1c-67bf-4f75-a9aa-b0b13dee0d47",
+  "id" : "0e1332f4-8f25-4bc5-9aaf-5da4f4e48372",
+  "name" : "Class fee",
+  "amount" : 8.50,
+  "date" : "2026-09-01"
+}, {
+  "categoryId" : "70ad5b1c-67bf-4f75-a9aa-b0b13dee0d47",
+  "id" : "593a3e07-0703-4224-b58d-1a2af828dddb",
+  "name" : "Bookstore purchase",
+  "amount" : 75.00,
+  "date" : "2026-05-15"
+}, {
+  "categoryId" : "ad9cb516-53d9-43be-96cd-103e3523cb14",
+  "id" : "ddc1f9e7-4b36-45eb-8aac-c9758f562b85",
+  "name" : "Weekly food shop",
+  "amount" : 8.50,
+  "date" : "2026-09-08"
+}, {
+  "categoryId" : "b4a4e683-5067-4684-9726-ecf57a0cdeb3",
+  "id" : "69ad9021-df55-4ed5-b0ec-b5f868e58329",
+  "name" : "Fuel purchase",
+  "amount" : 4.25,
+  "date" : "2026-10-25"
+}, {
+  "categoryId" : "b4a4e683-5067-4684-9726-ecf57a0cdeb3",
+  "id" : "6ac85750-cc5a-4479-851a-39b8bfb43465",
+  "name" : "Transit pass",
+  "amount" : 4.25,
+  "date" : "2026-11-24"
+}, {
+  "categoryId" : "b4a4e683-5067-4684-9726-ecf57a0cdeb3",
+  "id" : "c9fb6bf4-0ab0-4807-b1ab-d26b19e4ac48",
+  "name" : "Fuel purchase",
+  "amount" : 12.00,
+  "date" : "2026-11-09"
+}, {
+  "categoryId" : "b4a4e683-5067-4684-9726-ecf57a0cdeb3",
+  "id" : "084af07e-95d3-46da-9527-a0338c2052fb",
+  "name" : "Ride fare",
+  "amount" : 35.00,
+  "date" : "2026-05-03"
+}, {
+  "categoryId" : "fee0e222-02c0-4b65-84ae-74662fffa5c7",
+  "id" : "190587f6-d470-4ca7-b04f-e769c4f03412",
+  "name" : "Produce shop",
+  "amount" : 8.50,
+  "date" : "2026-08-05"
+}, {
+  "categoryId" : "fee0e222-02c0-4b65-84ae-74662fffa5c7",
+  "id" : "edf8481f-96c3-42af-9525-8bbd5a833f72",
+  "name" : "Market groceries",
+  "amount" : 19.99,
+  "date" : "2026-03-06"
+}, {
+  "categoryId" : "fee0e222-02c0-4b65-84ae-74662fffa5c7",
+  "id" : "7c38a829-6262-4bf0-a018-eae1e9b4649b",
+  "name" : "Market groceries",
+  "amount" : 19.99,
+  "date" : "2026-09-23"
+}, {
+  "categoryId" : "fee0e222-02c0-4b65-84ae-74662fffa5c7",
+  "id" : "0f1a9623-ecd4-4e34-8969-604a63ba9beb",
+  "name" : "Weekly food shop",
+  "amount" : 12.00,
+  "date" : "2026-08-22"
+}, {
+  "categoryId" : "f36045a0-168c-4c55-8478-1695ef102013",
+  "id" : "a89566ce-fdf4-4d79-84ea-4685e6f861c3",
+  "name" : "Hardware supplies",
+  "amount" : 35.00,
+  "date" : "2026-06-20"
+}, {
+  "categoryId" : "f36045a0-168c-4c55-8478-1695ef102013",
+  "id" : "8db49d1d-20c8-4bd7-bc8d-eec6f1898c0a",
+  "name" : "Home store",
+  "amount" : 75.00,
+  "date" : "2026-11-20"
+}, {
+  "categoryId" : "f36045a0-168c-4c55-8478-1695ef102013",
+  "id" : "6ada04e4-39d0-4ba9-9887-2c724cfacecf",
+  "name" : "Household repair",
+  "amount" : 4.25,
+  "date" : "2026-02-05"
+}, {
+  "categoryId" : "f36045a0-168c-4c55-8478-1695ef102013",
+  "id" : "f25e7456-26a6-410d-af7b-24645dff4a78",
+  "name" : "Hardware supplies",
+  "amount" : 19.99,
+  "date" : "2026-02-26"
+}, {
+  "categoryId" : "d9999004-b823-47b9-a0bf-80cfac7f4db1",
+  "id" : "e6dc2277-7f27-4e1e-8296-16b33f0d1813",
+  "name" : "Course materials",
+  "amount" : 8.50,
+  "date" : "2026-05-13"
+}, {
+  "categoryId" : "d9999004-b823-47b9-a0bf-80cfac7f4db1",
+  "id" : "41d4b79e-3520-486c-8b43-1b9d5d57ab53",
+  "name" : "Class fee",
+  "amount" : 19.99,
+  "date" : "2026-06-21"
+}, {
+  "categoryId" : "fd9d49de-ffad-4667-891d-642d94234eef",
+  "id" : "e1c1a3bd-84b6-471b-9343-d1d4e79fc2c0",
+  "name" : "Online order",
+  "amount" : 35.00,
+  "date" : "2026-10-23"
+}, {
+  "categoryId" : "41d18a42-24db-45bc-a438-4849ca6b30b0",
+  "id" : "7e3549c7-3ac2-4174-84a8-4c0138d56a81",
+  "name" : "Transit pass",
+  "amount" : 19.99,
+  "date" : "2026-04-22"
+}, {
+  "categoryId" : "215e62e0-2ba4-4791-b1a9-d2681a560de1",
+  "id" : "fd9c740b-4ed6-465b-a407-590fc145afbf",
+  "name" : "Clothing purchase",
+  "amount" : 35.00,
+  "date" : "2026-10-01"
+}, {
+  "categoryId" : "215e62e0-2ba4-4791-b1a9-d2681a560de1",
+  "id" : "4565edde-a415-4e98-8867-fe4c376e0c6f",
+  "name" : "Online order",
+  "amount" : 35.00,
+  "date" : "2026-08-21"
+}, {
+  "categoryId" : "215e62e0-2ba4-4791-b1a9-d2681a560de1",
+  "id" : "5cb9be5d-9adb-4579-8c47-fe7e0c14436d",
+  "name" : "Department store",
+  "amount" : 19.99,
+  "date" : "2026-04-21"
+}, {
+  "categoryId" : "215e62e0-2ba4-4791-b1a9-d2681a560de1",
+  "id" : "0b3e488d-a78a-45b0-a19f-d711bd12312d",
+  "name" : "Clothing purchase",
+  "amount" : 19.99,
+  "date" : "2026-11-03"
+}, {
+  "categoryId" : "215e62e0-2ba4-4791-b1a9-d2681a560de1",
+  "id" : "54ea442a-c8e9-4191-9950-a5a18e7c3ebd",
+  "name" : "Department store",
+  "amount" : 35.00,
+  "date" : "2026-02-24"
+}, {
+  "categoryId" : "c5f0c271-fdde-4b28-8e57-b99026187380",
+  "id" : "e5e3195c-f1f0-4537-b704-c0aa657aebb5",
+  "name" : "Internet bill",
+  "amount" : 19.99,
+  "date" : "2026-04-26"
+}, {
+  "categoryId" : "c5f0c271-fdde-4b28-8e57-b99026187380",
+  "id" : "ccefd42e-f134-452f-85af-bdfb8b6b9772",
+  "name" : "Internet bill",
+  "amount" : 8.50,
+  "date" : "2026-02-07"
+}, {
+  "categoryId" : "c5f0c271-fdde-4b28-8e57-b99026187380",
+  "id" : "721365bf-8d9f-4203-aaf6-60604beb3b96",
+  "name" : "Internet bill",
+  "amount" : 75.00,
+  "date" : "2026-01-14"
+}, {
+  "categoryId" : "2305a0cd-ea5c-4c95-a90b-e4576a199029",
+  "id" : "7912344c-d702-4cb5-aaef-b67c6037c9a6",
+  "name" : "Wellness supplies",
+  "amount" : 8.50,
+  "date" : "2026-08-16"
+}, {
+  "categoryId" : "2305a0cd-ea5c-4c95-a90b-e4576a199029",
+  "id" : "f6663ce1-5aa0-4eea-bdd7-90d6337c0f83",
+  "name" : "Wellness supplies",
+  "amount" : 19.99,
+  "date" : "2026-05-02"
+}, {
+  "categoryId" : "b0fe9bf7-6697-4df1-bbf2-2204769e1137",
+  "id" : "d46d6ca7-b690-4015-8997-845087f8eebb",
+  "name" : "Hotel booking",
+  "amount" : 19.99,
+  "date" : "2026-04-28"
+}, {
+  "categoryId" : "b83c94f1-5dcf-4a21-bb59-832a3a574933",
+  "id" : "c3e3fb70-13a0-4c96-8b85-31ae0d9e49fb",
+  "name" : "Bookstore purchase",
+  "amount" : 35.00,
+  "date" : "2026-06-12"
+}, {
+  "categoryId" : "43f97f30-26d6-4ede-969a-f96833e6157a",
+  "id" : "226645da-bd32-46cb-b0b5-c10f358b84ce",
+  "name" : "Clothing purchase",
+  "amount" : 75.00,
+  "date" : "2026-11-11"
+}, {
+  "categoryId" : "43f97f30-26d6-4ede-969a-f96833e6157a",
+  "id" : "df46319b-f951-45c9-ab0f-d5f150d992b7",
+  "name" : "Department store",
+  "amount" : 19.99,
+  "date" : "2026-09-26"
+}, {
+  "categoryId" : "f1d81c60-bde4-4190-bc78-c2dc0f39d234",
+  "id" : "84cac5b6-10c2-4f1a-92a8-bf82a9521f9e",
+  "name" : "Electric bill",
+  "amount" : 35.00,
+  "date" : "2026-10-05"
+}, {
+  "categoryId" : "f1d81c60-bde4-4190-bc78-c2dc0f39d234",
+  "id" : "df44dadc-c6cd-4acb-ae42-2fa180fb907e",
+  "name" : "Mobile service",
+  "amount" : 8.50,
+  "date" : "2026-01-24"
+}, {
+  "categoryId" : "f1d81c60-bde4-4190-bc78-c2dc0f39d234",
+  "id" : "9f3df34d-2962-4e30-af16-665a8d63cc3d",
+  "name" : "Mobile service",
+  "amount" : 35.00,
+  "date" : "2026-02-20"
+}, {
+  "categoryId" : "f1d81c60-bde4-4190-bc78-c2dc0f39d234",
+  "id" : "333df310-7316-4be0-b34a-0fadc25512a0",
+  "name" : "Mobile service",
+  "amount" : 12.00,
+  "date" : "2026-08-08"
+}, {
+  "categoryId" : "7fd89385-bb05-441a-b39c-61818c4b4f8d",
+  "id" : "8ae21606-bc4c-49c1-a327-8375c8561876",
+  "name" : "Weekly food shop",
+  "amount" : 35.00,
+  "date" : "2026-07-05"
+}, {
+  "categoryId" : "7fd89385-bb05-441a-b39c-61818c4b4f8d",
+  "id" : "320c1b7d-df30-443d-98da-5b69f2b262a1",
+  "name" : "Market groceries",
+  "amount" : 4.25,
+  "date" : "2026-06-24"
+} ]

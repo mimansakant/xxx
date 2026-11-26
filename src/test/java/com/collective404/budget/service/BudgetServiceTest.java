@@ -262,6 +262,35 @@ class BudgetServiceTest {
                 "client ID match should ignore case");
     }
 
+    @Test
+    void sameNameClientsCanOnlyReadBudgetsOwnedByTheirId()
+            throws IOException {
+        when(dataStore.<Client>readList(
+                eq(BudgetService.CLIENTS_FILE), any()))
+                .thenReturn(List.of(
+                        new Client(CLIENT_ID, CLIENT_NAME, API_KEY),
+                        new Client(OTHER_CLIENT_ID, CLIENT_NAME, OTHER_API_KEY)));
+        when(dataStore.<Budget>readList(
+                eq(BudgetService.BUDGETS_FILE), any()))
+                .thenReturn(List.of(new Budget(
+                        BUDGET_ID, BUDGET_NAME, OTHER_CLIENT_ID)));
+        when(dataStore.<Category>readList(
+                eq(BudgetService.CATEGORIES_FILE), any()))
+                .thenReturn(List.of());
+        when(dataStore.<Purchase>readList(
+                eq(BudgetService.PURCHASES_FILE), any()))
+                .thenReturn(List.of());
+
+        assertAll(
+                () -> assertEquals(403,
+                        service.getBudgetReport(BUDGET_ID, API_KEY).status(),
+                        "same-name client cannot read the other client's budget"),
+                () -> assertEquals(200,
+                        service.getBudgetReport(BUDGET_ID, OTHER_API_KEY)
+                                .status(),
+                        "the ID-matching client can read its budget"));
+    }
+
     // Report calculations
 
     @Test
@@ -512,7 +541,7 @@ class BudgetServiceTest {
     }
 
     @Test
-    void newlyCreatedBudgetStoresClientName() throws IOException {
+    void newlyCreatedBudgetStoresClientId() throws IOException {
         givenClients();
         when(dataStore.<Budget>readList(
                 eq(BudgetService.BUDGETS_FILE), any()))
@@ -532,7 +561,7 @@ class BudgetServiceTest {
                 API_KEY, null, BUDGET_NAME, FOOD, money(HUNDRED));
 
         verify(dataStore).writeList(eq(BudgetService.BUDGETS_FILE), any());
-        assertEquals(CLIENT_NAME, savedBudgets.get().get(0).getClientName(),
-                "new budgets store the owning client's name");
+        assertEquals(CLIENT_ID, savedBudgets.get().get(0).getClientName(),
+                "new budgets store the owning client's ID");
     }
 }

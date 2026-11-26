@@ -69,6 +69,7 @@ class CategoryControllerTest {
                                 """))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").isNotEmpty())
+                .andExpect(jsonPath("$.budgetId").value("budget-1"))
                 .andExpect(jsonPath("$.name").value("Groceries"))
                 .andExpect(jsonPath("$.budgetName").value("Budget One"))
                 .andExpect(jsonPath("$.limit").value(125.50))
@@ -90,6 +91,7 @@ class CategoryControllerTest {
                                 }
                                 """))
                 .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.budgetId").isNotEmpty())
                 .andExpect(jsonPath("$.budgetName").value("Monthly"));
     }
 

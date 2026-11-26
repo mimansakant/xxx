@@ -1,13 +1,128 @@
 # 404 Collective Budget Service
 
-The Budget Service is a proposed API for tracking a client's budget, spending
-categories, and purchases. Clients can create categories with spending limits,
-record and delete purchases, and retrieve a report comparing spending with
-those limits.
+The Budget Service is a Java REST API for tracking a client's budgets,
+spending categories, and purchases. The separate `client/` application adds a
+browser-based budgeting experience with user accounts, locally tracked bank
+accounts, and budget reports.
 
-> **Project status:** This repository currently contains the project scaffold
-> and API specification. The Java source and test files are stubs; the endpoint
-> behaviors below describe the intended API and are not yet implemented.
+> **Current status:** The Java Budget Service and companion bank-budgeting
+> client are implemented. The API descriptions later in this README are
+> historical project-spec notes; use the application source for current API
+> behavior and the instructions below to start the applications.
+
+## Running the service and client locally
+
+### Requirements
+
+- Java 21
+- Maven
+- Windows Command Prompt on Windows, or a terminal on macOS/Linux
+
+### Start the Budget Service
+
+From the repository root, open a terminal and run the command for your
+operating system:
+
+**Windows Command Prompt**
+
+```bat
+mvn spring-boot:run
+```
+
+**macOS/Linux**
+
+```sh
+mvn spring-boot:run
+```
+
+The service listens at `http://localhost:8080` by default. Keep this terminal
+running. If port 8080 is already in use, start the service on another port:
+
+**Windows Command Prompt**
+
+```bat
+set "SERVER_PORT=8090"
+mvn spring-boot:run
+```
+
+**macOS/Linux**
+
+```sh
+SERVER_PORT=8090 mvn spring-boot:run
+```
+
+### Start the client
+
+Open a second terminal at the repository root. The following commands use the
+first seeded Harbor Bank client. Its ID and API key are a demo pair stored in
+`src/main/resources/data/clients.json`.
+
+**Windows Command Prompt**
+
+```bat
+cd client
+set "BANK_SERVICE_BASE_URL=http://localhost:8080"
+set "BANK_SERVICE_CLIENT_ID=19ecb8c4-776c-4af0-ac41-b490b9408cf6"
+set "BANK_SERVICE_API_KEY=714fe10a-f709-4a2d-be3a-2ad940447851"
+mvn spring-boot:run
+```
+
+**macOS/Linux**
+
+```sh
+cd client
+export BANK_SERVICE_BASE_URL=http://localhost:8080
+export BANK_SERVICE_CLIENT_ID=19ecb8c4-776c-4af0-ac41-b490b9408cf6
+export BANK_SERVICE_API_KEY=714fe10a-f709-4a2d-be3a-2ad940447851
+mvn spring-boot:run
+```
+
+If you started the service on port 8090, set
+`BANK_SERVICE_BASE_URL` to `http://localhost:8090` in the client terminal
+instead. Keep the matching client ID and API key together. Open
+`http://localhost:8081` after the client starts.
+
+### Demo logins
+
+The client creates the following demo users on startup. Sign in through the
+client page; these users have personal, unlinked budgets and do not require
+creating an account first.
+
+| Username | Password | Seeded budgets |
+| --- | --- | ---: |
+| `harbor.alex` | `HarborDemo!2026` | 4 |
+| `harbor.jordan` | `BudgetDemo#2026` | 3 |
+| `harbor.taylor` | `SavingsDemo!26` | 3 |
+
+These are public demo credentials. Do not reuse them for real users or
+production deployments.
+
+### Pre-populated service data
+
+The service reads and writes JSON files under
+`src/main/resources/data/`. They are pre-populated with:
+
+- `clients.json`: the original five service clients plus three new clients
+  with distinct IDs and API keys. Two new clients are named Harbor Bank; the
+  third is Northstar Bank.
+- `budgets.json`: 30 budgets, 10 for each of the three new clients. Budget IDs
+  are unique; names may repeat.
+- `categories.json`: 86 categories across those budgets. Each budget has
+  between 0 and 5 categories.
+- `purchases.json`: 204 purchases. Each seeded category has between 0 and 5
+  purchases.
+
+The three demo users are mapped to the ten budgets owned by the first seeded
+Harbor Bank client, split 4/3/3. Budgets are associated with client IDs so the
+two Harbor Bank clients remain isolated despite sharing a bank name. The
+client database defaults to `client/data/`; demo-user seeding is enabled by
+default. To disable demo-user seeding, set `BANK_CLIENT_DEMO_SEED_ENABLED` to
+`false` before starting the client (`set "BANK_CLIENT_DEMO_SEED_ENABLED=false"`
+in Windows Command Prompt, or `export BANK_CLIENT_DEMO_SEED_ENABLED=false` on
+macOS/Linux).
+
+The client tracks accounts and purchases locally; it does not connect to real
+bank accounts or import bank transactions.
 
 ## Technology and tools
 
@@ -156,10 +271,9 @@ produce coverage data; the HTML report is written to
 `target/site/jacoco/index.html`. The GitHub Actions workflow runs this command
 for pushes and pull requests targeting `main`.
 
-The current source and test files are empty stubs, so there are no implemented
-endpoints or meaningful test coverage yet. Add unit tests as functionality is
-implemented. Use the Postman collection under `postman/` for network-level API
-tests once the API is running.
+The companion client has a separate Maven build. Run its tests from the
+repository root with `mvn -f client/pom.xml test`. For running both
+applications and signing in with demo users, follow the TA run guide above.
 
 ## Repository layout
 
@@ -178,9 +292,13 @@ tests once the API is running.
 │   └── pmd/
 ├── src/
 │   ├── main/
-│   │   ├── data/
+│   │   ├── resources/data/
 │   │   └── java/com/collective404/budget/
 │   └── test/java/com/collective404/budget/
+├── client/
+│   ├── src/
+│   ├── pom.xml
+│   └── README.md
 ├── pom.xml
 ├── AI Disclosure.md
 └── README.md

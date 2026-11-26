@@ -20,6 +20,12 @@ public final class Purchase {
     private String date;
 
     /**
+     * Default constructor for JSON data loading.
+     */
+    public Purchase() {
+    }
+
+    /**
      * Constructs a purchase.
      *
      * @param categoryId the ID of the category that the purchase belongs to

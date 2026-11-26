@@ -13,6 +13,8 @@ public final class CategoryResponse {
 
     /** The category ID. */
     private String id;
+    /** The ID of the budget containing the category. */
+    private String budgetId;
     /** The category name. */
     private String name;
     /** The name of the budget containing the category. */
@@ -32,6 +34,7 @@ public final class CategoryResponse {
      * Creates a category response.
      *
      * @param id the category ID
+     * @param budgetId the ID of the budget containing the category
      * @param name the category name
      * @param budgetName the name of the budget containing the category
      * @param limit the category spending limit
@@ -40,6 +43,7 @@ public final class CategoryResponse {
      */
     public CategoryResponse(
             final String id,
+            final String budgetId,
             final String name,
             final String budgetName,
             final BigDecimal limit,
@@ -47,6 +51,7 @@ public final class CategoryResponse {
             final BigDecimal remainingAmount
     ) {
         this.id = id;
+        this.budgetId = budgetId;
         this.name = name;
         this.budgetName = budgetName;
         this.limit = limit;
@@ -67,6 +72,7 @@ public final class CategoryResponse {
         final BigDecimal initialAmountSpent = BigDecimal.ZERO.setScale(2);
         return new CategoryResponse(
             category.getId(),
+            category.getBudgetId(),
             category.getName(),
             budgetName,
             category.getLimit(),
@@ -83,6 +89,16 @@ public final class CategoryResponse {
     /** @param id the category ID */
     public void setId(final String id) {
         this.id = id;
+    }
+
+    /** @return the ID of the budget containing the category */
+    public String getBudgetId() {
+        return budgetId;
+    }
+
+    /** @param budgetId the ID of the budget containing the category */
+    public void setBudgetId(final String budgetId) {
+        this.budgetId = budgetId;
     }
 
     /** @return the category name */
