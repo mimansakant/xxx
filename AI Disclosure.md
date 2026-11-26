@@ -68,5 +68,51 @@ okay now you are allowed to change code as you mentioned in the first solution
 
 ```
 
+- Creating the client, alongside debugging it (token counts listed per prompt)
+```
+Create a client for our service in a seperate folder with the given specifications (do not use readme to understand service, as it is stale): **Bank application: An application for a bank could provide budgeting functionality to its users with accounts at that bank. It could integrate the actual account information, including purchases made through that bank, to automatically update the budget, while also allowing the user to set their own budgets and input their own additional purchases from different sites.
+
+Each bank client instance needs to have their own api key token.
+
+Each instance should offer the following functionality
+
+- Users can login and/or sign up for accounts using username and password
+- Users can create bank accounts (credit, debit, whatever else have you)
+- Users can create budgets and connect them to a specific bank account
+- Users can make purchases from their bank accounts, and when this is done these purchases are reflected in their budget. These are automatically assigned a category based on details from the purchase
+- Users can also make purchases not from a bank account, in which case they can merely supply the purchase information and the budget it should be counted towards without connecting it to a specific bank account. In this case it could be for a budget connected to the user alone rather than a specific bank account for said user.
+- Users can update the category of any purchase from an account or that they supplied to the application. Other details can be updated for purchases supplied by the user, but not for purchases made from an account
+- Users can view their purchase history in total or for each account as well as their budgets with amount used and amount remaining and breakdowns by account or category
+- Users can filter any view by date
+any capabilities not in the service needs to be implemented in the client. the service should merely act as an api
+(98k tokens)
+```
+
+```
+now add some pre- seeding. For the service this means:
+
+Creating 2-3 more clients. At least 2 should have the same bank name, the other should be a different bank name. All need different id's and apiKey's
+Add some budgets associated with these new clients to budgets.json. Lets give each client at least 10 budgets. Note budgets can have the same names BUT must have different ids
+Add some categories per budget. Give each budget a random num of categories from 0-5
+Add some purchases to each budget/category. Again a random number from 0-5
+For the client, pre seeding would entail creating some user and password combinations & connecting them either to pre-seeded budgets as listed above OR to no budgets. Create at least 3 users. Note in readme or some other form of documentation each username and password combination, so that the TA can use them to login as a user on the client without creating a new user at first
+(32k tokens)
+```
+
+```
+now create a .md file in the base project folder with directions on how to run the client and server, so that our TA can run it. Make sure it states that the resources files have been prepopulated, and what they have been populated with
+(5k tokens)
+```
+
+```
+some issues with the client i am seeing rn as i try running it: i am able to login as harbor.alex, however when i try to view budgets i get 'Budget service request failed (HTTP 401)'. When i try to create a new banking account i get 'Cannot read properties of null (reading 'reset')'
+(15k tokens)
+```
+
+```
+okay, now i see new bank account creation and such. was also able to update limit of purchase. but when i try to update limit of category i get this response: {"status":502,"reason":"Budget service could not be reached"}. DO NOT EDIT CODE YET, help me figure out if this is a service issue (service logic is wrong somewhere) or a client side code issue. Because I am able to create new budgets, add new purchases, and delete purchases, and the budget info updates accordingly. Just cannot seem to change th elimit of a pre existing category
+(19k tokens)
+```
+
 ### Tool List
 - VSCode Copilot
